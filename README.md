@@ -4,6 +4,16 @@ Repository storing some common material written in MatLab
 ## Repo Structure
 There is no rigid structure in the repo. For the sake of good fractioning of the code, it would be great to have functions grouped by areas of applicability, resulting in not too many files in a single folder.
 
+For the time being:
+
+| folder name | description |
+|-----|-----|
+| `Educational` | scripts of general interest (e.g. showing bar of charge, beam quantities vs energy, etc...) |
+| `MADX-optics` | scripts for plotting optics computed by MADX |
+| `MADX-tracking` | scripts for plotting tracking data computed by MADX |
+| `measurement_analysis` | scripts for performing some standard analysis or inspecting data |
+| `optics` | tools for manipulating/computing optics quantities |
+
 ### Naming Conventions
 No particularly strict rules, apart from:
 * using [CamelCase](https://en.wikipedia.org/wiki/Camel_case "CamelCase") style (proposed);
