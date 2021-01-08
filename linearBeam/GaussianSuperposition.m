@@ -27,16 +27,30 @@ Ys=zeros(length(Xs),nCurves);
 for ii=1:nCurves
     Ys(:,ii)=normalDist(Xs,As(ii),means(ii),sigmas(ii));
 end
+totalYs=sum(Ys,2);
+
+% evaluate dispersion of points in the "flat part"
+% - define range of flat part
+indices=( min(means)<=Xs & Xs<=max(means) );
+% - average and StdDev
+average=mean(totalYs(indices));
+standardDev=std(totalYs(indices));
+% - Max-Min
+maxMmin=max(totalYs(indices))-min(totalYs(indices));
 
 % do the plot
 ff=figure();
-plot(Xs,sum(Ys,2),'k*-');
+plot(Xs,totalYs,'k*-');
 for ii=1:nCurves
     hold on;
-    plot(Xs,Ys(:,ii),'r-');
+    plot(Xs,Ys(:,ii),'b-');
 end
+hold on;
+plot([min(Xs(indices)) max(Xs(indices))],[average average],'g-');
+text(max(Xs(indices)),average,sprintf("Std Dev: %g %% - Max-Min: %g %%",standardDev/average*100,maxMmin/average*100));
 grid on;
 xlabel("x [mm]");
+% title(sprintf("Std Dev: %g %% - Max-Min: %g %%",standardDev/average*100,maxMmin/average*100));
 
 function Ys=normalDist(Xs,A,mean,sigma)
     Ys=A*exp(-0.5*((Xs-mean)/sigma).^2)/(sqrt(2*pi)*sigma);
