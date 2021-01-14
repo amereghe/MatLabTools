@@ -28,7 +28,7 @@ function SuperImpose1D(nCurves,dMeans,sigma,FWHM,nPointsXSigma,errA,errSig,errMe
 % input parameters:
 % - nCurves: number of cruves;
 % - dMeans: nominal separation among peaks [mm];
-% - sigma: nominal sigma of the beam distribution [mm];
+% - sigma,FWHM: nominal sigma,FWHM of the beam distribution [mm];
 % - nPointsXSigma: number of points for each sigma;
 % - errA: half-range of amplitude error [];
 % - errSig: half-range of sigma error [];
@@ -37,14 +37,45 @@ function SuperImpose1D(nCurves,dMeans,sigma,FWHM,nPointsXSigma,errA,errSig,errMe
     lAverage=0;
     lTolerance=1;
     lPenumbra=1;
+    lSingleError=1;
+    
+    if ( lSingleError )
+        if ( mod(nCurves,2)==0 )
+            fprintf("...even number of curves when lSingleError is on: adding 1...\n");
+            nCurves=nCurves+1;
+        end
+        iCentralCurve=ceil(nCurves/2);
+    end
 
     % generate (Gaussian) curves
+    As=ones(nCurves,1);
+    means=0:dMeans:(nCurves-1)*dMeans;
+    means=means'-mean(means);
+    sigmas=sigma*ones(nCurves,1);
+    % apply errors:
     % - rand: uniformly distributed random numbers
     % - randn: Gaussian-distributed random numbers
-    As=ones(nCurves,1)+(2*rand(nCurves,1)-1)*errA;
-    means=0:dMeans:(nCurves-1)*dMeans;
-    means=means'-mean(means)+(2.*rand(nCurves,1)-1)*errMeans*dMeans;
-    sigmas=sigma*(ones(nCurves,1)+(2*rand(nCurves,1)-1)*errSig);
+    if ( errA ~= 0 )
+        if ( lSingleError )
+            As(iCentralCurve)=As(iCentralCurve)+errA;
+        else
+            As=As+(2*rand(nCurves,1)-1)*errA;
+        end
+    end
+    if ( errMeans ~= 0 )
+        if ( lSingleError )
+            means(iCentralCurve)=means(iCentralCurve)+errMeans*dMeans;
+        else
+            means=means+(2.*rand(nCurves,1)-1)*errMeans*dMeans;
+        end
+    end
+    if ( errSig ~= 0 )
+        if ( lSingleError )
+            sigmas(iCentralCurve)=sigmas(iCentralCurve)+sigma*errSig;
+        else
+            sigmas=sigmas+sigma*((2*rand(nCurves,1)-1)*errSig);
+        end
+    end
 
     % generate mesh on x-axis
     xMin=-4*sigma+min(means);
