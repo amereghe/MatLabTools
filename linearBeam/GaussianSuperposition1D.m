@@ -83,34 +83,65 @@ if ( lAverage )
     % region between centres of distributions at borders
     % - define range of flat part
     indicesFlat=( min(means)<=Xs & Xs<=max(means) );
+    totYsFlat=totalYs(indicesFlat);
+    XsFlat=Xs(indicesFlat);
     % - average
-    averageFlat=mean(totalYs(indicesFlat));
+    averageFlat=mean(totYsFlat);
     % - Max-Min
-    [yMaxFlat,iMaxFlat]=max(totalYs(indicesFlat));
-    [yMinFlat,iMinFlat]=min(totalYs(indicesFlat));
+    [yMaxFlat,iMaxFlat]=max(totYsFlat);
+    [yMinFlat,iMinFlat]=min(totYsFlat);
     maxMminFlat=yMaxFlat-yMinFlat;
     % - theoretical value:
     theoryValFlat=1/sqrt(2*pi)/sigma;
-    fprintf("...average: %g - theoryVal: %g - max: %g - min: %g \n",averageFlat,theoryValFlat,yMaxFlat,yMinFlat);
+    fprintf("...average method:\n");
+    fprintf("   * average of flat part (averageFlat): %g;\n",averageFlat);
+    fprintf("   * max of nominal Gaussian (theoryValFlat): %g;\n",theoryValFlat);
+    fprintf("   * maximum (yMaxFlat, XsFlat(iMaxFlat)): %g, %g mm \n",yMaxFlat, XsFlat(iMaxFlat));
+    fprintf("   * minimum (yMinFlat, XsFlat(iMinFlat)): %g, %g mm \n",yMinFlat, XsFlat(iMinFlat));
+    fprintf("   * extension (XsFlat(end)-XsFlat(1)): %g mm, %g FWHM, %g sigma \n",XsFlat(end)-XsFlat(1),(XsFlat(end)-XsFlat(1))/FWHM,(XsFlat(end)-XsFlat(1))/sigma);
 end
 if ( lTolerance )
     % 2.5% tolerance
     [yMax,iMax]=max(totalYs);
     yRef=yMax*(1-tol);
     indicesRef=equal(yRef,totalYs,precTol);
-    [xRefLeft,iRefLeft]=min(Xs(indicesRef));
-    [xRefRight,iRefRight]=max(Xs(indicesRef));
+    XsRef=Xs(indicesRef);
+    YsRef=totalYs(indicesRef);
+    [xRefLeft,iRefLeft]=min(XsRef);
+    [xRefRight,iRefRight]=max(XsRef);
+    fprintf("...tolerance analysis:\n");
+    fprintf("   * tolerance level (tol): %g %%;\n",tol*100);
+    fprintf("   * maximum (yMax, Xs(iMax)): %g, %g mm \n",yMax, Xs(iMax));
+    fprintf("   * left extreme (YsRef(iRefLeft), xRefLeft): %g, %g mm \n",YsRef(iRefLeft), xRefLeft);
+    fprintf("   * right extreme (YsRef(iRefRight), xRefRight): %g, %g mm \n",YsRef(iRefRight), xRefRight);
+    fprintf("   * extension (xRefRight-xRefLeft): %g mm, %g FWHM, %g sigma \n",xRefRight-xRefLeft,(xRefRight-xRefLeft)/FWHM,(xRefRight-xRefLeft)/sigma);
 end
 if ( lPenumbra )
     % 20-80% penumbra
+    [yMax,iMax]=max(totalYs);
     vPenMax=yMax*penMax;
     indicesPenMax=equal(vPenMax,totalYs,precPen);
-    [xPenMaxLeft,iPenMaxLeft]=min(Xs(indicesPenMax));
-    [xPenMaxRight,iPenMaxRight]=max(Xs(indicesPenMax));
+    XsPenMax=Xs(indicesPenMax);
+    YsPenMax=totalYs(indicesPenMax);
+    [xPenMaxLeft,iPenMaxLeft]=min(XsPenMax);
+    [xPenMaxRight,iPenMaxRight]=max(XsPenMax);
     vPenMin=yMax*penMin;
     indicesPenMin=equal(vPenMin,totalYs,precPen);
-    [xPenMinLeft,iPenMinLeft]=min(Xs(indicesPenMin));
-    [xPenMinRight,iPenMinRight]=max(Xs(indicesPenMin));
+    XsPenMin=Xs(indicesPenMin);
+    YsPenMin=totalYs(indicesPenMin);
+    [xPenMinLeft,iPenMinLeft]=min(XsPenMin);
+    [xPenMinRight,iPenMinRight]=max(XsPenMin);
+    fprintf("...penumbra analysis:\n");
+    fprintf("   * min and max levels (penMin and penMax): %g and %g %%;\n",penMin*100,penMax*100);
+    fprintf("   * maximum (yMax, Xs(iMax)): %g, %g mm \n",yMax, Xs(iMax));
+    fprintf("   * left penumbra:\n");
+    fprintf("     * left extreme (YsPenMin(iPenMinLeft), xPenMinLeft): %g, %g mm \n",YsPenMin(iPenMinLeft), xPenMinLeft);
+    fprintf("     * right extreme (YsPenMax(iPenMaxLeft), xPenMaxLeft): %g, %g mm \n",YsPenMax(iPenMaxLeft), xPenMaxLeft);
+    fprintf("     * extension (xPenMaxLeft-xPenMinLeft): %g mm, %g FWHM, %g sigma \n",xPenMaxLeft-xPenMinLeft,(xPenMaxLeft-xPenMinLeft)/FWHM,(xPenMaxLeft-xPenMinLeft)/sigma);
+    fprintf("   * right penumbra:\n");
+    fprintf("     * left extreme (YsPenMax(iPenMaxRight), xPenMaxRight): %g, %g mm \n",YsPenMax(iPenMaxRight), xPenMaxRight);
+    fprintf("     * right extreme (YsPenMin(iPenMinRight), xPenMinRight): %g, %g mm \n",YsPenMin(iPenMinRight), xPenMinRight);
+    fprintf("     * extension (xPenMinRight-xPenMaxRight): %g mm, %g FWHM, %g sigma \n",xPenMinRight-xPenMaxRight,(xPenMinRight-xPenMaxRight)/FWHM,(xPenMinRight-xPenMaxRight)/sigma);
 end
 
 % do the plot
@@ -123,7 +154,7 @@ end
 if ( lAverage )
     hold on;
     plot([min(Xs(indicesFlat)) max(Xs(indicesFlat))],[averageFlat averageFlat],'r-');
-    text(max(Xs(indicesFlat)),averageFlat,sprintf("Max-Min: %g %%",maxMminFlat/averageFlat*100),'Color','red');
+    text(max(Xs(indicesFlat)),averageFlat,sprintf("average: %g",averageFlat),'Color','red');
 end
 if ( lTolerance )
     thickNess=0.025;
@@ -133,7 +164,7 @@ if ( lTolerance )
          [xRefRight xRefRight],[yMax*(1-thickNess) yMax*(1+thickNess)],'g-', ...
          [xRefLeft xRefRight],[yMax yMax],'g-');
     text(0.5*(xRefRight+xRefLeft),yMax*(1-thickNess),...
-        sprintf("tolerance: %g %% - \\Deltax=: %g mm, %g FWHM",tol*100,xRefRight-xRefLeft,(xRefRight-xRefLeft)/FWHM),'Color','green');
+        sprintf("tolerance at %g %%",tol*100),'Color','green');
 end
 if ( lPenumbra )
     hold on;
@@ -141,19 +172,23 @@ if ( lPenumbra )
          [xPenMaxLeft xPenMaxLeft],[vPenMin*(1-thickNess) vPenMax*(1+thickNess)],'m-', ...
          [xPenMinLeft xPenMaxLeft],[vPenMax vPenMax],'m-');
     text(0.5*(xPenMinLeft+xPenMaxLeft),vPenMax*(1+thickNess),...
-        sprintf("%g-%g %% \\Deltax=: %g mm, %g FWHM",...
-        penMax*100,penMin*100,xPenMaxLeft-xPenMinLeft,(xPenMaxLeft-xPenMinLeft)/FWHM),'Color','magenta');
+        sprintf("%g-%g %%", penMax*100,penMin*100),'Color','magenta');
     hold on;
     plot([xPenMinRight xPenMinRight],[vPenMin*(1-thickNess) vPenMax*(1+thickNess)],'m-', ...
          [xPenMaxRight xPenMaxRight],[vPenMin*(1-thickNess) vPenMax*(1+thickNess)],'m-', ...
          [xPenMinRight xPenMaxRight],[vPenMax vPenMax],'m-');
     text(0.5*(xPenMinRight+xPenMaxRight),vPenMax*(1+thickNess),...
-        sprintf("%g-%g %% \\Deltax=: %g mm, %g FWHM",...
-        penMax*100,penMin*100,xPenMinRight-xPenMaxRight,(xPenMinRight-xPenMaxRight)/FWHM),'Color','magenta');
+        sprintf("%g-%g %%", penMax*100,penMin*100),'Color','magenta');
 end
 grid on;
 xlabel("x [mm]");
-% title(sprintf("Max-Min: %g %%",maxMmin/average*100));
+titleGeo=sprintf("FWHM=%g mm; \\sigma=%g mm; \\Delta\\mu=%g mm",FWHM,sigma,dMeans);
+if ( errA~=0.0 | errSig~=0.0 | errMeans~=0.0 )
+    titleErr=sprintf("errA=%g [0:1]; errSig=%g [0:1]; errMeans=%g [0:1]",errA,errSig,errMeans);
+    title(sprintf("%s\n%s",titleGeo,titleErr));
+else
+    title(sprintf("%s",titleGeo));
+end
 
 function Ys=normalDist1D(Xs,A,mean,sigma)
 % input parameters
