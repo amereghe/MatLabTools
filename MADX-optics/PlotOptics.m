@@ -39,7 +39,7 @@ function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,refTfsTable,wha
                                   GetColumnsAndMappingTFS('optics');
     Xs=tfsTables{mapping(find(strcmp(colNames,'S')))};
     if ( exist('refTfsTable','var') )
-       XsRef=tfsTables{mapping(find(strcmp(colNames,'S')))};
+       XsRef=refTfsTable{mapping(find(strcmp(colNames,'S')))};
        if ( length(Xs) ~= length(XsRef) )
            error('Reference optics and current optics have different number of elements!')
        end
