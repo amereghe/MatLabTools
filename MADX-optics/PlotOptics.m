@@ -1,10 +1,10 @@
 function PlotOptics(tfsTables,what,emig,sigdpp,refTfsTable,whatRef)
 
-    emigUsr=0.0; % [mm mrad]
+    emigUsr=1.0E-06; % [m rad]
     if ( exist('emig','var') )
         emigUsr=emig;
     end
-    sigdppUsr=0.0; % [mm mrad]
+    sigdppUsr=1.0E-04; % []
     if ( exist('sigdpp','var') )
         sigdppUsr=sigdpp;
     end
@@ -34,11 +34,11 @@ end
 
 function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,refTfsTable,whatRef)
 
-    emigUsr=0.0; % [mm mrad]
+    emigUsr=1.0E-06; % [m rad]
     if ( exist('emig','var') )
         emigUsr=emig;
     end
-    sigdppUsr=0.0; % [mm mrad]
+    sigdppUsr=1.0E-04; % []
     if ( exist('sigdpp','var') )
         sigdppUsr=sigdpp;
     end
