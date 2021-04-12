@@ -1,21 +1,30 @@
 function PlotOptics(tfsTables,what,emig,sigdpp,refTfsTable,whatRef)
 
+    emigUsr=1.0E-06; % [m rad]
+    if ( exist('emig','var') )
+        emigUsr=emig;
+    end
+    sigdppUsr=0.0; % []
+    if ( exist('sigdpp','var') )
+        sigdppUsr=sigdpp;
+    end
+    
     nTables=size(tfsTables,1);
     colormap(parula(nTables));
     for jj=1:nTables
         if ( exist('refTfsTable','var') )
             if ( exist('whatRef','var') )
-                PlotOpticsActual(tfsTables(jj,:),what,jj,emig,sigdpp,refTfsTable,whatRef);
+                PlotOpticsActual(tfsTables(jj,:),what,jj,emigUsr,sigdppUsr,refTfsTable,whatRef);
             else
                 % be careful to plot the reference optics only ones
                 if ( jj == 1 )
-                    PlotOpticsActual(tfsTables(jj,:),what,jj,emig,sigdpp,refTfsTable);
+                    PlotOpticsActual(tfsTables(jj,:),what,jj,emigUsr,sigdppUsr,refTfsTable);
                 else
-                    PlotOpticsActual(tfsTables(jj,:),what,jj,emig,sigdpp);
+                    PlotOpticsActual(tfsTables(jj,:),what,jj,emigUsr,sigdppUsr);
                 end
             end
         else
-            PlotOpticsActual(tfsTables(jj,:),what,jj,emig,sigdpp);
+            PlotOpticsActual(tfsTables(jj,:),what,jj,emigUsr,sigdppUsr);
         end
         if ( jj<nTables )
             hold on;
@@ -25,11 +34,11 @@ end
 
 function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,refTfsTable,whatRef)
 
-    emigUsr=0.0; % [mm mrad]
+    emigUsr=1.0E-06; % [m rad]
     if ( exist('emig','var') )
         emigUsr=emig;
     end
-    sigdppUsr=0.0; % [mm mrad]
+    sigdppUsr=0.0; % []
     if ( exist('sigdpp','var') )
         sigdppUsr=sigdpp;
     end
@@ -38,8 +47,10 @@ function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,refTfsTable,wha
     [ colNames, colUnits, colFacts, mapping, readFormat ] = ...
                                   GetColumnsAndMappingTFS('optics');
     Xs=tfsTables{mapping(find(strcmp(colNames,'S')))};
+    maxS=max(Xs);
+    minS=min(Xs);
     if ( exist('refTfsTable','var') )
-       XsRef=tfsTables{mapping(find(strcmp(colNames,'S')))};
+       XsRef=refTfsTable{mapping(find(strcmp(colNames,'S')))};
        if ( length(Xs) ~= length(XsRef) )
            error('Reference optics and current optics have different number of elements!')
        end
@@ -158,6 +169,7 @@ function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,refTfsTable,wha
             hold on;
         end
     end
+    cmap = colormap(gcf);
     if ( strfind(uppWhat,"ENV") )
         % beam envelop
         if ( plane=="X" )
@@ -168,13 +180,13 @@ function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,refTfsTable,wha
         COs=COs*1E3;
         BEp=COs+Ys;
         BEm=COs-Ys;
-        cmap = colormap(gcf);
         patch([Xs' fliplr(Xs')],[COs' fliplr(BEp')],cmap(SeriesIndex,:),'FaceAlpha',0.3,'EdgeColor',cmap(SeriesIndex,:));
         patch([Xs' fliplr(Xs')],[COs' fliplr(BEm')],cmap(SeriesIndex,:),'FaceAlpha',0.3,'EdgeColor',cmap(SeriesIndex,:));
         ylabel(sprintf("[%s]",varUnit));
     else
         % plot the optics
-        plot(Xs,Ys,'*-','SeriesIndex',SeriesIndex);
+        plot(Xs,Ys,'.-','Color',cmap(SeriesIndex,:));
         ylabel(sprintf("%s [%s]",varName,varUnit));
     end
+    xlim([minS maxS]);
 end

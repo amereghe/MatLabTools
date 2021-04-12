@@ -95,7 +95,7 @@ function PlotLattice(geometry)
     
     % additionals
     ylim([-2 5]);
-    xlim([0 maxS]);
+    xlim([minS maxS]);
     grid on;
     set(gca,'YTickLabel',[]);
     
