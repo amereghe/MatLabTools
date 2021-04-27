@@ -8,10 +8,12 @@ For the time being:
 
 | folder name | description |
 |-----|-----|
-| `Educational` | scripts of general interest (e.g. showing bar of charge, beam quantities vs energy, etc...) |
+| `educational` | scripts of general interest showing quantities relevant to CNAO (e.g. bar of charge, beam quantities vs energy, etc...) |
+| `general` | scripts of general interest (e.g. math, MatLab environment, etc...) |
 | `MADX-optics` | scripts for plotting optics computed by MADX |
 | `MADX-tracking` | scripts for plotting tracking data computed by MADX |
 | `measurement_analysis` | scripts for performing some standard analysis or inspecting data |
+| `operations` | tools for manipulating operational parameters (e.g. to convert them to MADX input) |
 | `optics` | tools for manipulating/computing optics quantities |
 
 ### Naming Conventions
