@@ -15,7 +15,7 @@ function PlotAperture(aper,aperOff,aperS,apeMin,apeMax)
 % See also GetAperture.
 
     % plot aperture
-    plot(aperS,(aper+aperOff)*1E3,'k-',aperS,(-aper+aperOff)*1E3,'k-');
+    plot(aperS,(aper+aperOff),'k-',aperS,(-aper+aperOff),'k-');
     hold on;
     
     % plot grey areas
@@ -27,12 +27,10 @@ function PlotAperture(aper,aperOff,aperS,apeMin,apeMax)
     if ( exist('apeMin','var') )
         apeMinUsr=apeMin;
     end
-    patch([aperS fliplr(aperS)], [( aper+aperOff) apeMaxUsr*ones(size(aper))]*1E3,'r', 'FaceColor','#DCDCDC');
-    patch([aperS fliplr(aperS)], [(-aper+aperOff) apeMinUsr*ones(size(aper))]*1E3,'r', 'FaceColor','#DCDCDC');
+    patch([aperS fliplr(aperS)], [( aper+aperOff) apeMaxUsr*ones(size(aper))],'r', 'FaceColor','#DCDCDC');
+    patch([aperS fliplr(aperS)], [(-aper+aperOff) apeMinUsr*ones(size(aper))],'r', 'FaceColor','#DCDCDC');
 
     % additionals
-    ylim([apeMinUsr apeMaxUsr]*1E3);
-    ylabel('[mm]');
-    grid on;
+    ylim([apeMinUsr apeMaxUsr]);
 
 end

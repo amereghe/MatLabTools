@@ -10,7 +10,9 @@ function PlotOptics(tfsTables,what,emig,sigdpp,refTfsTable,whatRef)
     end
     
     nTables=size(tfsTables,1);
-    colormap(parula(nTables));
+    if ( nTables>1 )
+        colormap(parula(nTables));
+    end
     for jj=1:nTables
         if ( exist('refTfsTable','var') )
             if ( exist('whatRef','var') )
@@ -78,7 +80,7 @@ function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,refTfsTable,wha
                     betas=tfsTables{mapping(find(strcmp(colNames,sprintf('BET%s',plane))))};
                     YsRef=YsRef+sqrt(betas*emig);
                 end
-                tmpTitles=[ tmpTitles sprintf("\\epsilon_g=%g [\\mum]",emig*1E6) ];
+                tmpTitles=[ tmpTitles sprintf("\\epsilon_g=%g \\mum",emig*1E6) ];
             end
             if ( sigdppUsr ~= 0.0 )
                 Ds=tfsTables{mapping(find(strcmp(colNames,sprintf('D%s',plane))))};
@@ -97,15 +99,15 @@ function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,refTfsTable,wha
                 error("Not recognised optical quantity to plot: %s!",what);
             end
             if ( emigUsr ~= 0.0 )
-                gammas=(1+tfsTables{mapping(find(strcmp(colNames,sprintf('ALF%s',plane))))}^2) ...
-                    /tfsTables{mapping(find(strcmp(colNames,sprintf('BET%s',plane))))};
+                gammas=(1+tfsTables{mapping(find(strcmp(colNames,sprintf('ALF%s',plane))))}.^2) ...
+                    ./tfsTables{mapping(find(strcmp(colNames,sprintf('BET%s',plane))))};
                 Ys=Ys+sqrt(gammas*emig);
                 if ( exist('refTfsTable','var') )
-                    gammas=(1+tfsTables{mapping(find(strcmp(colNames,sprintf('ALF%s',plane))))}^2) ...
-                        /tfsTables{mapping(find(strcmp(colNames,sprintf('BET%s',plane))))};
+                    gammas=(1+tfsTables{mapping(find(strcmp(colNames,sprintf('ALF%s',plane))))}.^2) ...
+                        ./tfsTables{mapping(find(strcmp(colNames,sprintf('BET%s',plane))))};
                     YsRef=YsRef+sqrt(gammas*emig);
                 end
-                tmpTitles=[ tmpTitles sprintf("\\epsilon_g=%g [\\mum]",emig*1E6) ];
+                tmpTitles=[ tmpTitles sprintf("\\epsilon_g=%g \\mum",emig*1E6) ];
             end
             if ( sigdppUsr ~= 0.0 )
                 Dps=tfsTables{mapping(find(strcmp(colNames,sprintf('DP%s',plane))))};
@@ -122,11 +124,6 @@ function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,refTfsTable,wha
             error("Not recognised optical quantity to plot: %s!",what);
         end
         title(join(tmpTitles," - "));
-        Ys=Ys*1E3;
-        
-        if ( exist('refTfsTable','var') )
-            YsRef=YsRef*1E3;
-        end
 
     else
         iY=find(strcmp(colNames,what));
@@ -170,14 +167,13 @@ function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,refTfsTable,wha
         end
     end
     cmap = colormap(gcf);
-    if ( strfind(uppWhat,"ENV") )
+    if ( contains(uppWhat,"ENV") )
         % beam envelop
         if ( plane=="X" )
             COs=tfsTables{mapping(find(strcmp(colNames,'X')))};
         else
             COs=tfsTables{mapping(find(strcmp(colNames,'Y')))};
         end
-        COs=COs*1E3;
         BEp=COs+Ys;
         BEm=COs-Ys;
         patch([Xs' fliplr(Xs')],[COs' fliplr(BEp')],cmap(SeriesIndex,:),'FaceAlpha',0.3,'EdgeColor',cmap(SeriesIndex,:));
