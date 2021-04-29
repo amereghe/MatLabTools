@@ -25,3 +25,7 @@ No particularly strict rules, apart from:
 * Official MathWorks docs about [function help](https://it.mathworks.com/help/matlab/matlab_prog/add-help-for-your-program.html "help functions"), i.e. the possibility to type in comments that are displayed by the help of the native MatLab editor;
 * dirty way to implement [optional input parameters](https://it.mathworks.com/matlabcentral/answers/164496-how-to-create-an-optional-input-parameter-with-special-name "optional input parameters") to functions;
 * Official MathWorks docs about [input parser](https://it.mathworks.com/help/matlab/ref/inputparser.html "input parser") (advanced);
+
+## Startup
+* MatLab automatically runs the file named [startup.m](https://it.mathworks.com/help/matlab/ref/startup.html)  if it is saved in a known folder in the path, e.g. C:/Users/enrico.felcini/Documents/MATLAB. This file can be used to set physical constants (e.g. speed of light), standard plot parameters and run specific scripts (e.g. pathdef.m that contains the path definition of the user's folders).
+
