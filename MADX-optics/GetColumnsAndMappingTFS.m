@@ -10,6 +10,7 @@ function [ colNames, colUnits, colFacts, mapping, readFormat ] = ...
 %   whichData: format of the table:
 %       'optics': optics table by MAD-X;
 %       'geometry': lattice geometry by MAD-X;
+%       'rmatrix': (selected elements of) response matrix by MAD-X;
 %
 % output arguments:
 %   colNames: array with name of columns/variables;
@@ -26,6 +27,9 @@ function [ colNames, colUnits, colFacts, mapping, readFormat ] = ...
 % - TFS table for geometry:
 %   NAME, KEYWORD, L, S, KICK, HKICK, VKICK, ANGLE, K0L, K1L, K2L,
 %         APERTYPE, APER_1, APER_2, APER_3, APER_4, APOFF_1, APOFF_2;
+% - TFS table for response matrix:
+%   NAME, KEYWORD, L, S, RE11, RE12, RE21, RE22, RE16, RE26, RE33, RE34,
+%         RE43, RE44, RE51, RE52, RE55, RE56, RE66;
 %
 % See also ParseTfsTable.
 
@@ -55,6 +59,21 @@ function [ colNames, colUnits, colFacts, mapping, readFormat ] = ...
                         12         13        14       15       16       17           18          ];
             colFacts = ones(1,length(colNames));
             readFormat = '%s %s %f %f %f %f %f %f %f %f %f %s %f %f %f %f %f %f %f';
+        case {'rm','rmatrix'}
+            colNames=[ "NAME"     "KEYWORD"    "L"           "S"                                         ...
+                       "RE11"     "RE12"       "RE21"        "RE22"   "RE16"    "RE26"                   ...
+                       "RE33"     "RE34"       "RE43"        "RE44"                                      ...
+                       "RE51"     "RE52"       "RE55"        "RE56"   "RE66"    ];
+            colUnits=[ ""         ""           "m"           "m"                                         ...
+                       ""         "m rad^{-1}" "rad m^{-1}"  ""       "m"       "rad"                    ...
+                       ""         "m rad^{-1}" "rad m^{-1}"  ""                                          ...
+                       "s m^{-1}" "s rad^{-1}" ""            "s"      "m"       ];
+            mapping =[  1          2           3             4                                           ...
+                        5          6           7             8        9         10                       ...
+                        11         12          13            14                                          ...
+                        15         16          17            18       19          ];
+            colFacts = ones(1,length(colNames));
+            readFormat = '%s %s %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f';
         otherwise
             error('which column mapping for TFS table?');
             return
