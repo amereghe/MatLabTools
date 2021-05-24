@@ -24,13 +24,14 @@ function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel)
 
     fprintf("plotting data...\n");
     ff=figure('Name',LabelMe(tmpTitleFig),'NumberTitle','off');
+    BaW=false;
     
     % hor distribution
     subplot(1,2,1);
     if ( ~exist('addIndex','var') & ~exist('addLabel','var') )
         PlotSpectra(dataSets(:,:,1));
     else
-        PlotSpectra(dataSets(:,:,1),addIndex,addLabel);
+        PlotSpectra(dataSets(:,:,1),BaW,addIndex,addLabel);
     end
     title("horizontal plane");
     xlabel("position [mm]");
@@ -42,7 +43,7 @@ function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel)
     if ( ~exist('addIndex','var') & ~exist('addLabel','var') )
         PlotSpectra(dataSets(:,:,2));
     else
-        PlotSpectra(dataSets(:,:,2),addIndex,addLabel);
+        PlotSpectra(dataSets(:,:,2),BaW,addIndex,addLabel);
     end
     title("vertical plane");
     xlabel("position [mm]");
