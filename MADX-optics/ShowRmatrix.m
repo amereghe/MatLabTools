@@ -67,7 +67,7 @@ function ShowRmatrix(optics,geometry,myTitle,Laccel)
     ax4=subplot(4,1,4);
     lFirst=true;
     tmpLeg=[];
-    for what=["RE16" "RE26" "RE51" "RE52" "RE55" "RE56" "RE66"]
+    for what=["RE16" "RE26" "RE36" "RE46" "RE51" "RE52" "RE55" "RE56" "RE66"]
         iCol=mapping(find(strcmp(colNames,what)));
         if ( lFirst )
             lFirst=false;
