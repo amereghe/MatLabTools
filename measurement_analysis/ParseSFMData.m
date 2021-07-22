@@ -1,5 +1,5 @@
 function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
-% ParseSFMData     parses distributions recorded by SFM, QBM and GIM;
+% ParseSFMData     parses distributions recorded by GIM, PMM/PIB, QBM and SFM;
 %                  for the time being, the function does not parse QIM data
 %
 % input:
@@ -17,6 +17,8 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
 % - cyCodes [string(nDataSets,1)]: array of cycle codes;
 % - cyProgs [float(nDataSets,1)]: array of cycle progs;
 %
+% cyCodes and cyProgs are taken from the file name. Therefore, in case of
+%   PMM data, only the latter will be available
 % see also SumSpectra, IntegrateSpectra and ShowSpectra.
 
     % default format: SFM data structure
@@ -37,21 +39,29 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             Nx=127;
             Ny=127;
             maxColumns=119;
-        elseif ( ~strcmpi(fFormat,"SFM") )
-            error("wrong indication of format of file: %s. Can only be SFM or QBM or GIM",fFormat);
+        elseif ( strcmpi(fFormat,"PMM") || strcmpi(fFormat,"PIB") )
+            myFormat="PMM";
+            Nx=32;
+            Ny=32;
+            maxColumns=1;
+        elseif ( ~strcmpi(fFormat,"SFM") || ~strcmpi(fFormat,"SFH")  )
+            error("wrong indication of format of file: %s. Can only be GIM, PMM/PIB, QBM and SFM/SFH",fFormat);
         end
     end
     
     files=dir(path2Files);
     nDataSets=length(files);
-    measData=zeros(max(Nx,Ny),maxColumns,2,nDataSets);
-    cyProgs=zeros(nDataSets,1);
-    cyCodes=strings(nDataSets,1);
+    actualDataSets=1;
+    measData=zeros(max(Nx,Ny),maxColumns,2,actualDataSets);
+    cyProgs=zeros(actualDataSets,1);
+    cyCodes=strings(actualDataSets,1);
     fprintf("acquring %i data sets...\n",nDataSets);
     if ( strcmp(myFormat,"SFM") )
         fprintf("...SFM format...\n");
     elseif ( strcmp(myFormat,"QBM") )
         fprintf("...QBM format...\n");
+    elseif ( strcmp(myFormat,"PMM") )
+        fprintf("...PIB/PMM format...\n");
     elseif ( strcmp(myFormat,"GIM") )
         fprintf("...GIM format...\n");
     end
@@ -62,37 +72,60 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
                 % matlab does not support single char wildcard...
                 continue
             end
-            fprintf("...parsing folder %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
+            fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
             % x-axis values
             tmp=table2array(readtable(sprintf("%s\\%s\\%s",files(iSet).folder,files(iSet).name,"XProfiles.txt"),'HeaderLines',1,'MultipleDelimsAsOne',true));
             % actual number of columns in file (ie frames+1)
             nColumns=size(tmp,2);
-            measData(1:Nx,1:nColumns,1,iSet)=tmp(1:Nx,1:nColumns); % values
+            measData(1:Nx,1:nColumns,1,actualDataSets)=tmp(1:Nx,1:nColumns); % values
             % y-axis values
             tmp=table2array(readtable(sprintf("%s\\%s\\%s",files(iSet).folder,files(iSet).name,"YProfiles.txt"),'HeaderLines',1,'MultipleDelimsAsOne',true));
             % actual number of columns in file (ie frames+1)
             nColumns=size(tmp,2);
-            measData(1:Ny,1:nColumns,2,iSet)=tmp(1:Ny,1:nColumns); % values
+            measData(1:Ny,1:nColumns,2,actualDataSets)=tmp(1:Ny,1:nColumns); % values
             % store cycle code and cycle prog
             tmp=split(files(iSet).name,"_");
-            cyProgs(iSet)=str2num(tmp{1});
-            cyCodes(iSet)=tmp{2};
+            cyProgs(actualDataSets)=str2num(tmp{1});
+            cyCodes(actualDataSets)=tmp{2};
+        elseif ( strcmpi(myFormat,"PMM") )
+            if (strfind(files(iSet).name,"Norm"))
+                fprintf("   ...skipping Norm file %s ...\n",files(iSet).name);
+                continue
+            end
+            fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
+            tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'MultipleDelimsAsOne',true));
+            % x-axis values
+            measData(1:Nx,1:1+maxColumns,1,actualDataSets)=tmp(1:Nx,1:1+maxColumns); % values
+            % y-axis values
+            measData(1:Ny,1:1+maxColumns,2,actualDataSets)=tmp(1:Ny,3:3+maxColumns); % values
+            % store cycle code and cycle prog
+            tmp=split(files(iSet).name,"-");
+            tmp=split(tmp{2},".");
+            cyProgs(actualDataSets)=str2num(tmp{1});
         else
             fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
             tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'HeaderLines',10,'MultipleDelimsAsOne',true));
             % actual number of columns in file (ie frames+1)
             nColumns=size(tmp,2);
             % x-axis values
-            measData(1:Nx,1:nColumns,1,iSet)=tmp(1:Nx,1:nColumns); % values
+            measData(1:Nx,1:nColumns,1,actualDataSets)=tmp(1:Nx,1:nColumns); % values
             % y-axis values
-            measData(1:Ny,1:nColumns,2,iSet)=tmp(Nx+2:end,1:nColumns); % values
+            measData(1:Ny,1:nColumns,2,actualDataSets)=tmp(Nx+2:end,1:nColumns); % values
             % store cycle code and cycle prog
             tmp=split(files(iSet).name,"-");
-            cyProgs(iSet)=str2num(tmp{3});
-            cyCodes(iSet)=tmp{2};
+            cyProgs(actualDataSets)=str2num(tmp{3});
+            cyCodes(actualDataSets)=tmp{2};
         end
+        actualDataSets=actualDataSets+1;
     end
-    fprintf("...acqured %i files;\n",size(measData,4));
+    actualDataSets=actualDataSets-1;
+    fprintf("...acqured %i files;\n",actualDataSets);
+    if ( size(cyProgs,2)>size(cyProgs,1) )
+        cyProgs=cyProgs';
+    end
+    if ( size(cyCodes,2)>size(cyCodes,1) )
+        cyCodes=cyCodes';
+    end
 end
 
 
