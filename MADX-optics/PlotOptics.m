@@ -1,17 +1,8 @@
 function PlotOptics(tfsTables,what,emig,sigdpp,avedpp,refTfsTable,whatRef)
 
-    emigUsr=1.0E-06; % [m rad]
-    if ( exist('emig','var') )
-        emigUsr=emig;
-    end
-    sigdppUsr=0.0; % []
-    if ( exist('sigdpp','var') )
-        sigdppUsr=sigdpp;
-    end
-    avedppUsr=0.0; % []
-    if ( exist('avedpp','var') )
-        avedppUsr=avedpp;
-    end
+    if ( ~exist('emig','var') ),   emig=1.0E-06; end % [m rad]
+    if ( ~exist('sigdpp','var') ), sigdpp=0.0; end % []
+    if ( ~exist('avedpp','var') ),  avedpp=0.0; end % []
     
     nTables=size(tfsTables,1);
     if ( nTables>1 )
@@ -20,17 +11,17 @@ function PlotOptics(tfsTables,what,emig,sigdpp,avedpp,refTfsTable,whatRef)
     for jj=1:nTables
         if ( exist('refTfsTable','var') )
             if ( exist('whatRef','var') )
-                PlotOpticsActual(tfsTables(jj,:),what,jj,emigUsr,sigdppUsr,avedppUsr,refTfsTable,whatRef);
+                PlotOpticsActual(tfsTables(jj,:),what,jj,emig,sigdpp,avedpp,refTfsTable,whatRef);
             else
                 % be careful to plot the reference optics only ones
                 if ( jj == 1 )
-                    PlotOpticsActual(tfsTables(jj,:),what,jj,emigUsr,sigdppUsr,avedppUsr,refTfsTable);
+                    PlotOpticsActual(tfsTables(jj,:),what,jj,emig,sigdpp,avedpp,refTfsTable);
                 else
-                    PlotOpticsActual(tfsTables(jj,:),what,jj,emigUsr,sigdppUsr,avedppUsr);
+                    PlotOpticsActual(tfsTables(jj,:),what,jj,emig,sigdpp,avedpp);
                 end
             end
         else
-            PlotOpticsActual(tfsTables(jj,:),what,jj,emigUsr,sigdppUsr,avedppUsr);
+            PlotOpticsActual(tfsTables(jj,:),what,jj,emig,sigdpp,avedpp);
         end
         if ( jj<nTables )
             hold on;
@@ -40,19 +31,10 @@ end
 
 function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,avedpp,refTfsTable,whatRef)
 
-    emigUsr=1.0E-06; % [m rad]
-    if ( exist('emig','var') )
-        emigUsr=emig;
-    end
-    sigdppUsr=0.0; % []
-    if ( exist('sigdpp','var') )
-        sigdppUsr=sigdpp;
-    end
-    avedppUsr=0.0; % []
-    if ( exist('avedpp','var') )
-        avedppUsr=avedpp;
-    end
-
+    if ( ~exist('emig','var') ),   emig=1.0E-06; end % [m rad]
+    if ( ~exist('sigdpp','var') ), sigdpp=0.0; end % []
+    if ( ~exist('avedpp','var') ),  avedpp=0.0; end % []
+    
     % column mapping
     [ colNames, colUnits, colFacts, mapping, readFormat ] = ...
                                   GetColumnsAndMappingTFS('optics');
@@ -67,33 +49,33 @@ function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,avedpp,refTfsTa
     end
 
     uppWhat=upper(what);
-    if ( contains(uppWhat,"SIG") | contains(uppWhat,"ENV") )
+    if ( contains(uppWhat,"SIG") || contains(uppWhat,"ENV") )
         Ys=zeros(length(Xs),1);
         if ( exist('refTfsTable','var') )
             YsRef=zeros(1,length(XsRef));
         end
-        if ( emigUsr==0.0 & sigdppUsr==0.0 )
+        if ( emig==0.0 && sigdpp==0.0 )
             error("Cannot plot %s with no geometrical emittance and sigma delta_p/p!",what);
         end
         if ( length(uppWhat{1}) == 4 )
             plane=uppWhat{1}(4);
-            if ( plane~="X" & plane~="Y" )
+            if ( plane~="X" && plane~="Y" )
                 error("Not recognised optical quantity to plot: %s!",what);
             end
-            if ( emigUsr ~= 0.0 )
+            if ( emig ~= 0.0 )
                 betas=tfsTables{mapping(find(strcmp(colNames,sprintf('BET%s',plane))))};
-                Ys=Ys+betas.*emigUsr;
+                Ys=Ys+betas.*emig;
                 if ( exist('refTfsTable','var') )
                     betas=refTfsTable{mapping(find(strcmp(colNames,sprintf('BET%s',plane))))};
-                    YsRef=YsRef+betas.*emigUsr;
+                    YsRef=YsRef+betas.*emig;
                 end
             end
-            if ( sigdppUsr ~= 0.0 )
+            if ( sigdpp ~= 0.0 )
                 Ds=tfsTables{mapping(find(strcmp(colNames,sprintf('D%s',plane))))};
-                Ys=Ys+(Ds*sigdppUsr).^2;
+                Ys=Ys+(Ds*sigdpp).^2;
                 if ( exist('refTfsTable','var') )
                     Ds=refTfsTable{mapping(find(strcmp(colNames,sprintf('D%s',plane))))};
-                    YsRef=YsRef+(Ds*sigdppUsr).^2;
+                    YsRef=YsRef+(Ds*sigdpp).^2;
                 end
             end
             Ys=sqrt(Ys);
@@ -104,25 +86,25 @@ function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,avedpp,refTfsTa
             varUnit="mm";
         elseif ( length(uppWhat{1}) == 5 )
             plane=uppWhat{1}(5);
-            if ( plane~="X" & plane~="Y" )
+            if ( plane~="X" && plane~="Y" )
                 error("Not recognised optical quantity to plot: %s!",what);
             end
-            if ( emigUsr ~= 0.0 )
+            if ( emig ~= 0.0 )
                 gammas=(1+refTfsTable{mapping(find(strcmp(colNames,sprintf('ALF%s',plane))))}.^2) ...
                     ./refTfsTable{mapping(find(strcmp(colNames,sprintf('BET%s',plane))))};
-                Ys=Ys+gammas.*emigUsr;
+                Ys=Ys+gammas.*emig;
                 if ( exist('refTfsTable','var') )
                     gammas=(1+refTfsTable{mapping(find(strcmp(colNames,sprintf('ALF%s',plane))))}.^2) ...
                         ./refTfsTable{mapping(find(strcmp(colNames,sprintf('BET%s',plane))))};
-                    YsRef=YsRef+gammas.*emigUsr;
+                    YsRef=YsRef+gammas.*emig;
                 end
             end
-            if ( sigdppUsr ~= 0.0 )
+            if ( sigdpp ~= 0.0 )
                 Dps=tfsTables{mapping(find(strcmp(colNames,sprintf('DP%s',plane))))};
-                Ys=Ys+(Dps.*sigdppUsr)^2;
+                Ys=Ys+(Dps.*sigdpp)^2;
                 if ( exist('refTfsTable','var') )
                     Dps=refTfsTable{mapping(find(strcmp(colNames,sprintf('DP%s',plane))))};
-                    YsRef=YsRef+(Dps.*sigdppUsr)^2;
+                    YsRef=YsRef+(Dps.*sigdpp)^2;
                 end
             end
             Ys=sqrt(Ys);
@@ -141,19 +123,19 @@ function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,avedpp,refTfsTa
             YsRef=zeros(1,length(XsRef));
         end
         plane=uppWhat{1}(end);
-        if ( plane~="X" & plane~="Y" )
+        if ( plane~="X" && plane~="Y" )
             error("Not recognised optical quantity to plot: %s!",what);
         end
         Ys=Ys+tfsTables{mapping(find(strcmp(colNames,plane)))};
         if ( exist('refTfsTable','var') )
             YsRef=YsRef+refTfsTable{mapping(find(strcmp(colNames,plane)))};
         end
-        if ( avedppUsr ~= 0.0 )
+        if ( avedpp ~= 0.0 )
             Ds=tfsTables{mapping(find(strcmp(colNames,sprintf('D%s',plane))))};
-            Ys=Ys+Ds*avedppUsr;
+            Ys=Ys+Ds*avedpp;
             if ( exist('refTfsTable','var') )
                 Ds=refTfsTable{mapping(find(strcmp(colNames,sprintf('D%s',plane))))};
-                YsRef=YsRef+Ds*avedppUsr;
+                YsRef=YsRef+Ds*avedpp;
             end
         end
         varName=sprintf("ORB_{%s}",lower(plane));
@@ -204,9 +186,9 @@ function PlotOpticsActual(tfsTables,what,SeriesIndex,emig,sigdpp,avedpp,refTfsTa
     if ( contains(uppWhat,"ENV") )
         % beam envelop
         COs=tfsTables{mapping(find(strcmp(colNames,plane)))};
-        if ( avedppUsr ~= 0.0 )
+        if ( avedpp ~= 0.0 )
             Ds=tfsTables{mapping(find(strcmp(colNames,sprintf('D%s',plane))))};
-            COs=COs+Ds*avedppUsr;
+            COs=COs+Ds*avedpp;
         end
         BEp=COs+Ys;
         BEm=COs-Ys;
