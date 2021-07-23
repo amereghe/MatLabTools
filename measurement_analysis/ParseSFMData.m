@@ -1,5 +1,5 @@
 function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
-% ParseSFMData     parses distributions recorded by GIM, PMM/PIB, QBM and SFM;
+% ParseSFMData     parses distributions recorded by GIM, PIB/PMM, QBM and SFH/SFM;
 %                  for the time being, the function does not parse QIM data
 %
 % input:
@@ -18,7 +18,7 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
 % - cyProgs [float(nDataSets,1)]: array of cycle progs;
 %
 % cyCodes and cyProgs are taken from the file name. Therefore, in case of
-%   PMM data, only the latter will be available
+%   PIB/PMM data, only the latter will be available
 % see also SumSpectra, IntegrateSpectra and ShowSpectra.
 
     % default format: SFM data structure
@@ -43,7 +43,7 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             myFormat="PMM";
             Nx=32;
             Ny=32;
-            maxColumns=1;
+            maxColumns=2;
         elseif ( ~strcmpi(fFormat,"SFM") || ~strcmpi(fFormat,"SFH")  )
             error("wrong indication of format of file: %s. Can only be GIM, PMM/PIB, QBM and SFM/SFH",fFormat);
         end
@@ -57,7 +57,7 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
     cyCodes=strings(actualDataSets,1);
     fprintf("acquring %i data sets...\n",nDataSets);
     if ( strcmp(myFormat,"SFM") )
-        fprintf("...SFM format...\n");
+        fprintf("...SFH/SFM format...\n");
     elseif ( strcmp(myFormat,"QBM") )
         fprintf("...QBM format...\n");
     elseif ( strcmp(myFormat,"PMM") )
@@ -95,9 +95,9 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
             tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'MultipleDelimsAsOne',true));
             % x-axis values
-            measData(1:Nx,1:1+maxColumns,1,actualDataSets)=tmp(1:Nx,1:1+maxColumns); % values
+            measData(1:Nx,1:maxColumns,1,actualDataSets)=tmp(1:Nx,1:maxColumns); % values
             % y-axis values
-            measData(1:Ny,1:1+maxColumns,2,actualDataSets)=tmp(1:Ny,3:3+maxColumns); % values
+            measData(1:Ny,1:maxColumns,2,actualDataSets)=tmp(1:Ny,2+1:2+maxColumns); % values
             % store cycle code and cycle prog
             tmp=split(files(iSet).name,"-");
             tmp=split(tmp{2},".");
