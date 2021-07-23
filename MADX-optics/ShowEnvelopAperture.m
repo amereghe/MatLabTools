@@ -1,4 +1,4 @@
-function ShowEnvelopAperture(optics,geometry,myTitle,Laccel,Qx,Qy,Chrx,Chry,emig,sigdpp)
+function ShowEnvelopAperture(optics,geometry,myTitle,Laccel,Qx,Qy,Chrx,Chry,emig,sigdpp,avedpp)
 % ShowEnvelopAperture      displays a quick plot of the beam envelop with the aperture
 % 
 % When calling this function, please remember to load the path to the whole
@@ -22,6 +22,10 @@ function ShowEnvelopAperture(optics,geometry,myTitle,Laccel,Qx,Qy,Chrx,Chry,emig
     if ( exist('sigdpp','var') )
         sigdppUsr=sigdpp;
     end
+    avedppUsr=0.0; % []
+    if ( exist('avedpp','var') )
+        avedppUsr=avedpp;
+    end
         
     f1=figure('Name','Beam envelop and aperture','NumberTitle','off');
 
@@ -33,28 +37,30 @@ function ShowEnvelopAperture(optics,geometry,myTitle,Laccel,Qx,Qy,Chrx,Chry,emig
     end
     % - hor envelop
     ax2=subplot(3,1,2);
-    PlotOptics(optics,"ENVX",emigUsr(1),sigdppUsr);
+    PlotOptics(optics,"ENVX",emigUsr(1),sigdppUsr,avedppUsr);
     hold on; 
-    PlotOptics(optics,"X");
+    PlotOptics(optics,"ORBX",emigUsr(1),sigdppUsr,avedppUsr);
     hold on;
     PlotAperture(aperH,aperOffH,aperSH);
-    ylabel("[m]");
+    ylabel("Hor Env. [m]");
     if ( exist('Laccel','var') )
         xlim([0 Laccel]);
     end
     grid on;
+    title(genTitle(emigUsr(1),sigdppUsr,avedppUsr));
     % - ver envelop
     ax3=subplot(3,1,3);
-    PlotOptics(optics,"ENVY",emigUsr(2),sigdppUsr);
+    PlotOptics(optics,"ENVY",emigUsr(2),sigdppUsr,avedppUsr);
     hold on; 
-    PlotOptics(optics,"Y");
+    PlotOptics(optics,"ORBY",emigUsr(2),sigdppUsr,avedppUsr);
     hold on;
     PlotAperture(aperV,aperOffV,aperSV);
-    ylabel("[m]");
+    ylabel("Ver Env. [m]");
     if ( exist('Laccel','var') )
         xlim([0 Laccel]);
     end
     grid on;
+    title(genTitle(emigUsr(2),sigdppUsr,avedppUsr));
     % - title
     tmpTitle="";
     if ( exist('myTitle','var') )
@@ -71,4 +77,12 @@ function ShowEnvelopAperture(optics,geometry,myTitle,Laccel,Qx,Qy,Chrx,Chry,emig
         sgtitle(tmpTitle);
     end
     linkaxes([ax1 ax2 ax3],'x');
+end
+
+function myTitle=genTitle(emig,sigdpp,avedpp)
+    tmpTitles=[];
+    if ( emig~=0.0 ), tmpTitles=[ tmpTitles sprintf("\\epsilon_g=%g \\mum",emig*1E6) ]; end
+    if ( sigdpp~=0.0 ), tmpTitles=[ tmpTitles sprintf("\\sigma_{\\Deltap/p}=%g 10^{-3} []",sigdpp*1E3) ]; end
+    if ( avedpp~=0.0 ), tmpTitles=[ tmpTitles sprintf("\\Deltap/p_{ave}=%g 10^{-3} []",avedpp*1E3) ]; end
+    if ( ~isempty(tmpTitles) ), myTitle=join(tmpTitles," - "); end
 end
