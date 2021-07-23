@@ -18,46 +18,44 @@ function ShowOptics(optics,geometry,myTitle,Laccel,Qx,Qy,Chrx,Chry)
 
     f1=figure('Name','optics','NumberTitle','off');
 
+    Xs=optics{mapping(find(strcmp(colNames,'S')))};
+    if ( exist('Laccel','var') ) xlims=[0 Laccel]; else xlims=[min(Xs) max(Xs)]; end
+    
     % - geometry
     ax1=subplot(4,1,1);
     PlotLattice(geometry);
-    if ( exist('Laccel','var') )
-        xlim([0 Laccel]);
-    end
+    xlim(xlims);
     % - betas
     ax2=subplot(4,1,2);
-    Xs=optics{mapping(find(strcmp(colNames,'S')))};
     plot(Xs,optics{mapping(find(strcmp(colNames,'BETX')))},'s-', ...
          Xs,optics{mapping(find(strcmp(colNames,'BETY')))},'s-' );
     legend("\beta_x","\beta_y");
-    ylabel("[m]");
-    if ( exist('Laccel','var') )
-        xlim([0 Laccel]);
-    end
-    grid on;
+    ylabel("\beta [m]");
+    xlim(xlims);
+    grid('on');
     % - dispersion
     ax3=subplot(4,1,3);
-    Xs=optics{mapping(find(strcmp(colNames,'S')))};
-    plot(Xs,optics{mapping(find(strcmp(colNames,'DX')))},'s-', ...
-         Xs,optics{mapping(find(strcmp(colNames,'DY')))},'s-' );
-    legend("D_x","D_y");
-    ylabel("[m]");
-    if ( exist('Laccel','var') )
-        xlim([0 Laccel]);
-    end
-    grid on;
+    yyaxis('left');
+    plot(Xs,optics{mapping(find(strcmp(colNames,'DX')))},'s-');
+    ylabel("D_x [m]");
+    yyaxis('right');
+    plot(Xs,optics{mapping(find(strcmp(colNames,'DY')))},'s-');
+    ylabel("D_y [m]");
+    yyaxis("left");
+    xlim(xlims);
+    grid('on');
     % - orbit
     ax4=subplot(4,1,4);
-    Xs=optics{mapping(find(strcmp(colNames,'S')))};
-    plot(Xs,optics{mapping(find(strcmp(colNames,'X')))},'s-', ...
-         Xs,optics{mapping(find(strcmp(colNames,'Y')))},'s-' );
-    legend("CO_x","CO_y");
-    ylabel("[m]");
+    yyaxis('left');
+    plot(Xs,optics{mapping(find(strcmp(colNames,'X')))},'s-');
+    ylabel("X [m]");
+    yyaxis('right');
+    plot(Xs,optics{mapping(find(strcmp(colNames,'Y')))},'s-');
+    ylabel("Y [m]");
+    yyaxis("left");
     xlabel("s [m]");
-    if ( exist('Laccel','var') )
-        xlim([0 Laccel]);
-    end
-    grid on;
+    xlim(xlims);
+    grid('on');
     % - title
     tmpTitle="";
     if ( exist('myTitle','var') )
