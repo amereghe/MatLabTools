@@ -1,6 +1,6 @@
 function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel)
 % ShowSpectra     shows distributions recorded by SFM, QBM and GIM;
-%                 it shows a 2x1 3D figure, with the distributions on the
+%                 it shows a 1x2 3D figure, with the distributions on the
 %                   horizontal plane on the left and those on the vertical
 %                   plane on the right;
 %                 both raw data from monitors and total distributions can
@@ -24,12 +24,12 @@ function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel)
 
     fprintf("plotting data...\n");
     ff=figure('Name',LabelMe(tmpTitleFig),'NumberTitle','off');
-    BaW=false;
+    BaW=false; % always use colored plots
     
     % hor distribution
     subplot(1,2,1);
     if ( ~exist('addIndex','var') & ~exist('addLabel','var') )
-        PlotSpectra(dataSets(:,:,1));
+        PlotSpectra(dataSets(:,:,1),BaW);
     else
         PlotSpectra(dataSets(:,:,1),BaW,addIndex,addLabel);
     end
@@ -41,7 +41,7 @@ function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel)
     subplot(1,2,2);
     tmpTitle="vertical plane";
     if ( ~exist('addIndex','var') & ~exist('addLabel','var') )
-        PlotSpectra(dataSets(:,:,2));
+        PlotSpectra(dataSets(:,:,2),BaW);
     else
         PlotSpectra(dataSets(:,:,2),BaW,addIndex,addLabel);
     end
