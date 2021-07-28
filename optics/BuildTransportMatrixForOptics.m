@@ -17,7 +17,7 @@ function C=BuildTransportMatrixForOptics(A)
 %     a series of matrices
 %
 % see also DecodeOpticsFit, DecodeOrbitFit, FitOpticsThroughOrbitData,
-%     FitOpticsThroughSigmaData, SolveCoSystem and SolveSigSystem
+%     FitOpticsThroughSigmaData, SolveOrbSystem and SolveSigSystem
     C=zeros(3,3,size(A,3));
     %
     C(1,1,:)=A(1,1,:).^2;

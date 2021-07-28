@@ -28,7 +28,7 @@ function X=SolveSigSystem(B,sigs,sig_dpp)
 %      https://accelconf.web.cern.ch/d99/papers/PT10.pdf
 %
 % see also BuildTransportMatrixForOptics, DecodeOpticsFit, DecodeOrbitFit,
-%      FitOpticsThroughOrbitData, FitOpticsThroughSigmaData and SolveCoSystem
+%      FitOpticsThroughOrbitData, FitOpticsThroughSigmaData and SolveOrbSystem
 % 
     opts.RECT=true;
     sigs2=(sigs*1E-3).^2; % from [mm] to [m], and then sigma matrix!

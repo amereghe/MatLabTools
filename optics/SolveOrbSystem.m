@@ -1,5 +1,5 @@
-function X=SolveCoSystem(B,BARs)
-% SolveCoSystemDisp       perform a linear fit (e.g. of quad scans) to get
+function X=SolveOrbSystem(B,BARs)
+% SolveOrbSystemDisp       perform a linear fit (e.g. of quad scans) to get
 %                            initial values of closed orbit and beam
 %                            statistics data.
 %

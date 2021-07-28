@@ -21,11 +21,11 @@ function [z,zp,avedpp]=FitOpticsThroughOrbitData(CC,bars,d,dp)
 %         functions is returned; otherwise, the returned values are arrays.
 %
 % see also BuildTransportMatrixForOptics, DecodeOpticsFit, DecodeOrbitFit,
-%    FitOpticsThroughSigmaData, SolveCoSystem and SolveSigSystem
+%    FitOpticsThroughSigmaData, SolveOrbSystem and SolveSigSystem
 % 
 
     if ( size(CC,1)==2 && size(CC,2)==2 )
-        ZZ=SolveCoSystem(CC,bars);
+        ZZ=SolveOrbSystem(CC,bars);
         z=ZZ(1);
         zp=ZZ(2);
         avedpp=0;
@@ -36,7 +36,7 @@ function [z,zp,avedpp]=FitOpticsThroughOrbitData(CC,bars,d,dp)
                 %   have it.
                 error("specified D (%d) and DP (%d) have different dimensions!",length(d),length(dp));
             end
-            ZZ=SolveCoSystem(CC,bars);
+            ZZ=SolveOrbSystem(CC,bars);
             avedpp=ZZ(3);
             if ( length(d)==1 )
                 [z,zp]=DecodeOrbitFit(ZZ,d,dp);

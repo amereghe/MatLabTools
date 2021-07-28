@@ -8,7 +8,7 @@ function [z0,zp0]=DecodeOrbitFit(X,D0,Dp0)
 %   X(3)=ave_dpp
 %
 % see also BuildTransportMatrixForOptics, DecodeOpticsFit, FitOpticsThroughOrbitData,
-%       FitOpticsThroughSigmaData, SolveCoSystem and SolveSigSystem
+%       FitOpticsThroughSigmaData, SolveOrbSystem and SolveSigSystem
 % 
     z0 =X(1)-D0 *X(3);
     zp0=X(2)-Dp0*X(3);

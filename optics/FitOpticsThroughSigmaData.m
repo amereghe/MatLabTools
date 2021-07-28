@@ -20,7 +20,7 @@ function [bet,alf,emiG,d,dp,sigdppO]=FitOpticsThroughSigmaData(CC,sigs,sigdppI)
 %         functions is returned; otherwise, the returned values are arrays.
 %
 % see also BuildTransportMatrixForOptics, DecodeOpticsFit, DecodeOrbitFit,
-%    FitOpticsThroughOrbitData, SolveCoSystem and SolveSigSystem
+%    FitOpticsThroughOrbitData, SolveOrbSystem and SolveSigSystem
 % 
 
     if ( size(CC,1)==2 && size(CC,2)==2 )
