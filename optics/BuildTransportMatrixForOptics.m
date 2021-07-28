@@ -16,7 +16,8 @@ function C=BuildTransportMatrixForOptics(A)
 % NB: the third dim of C is equal to the third one of A, to represent
 %     a series of matrices
 %
-% see also DecodeOpticsFit, DecodeOrbitFit, SolveCoSystem and SolveSigSystem
+% see also DecodeOpticsFit, DecodeOrbitFit, FitOpticsThroughSigmaData,
+%     SolveCoSystem and SolveSigSystem
     C=zeros(3,3,size(A,3));
     %
     C(1,1,:)=A(1,1,:).^2;

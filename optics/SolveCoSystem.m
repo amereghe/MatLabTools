@@ -18,7 +18,8 @@ function X=SolveCoSystem(B,COs)
 %          X(3)=ave_dpp
 %   . COs: row vector of measured beam baricentres (nData,1);
 %
-% see also BuildTransportMatrixForOptics, DecodeOpticsFit, DecodeOrbitFit and SolveSigSystem
+% see also BuildTransportMatrixForOptics, DecodeOpticsFit, DecodeOrbitFit,
+%       FitOpticsThroughSigmaData and SolveSigSystem
 % 
     opts.RECT=true;
     if ( size(B,1)==2 )
