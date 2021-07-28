@@ -19,7 +19,7 @@ function X=SolveCoSystem(B,BARs)
 %   . BARs: row vector of measured beam baricentres (nData,1) [mm];
 %
 % see also BuildTransportMatrixForOptics, DecodeOpticsFit, DecodeOrbitFit,
-%       FitOpticsThroughSigmaData and SolveSigSystem
+%       FitOpticsThroughOrbitData, FitOpticsThroughSigmaData and SolveSigSystem
 % 
     opts.RECT=true;
     BARsM=BARs*1E-3; % from [mm] to [m]

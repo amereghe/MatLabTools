@@ -20,8 +20,9 @@ function [beta,alpha,emiG,disp,dispP,sigdpp]=DecodeOpticsFit(SS)
 % more info at:
 %      https://accelconf.web.cern.ch/d99/papers/PT10.pdf
 %
-% see also BuildTransportMatrixForOptics, DecodeOrbitFit, SolveCoSystem,
-%      FitOpticsThroughSigmaData and SolveSigSystem
+% see also BuildTransportMatrixForOptics, DecodeOrbitFit,
+%       FitOpticsThroughOrbitData, FitOpticsThroughSigmaData SolveCoSystem,
+%       and SolveSigSystem
     if ( length(SS)==6 )
         sigdpp=sqrt(SS(6));
         disp=SS(4)/SS(6);

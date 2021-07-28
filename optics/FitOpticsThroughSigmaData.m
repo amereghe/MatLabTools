@@ -10,7 +10,7 @@ function [bet,alf,emiG,d,dp,sigdppO]=FitOpticsThroughSigmaData(CC,sigs,sigdppI)
 %         account or not:
 %   . sigs: row vector of measured sigma values (nData,1) [mm];
 %   . sigdppI (optional): value of sigma_delta_p_over_p to be used in the
-%         fit through data. It can be a single value or an array of values.
+%         fit through data. It can be a scalar or an array of values.
 % - output:
 %   . bet,alf,emiG: beta [m] and alpha [] functions, together with
 %         geometric emittance [pi m rad] that best fit the measurements;
@@ -20,7 +20,7 @@ function [bet,alf,emiG,d,dp,sigdppO]=FitOpticsThroughSigmaData(CC,sigs,sigdppI)
 %         functions is returned; otherwise, the returned values are arrays.
 %
 % see also BuildTransportMatrixForOptics, DecodeOpticsFit, DecodeOrbitFit,
-%    SolveCoSystem and SolveSigSystem
+%    FitOpticsThroughOrbitData, SolveCoSystem and SolveSigSystem
 % 
 
     if ( size(CC,1)==2 && size(CC,2)==2 )
