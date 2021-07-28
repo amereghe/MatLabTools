@@ -32,6 +32,10 @@ function X=SolveSigSystem(B,sigs,sig_dpp)
 % 
     opts.RECT=true;
     sigs2=(sigs*1E-3).^2; % from [mm] to [m], and then sigma matrix!
+    if ( size(B,3)~=length(sigs2) )
+        error("Size of transport matrix (%d) and measurements (%d) do not agree!", ...
+            size(B,3), length(sigs2) );
+    end
     if ( size(B,1)==2 && size(B,2)==2 )
         A=zeros(length(sigs2),3);
         C=BuildTransportMatrixForOptics(B);
