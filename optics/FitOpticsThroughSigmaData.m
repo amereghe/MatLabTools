@@ -19,6 +19,9 @@ function [bet,alf,emiG,d,dp,sigdppO]=FitOpticsThroughSigmaData(CC,sigs,sigdppI)
 %   If sigdppI is not passed or is a scalar, a single value for the fitted
 %         functions is returned; otherwise, the returned values are arrays.
 %
+% more info at:
+%      https://accelconf.web.cern.ch/d99/papers/PT10.pdf
+%
 % see also BuildTransportMatrixForOptics, DecodeOpticsFit, DecodeOrbitFit,
 %    FitOpticsThroughOrbitData, SolveOrbSystem and SolveSigSystem
 % 
@@ -28,7 +31,7 @@ function [bet,alf,emiG,d,dp,sigdppO]=FitOpticsThroughSigmaData(CC,sigs,sigdppI)
         [bet,alf,emiG,d,dp,sigdppO]=DecodeOpticsFit(Sx);
     elseif ( size(CC,1)==3 && size(CC,2)==3 )
         if ( exist('sigdppI','var') )
-            if ( length(sigdppI)==1 )
+            if ( length(sigdppI)==1 ) % only one value of sigdpp: no need to loop
                 Sx=SolveSigSystem(CC,sigs,sigdppI);
                 [bet,alf,emiG,d,dp,sigdppO]=DecodeOpticsFit(Sx);
             else
