@@ -89,7 +89,7 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             cyCodes(actualDataSets)=tmp{2};
         elseif ( strcmpi(myFormat,"PMM") )
             if (strfind(files(iSet).name,"Norm"))
-                fprintf("   ...skipping Norm file %s ...\n",files(iSet).name);
+                fprintf("   ...skipping Norm file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
                 continue
             end
             fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
