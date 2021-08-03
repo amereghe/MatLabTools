@@ -21,7 +21,7 @@ function ShowFittedOpticsFunctions(beta,alpha,emiG,disp,dispP,sigdpp,plane,label
 %      https://accelconf.web.cern.ch/d99/papers/PT10.pdf
 %
 % See also ShowFittedOrbits.
-
+    
     %% setting up
     figure();
     if ( exist('labels','var') && size(beta,2)==1 )
@@ -37,37 +37,72 @@ function ShowFittedOpticsFunctions(beta,alpha,emiG,disp,dispP,sigdpp,plane,label
     plot(xVals,beta,'*-');
     title("\beta"); ylabel("[m]"); xlabel(myXlabel);
     grid on;
-    if ( exist('labels','var') && size(beta,2)==1 ), xticks(1:length(labels)); xticklabels(labels); xtickangle(45); end
-    if ( size(beta,2)>1 ), legend(labels,'Location','best'); end
+    if ( exist('labels','var') )
+        if ( size(beta,2)==1 )
+            xticks(1:length(labels));
+            xticklabels(labels);
+            xtickangle(45);
+        else
+            legend(labels,'Location','best');
+        end
+    end
     %
     ax2=subplot(2,3,2);
     plot(xVals,alpha,'*-');
     title("\alpha"); ylabel("[]"); xlabel(myXlabel);
     grid on;
-    if ( exist('labels','var') && size(beta,2)==1 ), xticks(1:length(labels)); xticklabels(labels); xtickangle(45); end
-    if ( size(beta,2)>1 ), legend(labels,'Location','best'); end
+    if ( exist('labels','var') )
+        if ( size(beta,2)==1 )
+            xticks(1:length(labels));
+            xticklabels(labels);
+            xtickangle(45);
+        else
+            legend(labels,'Location','best');
+        end
+    end
     % 
     ax3=subplot(2,3,3);
     plot(xVals,emiG*1E6,'*-');
     title("\epsilon"); ylabel("[\mum]"); xlabel(myXlabel);
     grid on;
-    if ( exist('labels','var') && size(beta,2)==1 ), xticks(1:length(labels)); xticklabels(labels); xtickangle(45); end
-    if ( size(beta,2)>1 ), legend(labels,'Location','best'); end
+    if ( exist('labels','var') )
+        if ( size(beta,2)==1 )
+            xticks(1:length(labels));
+            xticklabels(labels);
+            xtickangle(45);
+        else
+            legend(labels,'Location','best');
+        end
+    end
 
     %% second row of plots: d and dp
     ax4=subplot(2,3,4);
     plot(xVals,disp,'*-');
     title("D"); ylabel("[m]"); xlabel(myXlabel);
     grid on;
-    if ( exist('labels','var') && size(beta,2)==1 ), xticks(1:length(labels)); xticklabels(labels); xtickangle(45); end
-    if ( size(beta,2)>1 ), legend(labels,'Location','best'); end
+    if ( exist('labels','var') )
+        if ( size(beta,2)==1 )
+            xticks(1:length(labels));
+            xticklabels(labels);
+            xtickangle(45);
+        else
+            legend(labels,'Location','best');
+        end
+    end
     %
     ax5=subplot(2,3,5);
     plot(xVals,dispP,'*-');
     title("D'"); ylabel("[]"); xlabel(myXlabel);
     grid on;
-    if ( exist('labels','var') && size(beta,2)==1 ), xticks(1:length(labels)); xticklabels(labels); xtickangle(45); end
-    if ( size(beta,2)>1 ), legend(labels,'Location','best'); end
+    if ( exist('labels','var') )
+        if ( size(beta,2)==1 )
+            xticks(1:length(labels));
+            xticklabels(labels);
+            xtickangle(45);
+        else
+            legend(labels,'Location','best');
+        end
+    end
     %
     if ( exist('labels','var') && size(beta,2)==1 )
         ax6=subplot(2,3,6);
@@ -78,7 +113,7 @@ function ShowFittedOpticsFunctions(beta,alpha,emiG,disp,dispP,sigdpp,plane,label
     end
 
     %% general
-    if ( exist('labels','var') )
+    if ( exist('labels','var') && size(beta,2)==1 )
         linkaxes([ax1 ax2 ax3 ax4 ax5 ax6],"x");
     else
         linkaxes([ax1 ax2 ax3 ax4 ax5],"x");

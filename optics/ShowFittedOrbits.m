@@ -41,7 +41,7 @@ function ShowFittedOrbits(z,zp,D,Dp,plane,avedpp,labels)
     %
     ax2=subplot(1,2,2);
     if ( exist('labels','var') && size(z,2)==1 )
-        plot(1:length(labels),z,'*-');
+        plot(1:length(labels),zp,'*-');
         xticks(1:length(labels)); xticklabels(labels); xtickangle(45); 
     else
         plot(Dp,zp,'*-');
