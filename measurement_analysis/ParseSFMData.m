@@ -1,5 +1,5 @@
 function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
-% ParseSFMData     parses distributions recorded by GIM, PIB/PMM, QBM and SFH/SFM;
+% ParseSFMData     parses distributions recorded by GIM, PIB/PMM, QBM and SFH/SFM/SFP;
 %                  for the time being, the function does not parse QIM data
 %
 % input:
@@ -44,6 +44,11 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             Nx=32;
             Ny=32;
             maxColumns=2;
+        elseif ( strcmpi(fFormat,"SFP") )
+            myFormat="SFM";
+            Nx=128;
+            Ny=128;
+            maxColumns=59;
         elseif ( ~strcmpi(fFormat,"SFM") || ~strcmpi(fFormat,"SFH")  )
             error("wrong indication of format of file: %s. Can only be GIM, PMM/PIB, QBM and SFM/SFH",fFormat);
         end
@@ -89,7 +94,7 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             cyCodes(actualDataSets)=tmp{2};
         elseif ( strcmpi(myFormat,"PMM") )
             if (strfind(files(iSet).name,"Norm"))
-                fprintf("   ...skipping Norm file %s ...\n",files(iSet).name);
+                fprintf("   ...skipping Norm file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
                 continue
             end
             fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
@@ -97,7 +102,7 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             % x-axis values
             measData(1:Nx,1:maxColumns,1,actualDataSets)=tmp(1:Nx,1:maxColumns); % values
             % y-axis values
-            measData(1:Ny,1:maxColumns,2,actualDataSets)=tmp(1:Ny,2+1:2+maxColumns); % values
+            measData(1:Ny,1:maxColumns,2,actualDataSets)=tmp(1:Ny,1+2:2+maxColumns); % values
             % store cycle code and cycle prog
             tmp=split(files(iSet).name,"-");
             tmp=split(tmp{2},".");
@@ -110,7 +115,7 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             % x-axis values
             measData(1:Nx,1:nColumns,1,actualDataSets)=tmp(1:Nx,1:nColumns); % values
             % y-axis values
-            measData(1:Ny,1:nColumns,2,actualDataSets)=tmp(Nx+2:end,1:nColumns); % values
+            measData(1:Ny,1:nColumns,2,actualDataSets)=tmp(Nx+2:Nx+1+Ny,1:nColumns); % values
             % store cycle code and cycle prog
             tmp=split(files(iSet).name,"-");
             cyProgs(actualDataSets)=str2num(tmp{3});
