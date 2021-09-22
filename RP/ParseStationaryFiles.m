@@ -14,7 +14,7 @@ function [tStamps,doses,means,maxs,mins]=ParseStationaryFiles(path2Files)
     % - the counter is incremental;
     files=dir(path2Files);
     nDataSets=length(files);
-    fprintf("acquring %i data sets in %s...\n",nDataSets,path2Files);
+    fprintf("acquring %i data sets in %s ...\n",nDataSets,path2Files);
     nReadFiles=0;
     nCountsTot=0;
     for iSet=1:nDataSets

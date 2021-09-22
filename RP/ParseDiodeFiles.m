@@ -11,7 +11,7 @@ function [tStamps,counts]=ParseDiodeFiles(path2Files)
     % - the counter is incremental: a new measurement starts at count==1;
     files=dir(path2Files);
     nDataSets=length(files);
-    fprintf("acquring %i data sets in %s...\n",nDataSets,path2Files);
+    fprintf("acquring %i data sets in %s ...\n",nDataSets,path2Files);
     nReadFiles=0;
     nCountsTot=0;
     for iSet=1:nDataSets
