@@ -3,7 +3,9 @@ function convCoeff=EstimateConvCoeff(doses)
     nonZerDoses=doses(doses>0.0);
     minVal=min(nonZerDoses);
     % min, positive delta
-    diffs=diff(doses);
+    nonZerDoses=sort(nonZerDoses);
+    nonZerDoses=unque(nonZerDoses);
+    diffs=diff(nonZerDoses);
     diffs=diffs(diffs>0.0);
     minDiff=min(diffs);
     % conv coeff is the actual min
