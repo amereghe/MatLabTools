@@ -1,4 +1,4 @@
-function convCoeff=EstimateStationaryConvCoeff(doses)
+function convCoeff=EstimateConvCoeff(doses)
     % min, positive value
     nonZerDoses=doses(doses>0.0);
     minVal=min(nonZerDoses);
