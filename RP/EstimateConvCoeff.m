@@ -4,7 +4,7 @@ function convCoeff=EstimateConvCoeff(doses)
     minVal=min(nonZerDoses);
     % min, positive delta
     nonZerDoses=sort(nonZerDoses);
-    nonZerDoses=unque(nonZerDoses);
+    nonZerDoses=unique(nonZerDoses);
     diffs=diff(nonZerDoses);
     diffs=diffs(diffs>0.0);
     minDiff=min(diffs);
