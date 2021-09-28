@@ -1,14 +1,20 @@
 function [tStamps,counts]=ParseDiodeFiles(path2Files)
-    % input:
-    % - path2Files: path where the file(s) is located (a dir command is anyway performed);
-    % output:
-    % - tStamps (array of time stamps): time stamps of counts;
-    % - counts (array of floats): counts at each time stamp;
-    %
-    % file of counts must have the following format:
-    % - no header;
-    % - a line for each count; the format of the line is eg: "2021/02:13-00:17:40 CEST,13"
-    % - the counter is incremental: a new measurement starts at count==1;
+% ParseDiodeFiles         acquire data in log files of diodes (REM counters)
+%
+% input:
+% - path2Files: path where the file(s) is located (a dir command is anyway performed).
+%               All data files are associated to a single monitor.
+% output:
+% - tStamps (array of time stamps): time stamps of counts;
+% - counts (array of floats): counts at each time stamp;
+%
+% file of counts must have the following format:
+% - no header;
+% - a line for each count; the format of the line is eg: "2021/02:13-00:17:40 CEST,13"
+% - the counter is incremental: a new measurement starts at count==1;
+%
+% See also ParseStationaryFiles and ParsePolyMasterFiles.
+
     files=dir(path2Files);
     nDataSets=length(files);
     fprintf("acquring %i data sets in %s ...\n",nDataSets,path2Files);

@@ -1,4 +1,18 @@
 function ShowDoses(tStamps,doses,means,maxs,mins)
+% ShowDoses         creating a figure showing doses vs time
+% 
+% input:
+% - tStamps (matrix of datetime): timestamps of events. A row for each event.
+% - doses (matrix of floats): dose values. A row for each data point.
+% - means (matrix of floats, optional): mean dose values. A row for each data point.
+% - maxs (matrix of floats, optional): max dose values. A row for each data point.
+% - mins (matrix of floats, optional): min dose values. A row for each data point.
+%
+% In case of more than a monitor, all input arrays are actually matrices;
+%   a column is a specific monitor.
+%
+% Mean, min and max are shown only if given.
+% 
     fprintf("plotting doses...\n");
     nMonitors=size(tStamps,2);
     [nRows,nCols]=GetNrowsNcols(nMonitors);
