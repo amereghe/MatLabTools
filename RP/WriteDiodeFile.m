@@ -11,9 +11,7 @@ function WriteDiodeFile(tStamps,counts,fileName)
     nPoints=length(tStamps);
     fprintf("writing %d data points into file %s...\n",nPoints,fileName);
     fileID = fopen(fileName,"w");
-    for ii=1:nPoints
-        fprintf(fileID,"%s CEST,%d\n",string(tStamps(ii),"yyyy/MM:dd-HH:mm:ss"),counts(ii));
-    end
+    fprintf(fileID,"%s\n",compose("%s CEST,%d",string(tStamps,"yyyy/MM:dd-HH:mm:ss"),counts));
     fclose(fileID);
     fprintf("...done;\n");
 end
