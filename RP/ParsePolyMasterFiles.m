@@ -8,7 +8,7 @@ function [tStamps,doses]=ParsePolyMasterFiles(path2Files)
     % file of counts must have the following format:
     % - a 1-line header;
     % - a line with the integrated dose over 10 minutes; the format of the line is eg: "2021/07/23;23:04:26;PM1610 #218161;Dose Rate;0.0900 uSv/h;0.0000 uSv;0.0000 uSv;Gamma"
-    % - the reported does is NOT cumulative!
+    % - the reported dose is NOT cumulative!
     files=dir(path2Files);
     nDataSets=length(files);
     fprintf("acquring %i data sets in %s ...\n",nDataSets,path2Files);

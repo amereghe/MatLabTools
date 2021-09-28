@@ -18,10 +18,7 @@ function WriteStationaryFile(tStamps,doses,fileName,means,maxs,mins)
     fprintf("writing %d data points into file %s...\n",nPoints,fileName);
     fileID = fopen(fileName,"w");
     WriteHeader(fileID);
-    for ii=1:nPoints
-        fprintf(fileID,"%s;%9.3E;%9.3E;%9.3E;%9.3E;100;0;No Alarm;\n",...
-            string(tStamps(ii),"dd.MM.yy;HH:mm:ss"),means(ii),maxs(ii),mins(ii),doses(ii));
-    end
+    fprintf(fileID,"%s\n",compose("%s;%9.3E;%9.3E;%9.3E;%9.3E;100;0;No Alarm;",string(tStamps,"dd.MM.yy;HH:mm:ss"),means,maxs,mins,doses));
     fclose(fileID);
     fprintf("...done;\n");
 end
