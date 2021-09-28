@@ -32,10 +32,18 @@ function [tStamps,counts]=ParseDiodeFiles(path2Files)
         fprintf("...acquired %d entries in file %s...\n",nCounts,files(iSet).name);
         nReadFiles=nReadFiles+1;
     end
-    % try to return a vector array, not a row
-    if ( size(tStamps,2)>size(tStamps,1) )
-        tStamps=tStamps';
-        counts=counts';
+    if ( nDataSets>0 )
+        % try to return a vector array, not a row
+        if ( size(tStamps,2)>size(tStamps,1) )
+            tStamps=tStamps';
+            counts=counts';
+        end
+        if ( nDataSets>1 )
+            [tStamps,counts,~]=SortByTime(tStamps,counts); % sort by timestamps
+        end
+    else
+        tStamps=missing;
+        counts=missing;
     end
     fprintf("...acqured %i files, for a total of %d entries;\n",nReadFiles,nCountsTot);
 end

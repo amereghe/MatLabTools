@@ -38,6 +38,9 @@ function [tStamps,doses]=ParsePolyMasterFiles(path2Files)
             tStamps=tStamps';
             doses=doses';
         end
+        if ( nDataSets>1 )
+            [tStamps,doses]=SortByTime(tStamps,doses); % sort by timestamps
+        end
     else
         tStamps=missing;
         doses=missing;

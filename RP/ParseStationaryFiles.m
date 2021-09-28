@@ -38,13 +38,27 @@ function [tStamps,doses,means,maxs,mins]=ParseStationaryFiles(path2Files)
         fprintf("...acquired %d entries in file %s...\n",nCounts,files(iSet).name);
         nReadFiles=nReadFiles+1;
     end
-    % try to return a vector array, not a row
-    if ( size(tStamps,2)>size(tStamps,1) )
-        tStamps=tStamps';
-        doses=doses';
-        means=means';
-        mins=mins';
-        maxs=maxs';
+    if ( nDataSets>0 )
+        % try to return a vector array, not a row
+        if ( size(tStamps,2)>size(tStamps,1) )
+            tStamps=tStamps';
+            doses=doses';
+            means=means';
+            mins=mins';
+            maxs=maxs';
+        end
+        if ( nDataSets>1 )
+            [tStamps,doses,ids]=SortByTime(tStamps,doses); % sort by timestamps
+            means=means(ids);
+            mins=mins(ids);
+            maxs=maxs(ids);
+        end
+    else
+        tStamps=missing;
+        doses=missing;
+        means=missing;
+        mins=missing;
+        maxs=missing;
     end
     fprintf("...acqured %i files, for a total of %d entries;\n",nReadFiles,nCountsTot);
 end
