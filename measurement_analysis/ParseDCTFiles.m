@@ -11,7 +11,7 @@ function [cyProgs,cyCodes,currs,tStamps,ZZs]=ParseDCTFiles(path2Files)
 %   . column 2: injected;
 % - tStamps (array of time stamps): time stamps of events (not clear which event of
 %   timing, actually...);
-% - ZZs (array of floats): ZZ of the particle, used as particle ID (1: proton; 6: carbon);
+% - ZZs (array of floats): ZZ of the particle, used as particle ID (1: proton; 6: carbon; -1: no particle);
 %
 % file of counts must have the following format:
 % - 1 header line;
@@ -33,6 +33,8 @@ function [cyProgs,cyCodes,currs,tStamps,ZZs]=ParseDCTFiles(path2Files)
             ZZs(nCountsTot+1:nCountsTot+nCounts)=1;
         elseif ( strcmpi(fileNameSplit(1),"dct-Carbon") )
             ZZs(nCountsTot+1:nCountsTot+nCounts)=6;
+        elseif ( strcmpi(fileNameSplit(1),"dct-No Particle") )
+            ZZs(nCountsTot+1:nCountsTot+nCounts)=-1;
         else
             error("...unable to recognise particle in DCT file name: %s",files(iSet).name);
         end
