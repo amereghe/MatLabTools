@@ -1,4 +1,4 @@
-function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2Files)
+function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs,ZZs]=ParseCAMSummaryFiles(paths2Files)
 % ParseCAMSummaryFiles        parse summary files of Cameretta (ministrip monitor)
 %
 % input:
@@ -9,6 +9,7 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
 % - BARs (2D array of floats): baricentre of distribution [mm];
 % - FWHMs (2D array of floats): FWHM of distribution [mm];
 % - INTs (2D array of floats): integral of distribution [number of ions];
+% - ZZs (array of floats): ZZ of the particle, used as particle ID (1: proton; 6: carbon);
 %
 % The 2D arrays have:
 % - horizontal plane in column 1;
@@ -31,14 +32,21 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
             C = textscan(fileID,'%s %f %f %f %f %f %f %f %f %s','HeaderLines',1);
             fclose(fileID);
             nCounts=length(C{:,1});
-            cyCodes(nCountsTot+1:nCountsTot+nCounts)=C{:,1};
+            if ( strcmpi(extractBetween(files(iSet).name,1,4),"Prot") )
+                ZZs(nCountsTot+1:nCountsTot+nCounts)=1;
+            elseif ( strcmpi(extractBetween(files(iSet).name,1,4),"Carb") )
+                ZZs(nCountsTot+1:nCountsTot+nCounts)=6;
+            else
+                error("...unable to recognise particle in CAM file name: %s",files(iSet).name);
+            end
+            cyCodes(nCountsTot+1:nCountsTot+nCounts)=string(C{:,1});
             for ii=1:2
                 BARs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,1+ii};
                 FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,3+ii};
                 ASYMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,5+ii};
                 INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,7+ii};
             end
-            cyProgs(nCountsTot+1:nCountsTot+nCounts)=C{:,10};
+            cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,10});
             fprintf("   ...acquired %d entries in file %s...\n",nCounts,files(iSet).name);
             nCountsTot=nCountsTot+nCounts;
             nReadFiles=nReadFiles+1;
@@ -49,6 +57,7 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
         if ( size(cyProgs,2)>size(cyProgs,1) )
             cyProgs=cyProgs';
             cyCodes=cyCodes';
+            ZZs=ZZs';
         end
         if ( nReadFiles>1 )
             [cyProgs,cyCodes,ids]=SortByTime(cyProgs,cyCodes); % sort by cycle progs
@@ -56,7 +65,10 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
             FWHMs(:,:)=FWHMs(ids,:);
             ASYMs(:,:)=ASYMs(ids,:);
             INTs(:,:)=INTs(ids,:);
+            ZZs=ZZs(ids);
         end
+        % cyCodes<12 chars: head a "0"
+        cyCodes=pad(cyCodes,12,"left","0");
     else
         cyProgs=missing;
         cyCodes=missing;
@@ -64,6 +76,7 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
         FWHMs=missing;
         ASYMs=missing;
         INTs=missing;
+        ZZs=missing;
     end
     fprintf("...acqured %i files, for a total of %d entries;\n",nReadFiles,nCountsTot);
 end
