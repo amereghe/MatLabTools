@@ -42,8 +42,8 @@ function [cyProgs,cyCodes,currs,tStamps,ZZs]=ParseDCTFiles(paths2Files)
             end
             tStampAss=fileNameSplit(2); tStampAss(1:nCounts)=tStampAss; % time stamp: day
             tStamps(nCountsTot+1:nCountsTot+nCounts)=datetime(join(string([tStampAss(:),C{:,6}])),"InputFormat","dd-MM-yyyy HH:mm:ss");
-            cyProgs(nCountsTot+1:nCountsTot+nCounts)=C{:,1};
-            cyCodes(nCountsTot+1:nCountsTot+nCounts)=C{:,2};
+            cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,1});
+            cyCodes(nCountsTot+1:nCountsTot+nCounts)=string(C{:,2});
             currs(nCountsTot+1:nCountsTot+nCounts,1)=C{:,3};
             currs(nCountsTot+1:nCountsTot+nCounts,2)=C{:,4};
             fprintf("...acquired %d entries in file %s...\n",nCounts,files(iSet).name);
