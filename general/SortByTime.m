@@ -17,15 +17,23 @@ function [tStampsOUT,countsOUT,ids]=SortByTime(tStampsIN,countsIN,nData)
     fprintf("sorting data by time stamp...\n");
     tStampsOUT=tStampsIN;
     countsOUT=countsIN;
-    nMonitors=size(tStampsIN,2);
-    ids=-ones(size(tStampsIN));
+    nMonitors=size(countsIN,2);
+    ids=-ones(size(countsIN));
     if ( ~exist('nData','var') )
-        nData=size(tStampsIN,1)*ones(size(tStampsIN,2),1);
+        nData=size(countsIN,1)*ones(size(countsIN,2),1);
     end
-    for iMonitor=1:nMonitors
-        [~,ids(:,iMonitor)]=sort(tStampsIN(1:nData(iMonitor),iMonitor));
-        tStampsOUT(1:nData(iMonitor),iMonitor)=tStampsIN(ids(:,iMonitor),iMonitor);
-        countsOUT(1:nData(iMonitor),iMonitor)=countsIN(ids(:,iMonitor),iMonitor);
+    if ( size(tStampsIN,2)==nMonitors ) 
+        for iMonitor=1:nMonitors
+            [~,ids(:,iMonitor)]=sort(tStampsIN(1:nData(iMonitor),iMonitor));
+            tStampsOUT(1:nData(iMonitor),iMonitor)=tStampsIN(ids(:,iMonitor),iMonitor);
+            countsOUT(1:nData(iMonitor),iMonitor)=countsIN(ids(:,iMonitor),iMonitor);
+        end
+    else
+        [tStampsOUT(:),idx]=sort(tStampsIN(:));
+        for iMonitor=1:nMonitors
+            ids(:,iMonitor)=idx(:);
+            countsOUT(1:nData(iMonitor),iMonitor)=countsIN(ids(:,iMonitor),iMonitor);
+        end
     end
     fprintf("...done;\n");
 end
