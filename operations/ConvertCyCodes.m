@@ -28,22 +28,22 @@ function vOut=ConvertCyCodes(cyCodesIN,what,pathP,pathC)
     % get maps
     [rangeCodes,partCodes]=DecodeCyCodes(cyCodesIN);
     % verify that all particle codes are recognizable
-    unidentified=(partCodes~=0 & partCodes~=3);
-    if ( ~isempty(unidentified) )
-        error("unidentified particle in some cyCodes\n:%s",join(cyCodesIN(unidentified),newline));
+    unidentified=(partCodes<0 & partCodes>3 );
+    if ( sum(unidentified)>0 )
+        error("unidentified particle in some cyCodes:\n%s",join(cyCodesIN(unidentified),newline));
     end
     [lCCP,iCCP]=MapCyCode(rangeCodes,P_cyCodes);
     [lCCC,iCCC]=MapCyCode(rangeCodes,C_cyCodes);
     % verify that all ranges are recognizable
     unidentified=find(~lCCC & ~lCCP);
-    if ( ~isempty(unidentified) )
-        error("unidentified range in some cyCodes\n:%s",join(cyCodesIN(unidentified),newline));
+    if ( sum(unidentified)>0 )
+        error("unidentified range in some cyCodes:\n%s",join(cyCodesIN(unidentified),newline));
     end
     
     % assign values
     vOut=zeros(length(cyCodesIN),1);
-    indices_P=(lCCP & partCodes==0);
-    indices_C=(lCCC & partCodes==3);
+    indices_P=(lCCP & FlagPart(partCodes,"p") );
+    indices_C=(lCCC & FlagPart(partCodes,"C") );
     switch upper(what)
         case "EK"
             vOut(indices_P)=P_Eks(iCCP(indices_P));
