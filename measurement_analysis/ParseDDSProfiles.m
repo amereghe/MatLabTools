@@ -67,8 +67,7 @@ function [measData,cyCodes,cyProgs]=ParseDDSProfiles(paths2Files,fFormat)
         fprintf("...acqured %i files;\n",actualDataSets);
     end
     if ( actualDataSets>0 )
-        % cyCodes<12 chars: head as many "0" as needed
-        cyCodes=pad(cyCodes,12,"left","0");
+        cyCodes=PadCyCodes(cyCodes);
         if ( size(cyProgs,2)>size(cyProgs,1) )
             cyProgs=cyProgs';
             cyCodes=cyCodes';

@@ -23,8 +23,12 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
 % - vertical plane in column 2;
 %
 % file of counts must have the following format:
-% - 1 header line;
-% - a line for each cycle prog; the format of the line is eg: "6000ECC0900	-9.297985	-10.947896	35.661529	34.325630	0.398755	6.695736	2.640946E+9	2.443980E+9	195453981"
+% - CAMeretta:
+%   . 1 header line;
+%   . a line for each cycle prog; the format of the line is eg: "6000ECC0900	-9.297985	-10.947896	35.661529	34.325630	0.398755	6.695736	2.640946E+9	2.443980E+9	195453981"
+% - DDS:
+%   . 1 header line;
+%   . a line for each cycle prog; the format of the line is eg: "0A003E440900	195445867	-0.51	4.613	-0.151	5.959	835773	0"
 
     
     if ( ~exist('fFormat','var') ), fFormat="CAM"; end % default: CAMeretta
@@ -87,8 +91,7 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
             ASYMs(:,:)=ASYMs(ids,:);
             INTs(:,:)=INTs(ids,:);
         end
-        % cyCodes<12 chars: head a "0"
-        cyCodes=pad(cyCodes,12,"left","0");
+        cyCodes=PadCyCodes(cyCodes);
     else
         cyProgs=missing;
         cyCodes=missing;
