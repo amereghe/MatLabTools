@@ -3,5 +3,5 @@ function [rangeCodes,partCodes]=DecodeCyCodes(cyCodes)
 % 
 % for the time being, only the range and particle part is taken.
     rangeCodes=extractBetween(cyCodes,1,4);
-    partCodes=extractBetween(cyCodes,5,5); % 0: protons; 3: carbon ions;
+    partCodes=str2double(extractBetween(cyCodes,5,5));
 end
