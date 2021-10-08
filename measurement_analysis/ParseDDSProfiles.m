@@ -68,6 +68,7 @@ function [measData,cyCodes,cyProgs]=ParseDDSProfiles(paths2Files,fFormat)
     end
     if ( actualDataSets>0 )
         cyCodes=PadCyCodes(cyCodes);
+        cyCodes=UpperCyCodes(cyCodes);
         if ( size(cyProgs,2)>size(cyProgs,1) )
             cyProgs=cyProgs';
             cyCodes=cyCodes';

@@ -84,6 +84,8 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
             cyProgs=cyProgs';
             cyCodes=cyCodes';
         end
+        cyCodes=PadCyCodes(cyCodes);
+        cyCodes=UpperCyCodes(cyCodes);
         if ( nReadFiles>1 )
             [cyProgs,cyCodes,ids]=SortByTime(cyProgs,cyCodes); % sort by cycle progs
             BARs(:,:)=BARs(ids,:);
@@ -91,7 +93,6 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
             ASYMs(:,:)=ASYMs(ids,:);
             INTs(:,:)=INTs(ids,:);
         end
-        cyCodes=PadCyCodes(cyCodes);
     else
         cyProgs=missing;
         cyCodes=missing;
