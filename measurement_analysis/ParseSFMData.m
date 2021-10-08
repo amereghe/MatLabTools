@@ -45,7 +45,7 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             Ny=32;
             maxColumns=2;
         elseif ( strcmpi(fFormat,"SFP") )
-            myFormat="SFM";
+            myFormat="SFP";
             Nx=128;
             Ny=128;
             maxColumns=59;
@@ -119,7 +119,11 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             % store cycle code and cycle prog
             tmp=split(files(iSet).name,"-");
             cyProgs(actualDataSets)=str2num(tmp{3});
-            cyCodes(actualDataSets)=tmp{2};
+            if ( strcmpi(myFormat,"SFP") )
+                cyCodes(actualDataSets)=extractBetween(tmp{2},5,strlength(tmp{2}));
+            else
+                cyCodes(actualDataSets)=tmp{2};
+            end
         end
         actualDataSets=actualDataSets+1;
     end
