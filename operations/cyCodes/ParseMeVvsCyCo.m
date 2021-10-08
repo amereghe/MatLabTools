@@ -45,7 +45,7 @@ function [Eks,cyCodes,mms]=ParseMeVvsCyCo(varIN,kPath,sheetName)
     % actually do the job
     MeVvsCyCo = GetOPDataFromTables(fileToParse,sheetName);
     Eks = cell2mat(MeVvsCyCo(2:end,1));
-    cyCodes = string(MeVvsCyCo(2:end,2));
+    cyCodes = string(MeVvsCyCo(2:end,2)); cyCodes=UpperCyCodes(cyCodes);
     mms = cell2mat(MeVvsCyCo(2:end,3));
     
 end
