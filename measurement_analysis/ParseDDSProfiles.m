@@ -19,7 +19,7 @@ function [measData,cyCodes,cyProgs]=ParseDDSProfiles(path2Files,fFormat)
 % cyCodes and cyProgs are taken from the file name.
 % see also ParseSFMData and SumSpectra.
 
-    % default format: SFM data structure
+    % default format: DDS data structure
     myFormat="DDS";
     Nx=128;         % number of horizontal fibers
     Ny=128;         % number of vertical fibers
