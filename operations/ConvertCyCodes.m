@@ -31,18 +31,41 @@ function vOut=ConvertCyCodes(cyCodesIN,ZZin,what,pathP,pathC)
     % get maps
     [lCCP,iCCP]=MapCyCode(cyCodesIN,P_cyCodes);
     [lCCC,iCCC]=MapCyCode(cyCodesIN,C_cyCodes);
+    % verify that all cycodes are in principle recognizable
+    unidentified=find(~lCCC & ~lCCP);
+    if ( ~isempty(unidentified) )
+        error("unable to decode some cyCodes\n:%s",join(cyCodesIN(unidentified),newline));
+    end
     
     % assign values
     vOut=zeros(length(cyCodesIN),1);
     indices_P=(lCCP & ZZin==1);
     indices_C=(lCCC & ZZin==6);
+    indices_N=(ZZin==-1);
+    if ( ~isempty(indices_N) )
+        doubleFound=find(lCCC(indices_N) & lCCP(indices_N));
+        if ( ~isempty(doubleFound) )
+            error("cannot determine weather cyCodes with no part are actually protons or carbon ions\n:%s",...
+                join(cyCodesIN(doubleFound),newline));
+        end
+        indices_NP=(lCCP & ZZin==-1);
+        indices_NC=(lCCC & ZZin==-1);
+    end
     switch upper(what)
         case "EK"
             vOut(indices_P)=P_Eks(iCCP(indices_P));
             vOut(indices_C)=C_Eks(iCCC(indices_C));
+            if ( ~isempty(indices_N) )
+                vOut(indices_NP)=P_Eks(iCCP(indices_NP));
+                vOut(indices_NC)=C_Eks(iCCC(indices_NC));
+            end
         case "MM"
             vOut(indices_P)=P_mms(iCCP(indices_P));
             vOut(indices_C)=C_mms(iCCC(indices_C));
+            if ( ~isempty(indices_N) )
+                vOut(indices_NP)=P_mms(iCCP(indices_NP));
+                vOut(indices_NC)=C_mms(iCCC(indices_NC));
+            end
         otherwise
             error("Unable to recognize request %s",what);
     end
