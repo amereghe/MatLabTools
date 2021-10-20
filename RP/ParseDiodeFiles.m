@@ -26,6 +26,7 @@ function [tStamps,counts]=ParseDiodeFiles(path2Files)
         try
             C = textscan(fileID,"%{yyyy/MM:dd-HH:mm:ss}D CEST,%d"); % RP measurements till 18/10/2021 (included)
         catch
+            frewind(fileID);
             C = textscan(fileID,"%{yyyy/MM/dd-HH:mm:ss}D CEST,%d"); % RP measurements after 19/10/2021 (included)
         end
         fclose(fileID);
