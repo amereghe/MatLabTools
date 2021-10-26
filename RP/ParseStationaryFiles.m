@@ -25,6 +25,7 @@ function [tStamps,doses,means,maxs,mins]=ParseStationaryFiles(path2Files,lCumul)
     fprintf("acquring %i data sets in %s ...\n",nDataSets,path2Files);
     nReadFiles=0;
     nCountsTot=0;
+    totDose=0.0;
     for iSet=1:nDataSets
         fileName=strcat(files(iSet).folder,"\",files(iSet).name);
         fileID = fopen(fileName,"r");
@@ -35,7 +36,8 @@ function [tStamps,doses,means,maxs,mins]=ParseStationaryFiles(path2Files,lCumul)
         means(nCountsTot+1:nCountsTot+nCounts)=C{:,3};
         maxs(nCountsTot+1:nCountsTot+nCounts)=C{:,4};
         mins(nCountsTot+1:nCountsTot+nCounts)=C{:,5};
-        doses(nCountsTot+1:nCountsTot+nCounts)=C{:,6};
+        doses(nCountsTot+1:nCountsTot+nCounts)=C{:,6}+totDose;
+        if ( lCumul ), totDose=doses(end); end
         nCountsTot=nCountsTot+nCounts;
         fprintf("...acquired %d entries in file %s...\n",nCounts,files(iSet).name);
         nReadFiles=nReadFiles+1;
@@ -55,7 +57,6 @@ function [tStamps,doses,means,maxs,mins]=ParseStationaryFiles(path2Files,lCumul)
             mins=mins(ids);
             maxs=maxs(ids);
         end
-        if ( lCumul ), doses=cumsum(doses); end % cumulative of all data 
     else
         tStamps=missing;
         doses=missing;

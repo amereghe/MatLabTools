@@ -23,7 +23,12 @@ function [tStamps,counts]=ParseDiodeFiles(path2Files)
     for iSet=1:nDataSets
         fileName=strcat(files(iSet).folder,"\",files(iSet).name);
         fileID = fopen(fileName,"r");
-        C = textscan(fileID,"%{yyyy/MM:dd-HH:mm:ss}D CEST,%d");
+        try
+            C = textscan(fileID,"%{yyyy/MM:dd-HH:mm:ss}D CEST,%d"); % RP measurements till 18/10/2021 (included)
+        catch
+            frewind(fileID);
+            C = textscan(fileID,"%{yyyy/MM/dd-HH:mm:ss}D CEST,%d"); % RP measurements after 19/10/2021 (included)
+        end
         fclose(fileID);
         nCounts=length(C{:,1});
         tStamps(nCountsTot+1:nCountsTot+nCounts)=C{1,1};
