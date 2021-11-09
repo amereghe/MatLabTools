@@ -1,11 +1,14 @@
-function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2Files,fFormat)
+function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2Files,fFormat,lSkip)
 % ParseCAMSummaryFiles        parse summary files of Cameretta (ministrip monitor)
 %                                and DDS (nozzle)
 %
 % input:
 % - paths2Files (array of strings): path(s) where the file(s) is located (a dir command is anyway performed).
 % - fFormat [string, optional]: detector that generated the data; this
-%   parameter sets formats for reading data; default: DDS
+%   parameter sets formats for reading data; default: CAM
+% - lSkip [boolean, optional]: in case of DDS format, the first 2 rows can
+%   be forgotten, since they are the first two cycleprogs, which are in
+%   general wasted;
 %
 % output:
 % - cyProgs (array of strings): cycle prog associated to each event;
@@ -34,6 +37,9 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
     if ( ~exist('fFormat','var') ), fFormat="CAM"; end % default: CAMeretta
     if ( ~strcmpi(fFormat,"CAM") && ~strcmpi(fFormat,"DDS") )
         error("wrong indication of format of file: %s. Can only be DDS and CAM",fFormat);
+    end
+    if ( strcmpi(fFormat,"DDS") )
+        if ( ~exist('lSkip','var') ), lSkip=1; end
     end
     sig2FWHM=2*sqrt(2*log(2));
     
@@ -64,13 +70,20 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
                 end
                 cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,10});
             else % DDS
-                cyCodes(nCountsTot+1:nCountsTot+nCounts)=string(C{:,1});
-                cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,2});
+                iStop=nCounts;
+                if (lSkip)
+                    iStart=3;
+                    nCounts=nCounts-2;
+                else
+                    iStart=1;
+                end
+                cyCodes(nCountsTot+1:nCountsTot+nCounts)=string(C{:,1}(iStart:iStop,:));
+                cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,2}(iStart:iStop,:));
                 for ii=1:2
-                    BARs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,1+2*ii};            % cols 3 and 5
-                    FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,2+2*ii}*sig2FWHM;  % cols 4 and 6
+                    BARs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,1+2*ii}(iStart:iStop,:);            % cols 3 and 5
+                    FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,2+2*ii}(iStart:iStop,:)*sig2FWHM;  % cols 4 and 6
                     ASYMs(nCountsTot+1:nCountsTot+nCounts,ii)=0.0;
-                    INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,7};
+                    INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,7}(iStart:iStop,:);
                 end
             end
             fprintf("   ...acquired %d entries in file %s...\n",nCounts,files(iSet).name);

@@ -1,9 +1,11 @@
-function [tStamps,doses,means,maxs,mins]=ParseStationaryFiles(path2Files)
+function [tStamps,doses,means,maxs,mins]=ParseStationaryFiles(path2Files,lCumul)
 % ParseStationaryFiles         acquire data in log files of monitors in stationary
 %                              stations (both neutron and gamma monitors)
-%
+% 
 % input:
 % - path2Files: path where the file(s) is located (a dir command is anyway performed);
+% - lCumul (boolean, optional): when parsing more than a file, cumulate all
+%   values, as if all data were actually read from a single file;
 % output:
 % - tStamps (array of time stamps): time stamps of dose values;
 % - doses (array of floats): dose values at each time stamp;
@@ -17,12 +19,13 @@ function [tStamps,doses,means,maxs,mins]=ParseStationaryFiles(path2Files)
 % - the counter is incremental;
 %
 % See also ParseDiodeFiles and ParsePolyMasterFiles
-
+    if ( ~exist('lCumul','var') ), lCumul=1; end
     files=dir(path2Files);
     nDataSets=length(files);
     fprintf("acquring %i data sets in %s ...\n",nDataSets,path2Files);
     nReadFiles=0;
     nCountsTot=0;
+    totDose=0.0;
     for iSet=1:nDataSets
         fileName=strcat(files(iSet).folder,"\",files(iSet).name);
         fileID = fopen(fileName,"r");
@@ -33,7 +36,8 @@ function [tStamps,doses,means,maxs,mins]=ParseStationaryFiles(path2Files)
         means(nCountsTot+1:nCountsTot+nCounts)=C{:,3};
         maxs(nCountsTot+1:nCountsTot+nCounts)=C{:,4};
         mins(nCountsTot+1:nCountsTot+nCounts)=C{:,5};
-        doses(nCountsTot+1:nCountsTot+nCounts)=C{:,6};
+        doses(nCountsTot+1:nCountsTot+nCounts)=C{:,6}+totDose;
+        if ( lCumul ), totDose=doses(end); end
         nCountsTot=nCountsTot+nCounts;
         fprintf("...acquired %d entries in file %s...\n",nCounts,files(iSet).name);
         nReadFiles=nReadFiles+1;
