@@ -1,4 +1,4 @@
-function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,noiseLevelBAR,noiseLevelFWHM,FWHMval,BARlevel,lDebug)
+function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,noiseLevelBAR,noiseLevelFWHM,FWHMval,INTlevel,lDebug)
 % StatDistributionsCAMProcedure      to compute basic statistical infos of
 %                                       distributions recorded by the
 %                                       CAMeretta;
@@ -14,6 +14,8 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,noiseLevelBAR,
 %     (either as percentage or as ratio to 1); default: 20%;
 % - FWHMval (scalar): value (ratio to max) at which the FW should be computed
 %     (either as percentage or as ratio to 1); default: 50% (FWHM);
+% - INTlevel (scalar): min value of integral above which a profile should be
+%     considered for analisis; default: 20k;
 % - lDebug (boolean): activate debug mode (for the time being, plots);
 %
 % output:
@@ -29,8 +31,8 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,noiseLevelBAR,
     if ( ~exist('noiseLevelBAR','var') ), noiseLevelBAR=0.05; end
     if ( ~exist('noiseLevelFWHM','var') ), noiseLevelFWHM=0.20; end
     if ( ~exist('FWHMval','var') ), FWHMval=0.50; end
-    if ( ~exist('BARlevel','var') ), BARlevel=20000; end
-    if ( ~exist('lDebug','var') ), lDebug=true; end
+    if ( ~exist('INTlevel','var') ), INTlevel=20000; end
+    if ( ~exist('lDebug','var') ), lDebug=false; end
     
     fprintf("computing BARs and FWHMs as done for CAMeretta...\n");
     % if >1, levels are assumed in percentage
@@ -46,13 +48,14 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,noiseLevelBAR,
     INTs=zeros(nDataSets,2); % hor,ver INTs
     
     % loop over profiles
-    if ( exist('lDebug','var') ), ff=figure(); end
+    planes=[ "hor" "ver" ];
+    if ( lDebug ), ff=figure(); end
     for iSet=1:nDataSets
         tmpXs(:,1:2)=profiles(:,1,:);      % (nFibers,2)
         tmpYs(:,1:2)=profiles(:,1+iSet,:); % (nFibers,2)
         INTs(iSet,1:2)=sum(tmpYs);
         if ( sum(INTs(iSet,:))== 0 ), continue; end
-        if ( exist('lDebug','var') ), sgtitle(sprintf("CAMeretta profiles id #%d",iSet)); end
+        if ( lDebug ), sgtitle(sprintf("CAMeretta profiles id #%d",iSet)); end
         % BARs
         indices=CleanProfiles(tmpYs,noiseLevelBAR);
         for iPlane=1:2
@@ -65,11 +68,10 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,noiseLevelBAR,
         end
         % FWHMs
         indices=CleanProfiles(tmpYs,noiseLevelFWHM);
-        planes=[ "hor" "ver" ];
         for iPlane=1:2
-            if ( exist('lDebug','var') ), subplot(1,2,iPlane); end
+            if ( lDebug ), subplot(1,2,iPlane); end
             nPoints=sum(indices(:,iPlane));
-            if ( nPoints==sum(tmpYs(:,iPlane)>0) & INTs(iSet,iPlane)<BARlevel)
+            if ( nPoints==sum(tmpYs(:,iPlane)>0) & INTs(iSet,iPlane)<INTlevel)
                 warning("...cannot actually identify a bell-shaped profile!");
                 [tmpMax,idMax]=max(tmpYs(:,iPlane));
                 FWHMvalAbs=FWHMval*tmpMax;
@@ -95,16 +97,15 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,noiseLevelBAR,
                 FWHMright=interp1(repYs(idMax:end),myXs(idMax:end),FWHMvalAbs);
                 FWHMs(iSet,iPlane)=FWHMright-FWHMleft;
             end
-            if ( exist('lDebug','var') )
-                %  and 
+            if ( lDebug )
                 plot(tmpXs(:,iPlane),tmpYs(:,iPlane),"o", ...                       % original signal
-                     myXs,myYs,"*",myXs,repYs,".-", ...                             % filtered signal
+                     myXs,myYs,"*",myXs,repYs,".-", ...                             % filtered signal and interpolated signal
                      [FWHMleft FWHMright],[FWHMvalAbs FWHMvalAbs],"k-",...          % FWxM
                      [BARs(iSet,iPlane) BARs(iSet,iPlane)], [0.0 1.1*tmpMax],"k-"); % BAR
                 title(sprintf("%s plane",planes(iPlane))); grid on; xlabel("fiber position [mm]"); ylabel("counts []");
             end
         end
-        if ( exist('lDebug','var') ), pause(0.1); end
+        if ( lDebug ), pause(0.1); end
     end
     fprintf("...done.\n");
 end
