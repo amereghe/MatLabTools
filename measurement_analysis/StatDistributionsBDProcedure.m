@@ -1,4 +1,4 @@
-function [BARs,FWHMs,INTs]=StatDistributionsProcedure(data)
+function [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(data)
     fprintf("computing BARs and FWHMs as in procedure...\n");
     nDataSets=size(data,2)-1; % let's crunch only sum profiles;
     BARs=zeros(nDataSets,2);  % hor,ver BARs
