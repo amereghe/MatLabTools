@@ -1,4 +1,4 @@
-function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,noiseLevelBAR,noiseLevelFWHM,FWHMval,INTlevel,lDebug)
+function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,FWHMval,noiseLevelBAR,noiseLevelFWHM,INTlevel,lDebug)
 % StatDistributionsCAMProcedure      to compute basic statistical infos of
 %                                       distributions recorded by the
 %                                       CAMeretta;
@@ -8,12 +8,12 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,noiseLevelBAR,
 %   . rows: index of independent coordinate (e.g. time/position);
 %   . columns: index of the signal to process;
 %   NB: column 1 is the list of values of the independent variable;
+% - FWHMval (scalar): value (ratio to max) at which the FW should be computed
+%     (either as percentage or as ratio to 1); default: 50% (FWHM);
 % - noiseLevelBAR (scalar): cut threshold for computing BARicentre
 %     (either as percentage or as ratio to 1); default: 5%;
 % - noiseLevelFWHM (scalar): cut threshold for computing FWHM
 %     (either as percentage or as ratio to 1); default: 20%;
-% - FWHMval (scalar): value (ratio to max) at which the FW should be computed
-%     (either as percentage or as ratio to 1); default: 50% (FWHM);
 % - INTlevel (scalar): min value of integral above which a profile should be
 %     considered for analisis; default: 20k;
 % - lDebug (boolean): activate debug mode (for the time being, plots);
@@ -28,9 +28,9 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,noiseLevelBAR,
 %
 
     % default values
+    if ( ~exist('FWHMval','var') ), FWHMval=0.50; end
     if ( ~exist('noiseLevelBAR','var') ), noiseLevelBAR=0.05; end
     if ( ~exist('noiseLevelFWHM','var') ), noiseLevelFWHM=0.20; end
-    if ( ~exist('FWHMval','var') ), FWHMval=0.50; end
     if ( ~exist('INTlevel','var') ), INTlevel=20000; end
     if ( ~exist('lDebug','var') ), lDebug=false; end
     

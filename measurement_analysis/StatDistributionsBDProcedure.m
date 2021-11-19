@@ -25,7 +25,7 @@ function [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(profiles,noiseLevel,INTl
     % default values
     if ( ~exist('noiseLevel','var') ), noiseLevel=200; end
     if ( ~exist('INTlevel','var') ), INTlevel=20000; end
-    if ( ~exist('lDebug','var') ), lDebug=true; end
+    if ( ~exist('lDebug','var') ), lDebug=false; end
     
     fprintf("computing BARs and FWHMs as in procedure...\n");
     nDataSets=size(profiles,2)-1; % let's crunch only sum profiles;
