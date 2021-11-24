@@ -11,7 +11,7 @@ function RampGen2MADX(rampFileName,MADXFileName,rampSheetName)
     % replace characters in header that will cause MADX to error
     headers=string(rampGenData(1,:));
     old=[ "(" ")" "[" "]" "{" "}" "-" " " ];
-    new=[ " " ""  " " ""  " " ""  "_" ""  ];
+    new=[ "-" ""  "-" ""  "-" ""  "_" ""  ];
     for ii=1:length(old)
         headers = strrep(headers,old(ii),new(ii));
     end
