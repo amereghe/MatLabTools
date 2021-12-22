@@ -53,9 +53,11 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,FWHMval,noiseL
     for iSet=1:nDataSets
         tmpXs(:,1:2)=profiles(:,1,:);      % (nFibers,2)
         tmpYs(:,1:2)=profiles(:,1+iSet,:); % (nFibers,2)
-        INTs(iSet,1:2)=sum(tmpYs);
-        if ( sum(INTs(iSet,:))== 0 ), continue; end
+        tmpINTs=sum(tmpYs);
+        if ( sum(tmpINTs)== 0 ), continue; end
         if ( lDebug ), sgtitle(sprintf("CAMeretta profiles id #%d",iSet)); end
+        % INTs
+        INTs(iSet,1:2)=tmpINTs; % take as integral the counts on the entire profile
         % BARs
         indices=CleanProfiles(tmpYs,noiseLevelBAR);
         for iPlane=1:2
@@ -71,31 +73,36 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,FWHMval,noiseL
         for iPlane=1:2
             if ( lDebug ), subplot(1,2,iPlane); end
             nPoints=sum(indices(:,iPlane));
+            % default values, in case fitting does not proceed
+            tmpIndices=tmpYs(:,iPlane)>0;
+            FWHMleft=min(tmpXs(tmpIndices,iPlane));
+            FWHMright=max(tmpXs(tmpIndices,iPlane));
+            FWHMs(iSet,iPlane)=FWHMright-FWHMleft;
+            myXs=tmpXs(:,iPlane); myYs=0.0*myXs; repYs=0.0*myXs; 
             if ( nPoints==sum(tmpYs(:,iPlane)>0) & INTs(iSet,iPlane)<INTlevel)
                 warning("...cannot actually identify a bell-shaped profile!");
                 [tmpMax,idMax]=max(tmpYs(:,iPlane));
                 FWHMvalAbs=FWHMval*tmpMax;
-                tmpIndices=tmpYs(:,iPlane)>0;
-                FWHMleft=min(tmpXs(tmpIndices,iPlane));
-                FWHMright=max(tmpXs(tmpIndices,iPlane));
-                FWHMs(iSet,iPlane)=FWHMright-FWHMleft;
-                myXs=tmpXs(:,iPlane); myYs=0.0*myXs; repYs=0.0*myXs; 
             else
                 if ( nPoints<3 )
                     warning("...not enough points for fitting data for computing FWHM on %s plane for data set %d! skipping...",planes(iPlane),iSet);
-                    continue
+                else
+                    nOrder=6; % max order of polynom
+                    if ( nPoints<7 ), nOrder=nPoints-1; end % reduce polynom order if there are not enough points...
+                    myXs=tmpXs(indices(:,iPlane),iPlane);
+                    myYs=tmpYs(indices(:,iPlane),iPlane);
+                    pp=polyfit(myXs,myYs,nOrder);
+                    repYs=polyval(pp,myXs);
+                    [tmpMax,idMax]=max(repYs);
+                    FWHMvalAbs=FWHMval*tmpMax;
+                    if ( idMax==1 | idMax==length(repYs) )
+                        warning("...not enough points for finding width on one of the two sides of profile on %s plane for data set %d! skipping...",planes(iPlane),iSet);
+                    else
+                        FWHMleft=interp1(repYs(1:idMax),myXs(1:idMax),FWHMvalAbs);
+                        FWHMright=interp1(repYs(idMax:end),myXs(idMax:end),FWHMvalAbs);
+                        FWHMs(iSet,iPlane)=FWHMright-FWHMleft;
+                    end
                 end
-                nOrder=6;
-                if ( nPoints<7 ), nOrder=nPoints-1; end
-                myXs=tmpXs(indices(:,iPlane),iPlane);
-                myYs=tmpYs(indices(:,iPlane),iPlane);
-                pp=polyfit(myXs,myYs,nOrder);
-                repYs=polyval(pp,myXs);
-                [tmpMax,idMax]=max(repYs);
-                FWHMvalAbs=FWHMval*tmpMax;
-                FWHMleft=interp1(repYs(1:idMax),myXs(1:idMax),FWHMvalAbs);
-                FWHMright=interp1(repYs(idMax:end),myXs(idMax:end),FWHMvalAbs);
-                FWHMs(iSet,iPlane)=FWHMright-FWHMleft;
             end
             if ( lDebug )
                 plot(tmpXs(:,iPlane),tmpYs(:,iPlane),"o", ...                       % original signal
