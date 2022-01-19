@@ -49,7 +49,7 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             Nx=128;
             Ny=128;
             maxColumns=59;
-        elseif ( ~strcmpi(fFormat,"SFM") || ~strcmpi(fFormat,"SFH")  )
+        elseif ( ~strcmpi(fFormat,"SFM") && ~strcmpi(fFormat,"SFH")  )
             error("wrong indication of format of file: %s. Can only be GIM, PMM/PIB, QBM and SFM/SFH",fFormat);
         end
     end
