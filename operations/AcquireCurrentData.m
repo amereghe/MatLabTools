@@ -1,7 +1,6 @@
 function [Is,LGENnames,nData]=AcquireCurrentData(fileName,sheetName)
-% AcquireCurrentData(fileName,sheetName)      reads a .xlsx file with
-%                                               current values used in
-%                                               scans
+% AcquireCurrentData      reads a .xlsx file with current values used in
+%                           scans
 %
 % input:
 % - fileName (string): fullname of file to be parsed;
