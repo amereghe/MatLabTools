@@ -22,7 +22,7 @@ function ShowScanRawPlots(Is,FWHMs,BARs,INTs,nData,scanDescription,titleSeries,a
 %    .png file is saved;
 %    
     fprintf("plotting raw data of scans: FWHMs, BARs and Integrals vs ID...\n");
-    if ( exist('actPlotNames','var') )
+    if ( exist('actPlotName','var') )
         ff = figure('visible','off');
         ff.Position=[ ff.Position(1:2) 1.6*ff.Position(3:4) ]; % increase the default size of the plot
     else
@@ -31,7 +31,8 @@ function ShowScanRawPlots(Is,FWHMs,BARs,INTs,nData,scanDescription,titleSeries,a
     if ( ~exist('titleSeries','var') || sum(ismissing(titleSeries)) )
         titleSeries=compose("Series %02i",(1:size(FWHMs,3))');
     end
-    for jj=1:size(FWHMs,3)
+    nSeries=size(FWHMs,3);
+    for jj=1:nSeries
         for kk=1:3 % FWHM,BAR,INT
             switch kk
                 case 1
@@ -42,7 +43,7 @@ function ShowScanRawPlots(Is,FWHMs,BARs,INTs,nData,scanDescription,titleSeries,a
                     whatToShow=INTs; whatName="integral"; labelY="[]";
             end
             iPlot=kk+(jj-1)*3;
-            ax(iPlot)=subplot(3,3,iPlot);
+            ax(iPlot)=subplot(nSeries+1,3,iPlot);
             plot(whatToShow(1:nData(jj),1,jj),"*-"); hold on; plot(whatToShow(1:nData(jj),2,jj),"*-"); 
             grid on; ylabel(labelY); xlabel("ID []");
             title(sprintf("%s - %s",whatName,titleSeries(jj))); legend("HOR","VER","Location","best");
@@ -50,14 +51,14 @@ function ShowScanRawPlots(Is,FWHMs,BARs,INTs,nData,scanDescription,titleSeries,a
     end
     % corrente
     iPlot=iPlot+1;
-    ax(iPlot)=subplot(3,3,iPlot);
+    ax(iPlot)=subplot(nSeries+1,3,iPlot);
     plot(Is,"*-");
     grid on; ylabel("[A]"); xlabel("ID []");
     title("Scan current");
     % general
     sgtitle(scanDescription);
     linkaxes(ax,"x");
-    if ( exist('actPlotNames','var') )
+    if ( exist('actPlotName','var') )
         MapFileOut=sprintf("%s_rawData.png",actPlotName);
         exportgraphics(ff,MapFileOut,'Resolution',300); % resolution=DPI
         fprintf("...saving to file %s ...\n",MapFileOut);

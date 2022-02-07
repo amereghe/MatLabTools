@@ -29,7 +29,8 @@ function ShowScanAligned(Is,FWHMs,BARs,indices,scanDescription,titleSeries,actPl
     if ( ~exist('titleSeries','var') || sum(ismissing(titleSeries)) )
         titleSeries=compose("Series %02i",(1:size(FWHMs,3))');
     end
-    for jj=1:size(FWHMs,3)
+    nSeries=size(FWHMs,3);
+    for jj=1:nSeries
         for kk=1:2 % FWHM,BAR
             switch kk
                 case 1
@@ -38,7 +39,7 @@ function ShowScanAligned(Is,FWHMs,BARs,indices,scanDescription,titleSeries,actPl
                     whatToShow=BARs; whatName="Baricentre"; labelY="[mm]";
             end
             iPlot=kk+(jj-1)*2;
-            ax(iPlot)=subplot(2,2,iPlot);
+            ax(iPlot)=subplot(nSeries,2,iPlot);
             yyaxis left;
             plot(Is(indices(1,1):indices(1,2)),whatToShow(indices(jj+1,1):indices(jj+1,2),1,jj),"*-"); ylabel(sprintf("HOR %s",labelY));
             yyaxis right;
