@@ -57,8 +57,8 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
     files=dir(path2Files);
     nDataSets=length(files);
     actualDataSets=1;
-    measData=zeros(max(Nx,Ny),maxColumns,2,actualDataSets);
-    cyProgs=zeros(actualDataSets,1);
+    measData=NaN(max(Nx,Ny),maxColumns,2,actualDataSets);
+    cyProgs=NaN(actualDataSets,1);
     cyCodes=strings(actualDataSets,1);
     fprintf("acquring %i data sets...\n",nDataSets);
     if ( strcmp(myFormat,"SFM") )
@@ -72,11 +72,20 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
     end
     
     for iSet=1:nDataSets
-        if ( strcmpi(myFormat,"GIM") )
+        if ( strcmpi(myFormat,"GIM") ) % "GIM"
             if (strcmp(files(iSet).name,"Dati_SummaryGIM.txt"))
                 % matlab does not support single char wildcard...
                 continue
             end
+            % check cycle prog, to guarantee continuity
+            tmp=split(files(iSet).name,"_");
+            tmpCyProg=str2num(tmp{1});
+            tmpCyCode=string(tmp{2});
+            if ( actualDataSets>1 && tmpCyProg>cyProgs(actualDataSets-1)+1 )
+                % fast forward with NaNs
+                [measData,cyProgs,cyCodes,actualDataSets]=FastForwardProfileAcquisitions(measData,cyProgs,cyCodes,actualDataSets,tmpCyProg,cyProgs(actualDataSets-1));
+            end
+            %
             fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
             % x-axis values
             tmp=table2array(readtable(sprintf("%s\\%s\\%s",files(iSet).folder,files(iSet).name,"XProfiles.txt"),'HeaderLines',1,'MultipleDelimsAsOne',true));
@@ -88,26 +97,37 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             % actual number of columns in file (ie frames+1)
             nColumns=size(tmp,2);
             measData(1:Ny,1:nColumns,2,actualDataSets)=tmp(1:Ny,1:nColumns); % values
-            % store cycle code and cycle prog
-            tmp=split(files(iSet).name,"_");
-            cyProgs(actualDataSets)=str2num(tmp{1});
-            cyCodes(actualDataSets)=tmp{2};
-        elseif ( strcmpi(myFormat,"PMM") )
+        elseif ( strcmpi(myFormat,"PMM") ) % "PMM","PIB"
             if (strfind(files(iSet).name,"Norm"))
                 fprintf("   ...skipping Norm file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
                 continue
             end
+            % check cycle prog, to guarantee continuity
+            tmp=split(files(iSet).name,"-");
+            tmp=split(tmp{2},".");
+            tmpCyProg=str2num(tmp{1});
+            tmpCyCode=string(missing());
+            if ( actualDataSets>1 && tmpCyProg>cyProgs(actualDataSets-1)+1 )
+                % fast forward with NaNs
+                [measData,cyProgs,cyCodes,actualDataSets]=FastForwardProfileAcquisitions(measData,cyProgs,cyCodes,actualDataSets,tmpCyProg,cyProgs(actualDataSets-1));
+            end
+            %
             fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
             tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'MultipleDelimsAsOne',true));
             % x-axis values
             measData(1:Nx,1:maxColumns,1,actualDataSets)=tmp(1:Nx,1:maxColumns); % values
             % y-axis values
             measData(1:Ny,1:maxColumns,2,actualDataSets)=tmp(1:Ny,1+2:2+maxColumns); % values
-            % store cycle code and cycle prog
+        else % "SFH","SFM","SFP",
+            % check cycle prog, to guarantee continuity
             tmp=split(files(iSet).name,"-");
-            tmp=split(tmp{2},".");
-            cyProgs(actualDataSets)=str2num(tmp{1});
-        else
+            tmpCyProg=str2num(tmp{3});
+            tmpCyCode=string(tmp{2});
+            if ( actualDataSets>1 && tmpCyProg>cyProgs(actualDataSets-1)+1 )
+                % fast forward with NaNs
+                [measData,cyProgs,cyCodes,actualDataSets]=FastForwardProfileAcquisitions(measData,cyProgs,cyCodes,actualDataSets,tmpCyProg,cyProgs(actualDataSets-1));
+            end
+            %
             fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
             tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'HeaderLines',10,'MultipleDelimsAsOne',true));
             % actual number of columns in file (ie frames+1)
@@ -116,25 +136,30 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             measData(1:Nx,1:nColumns,1,actualDataSets)=tmp(1:Nx,1:nColumns); % values
             % y-axis values
             measData(1:Ny,1:nColumns,2,actualDataSets)=tmp(Nx+2:Nx+1+Ny,1:nColumns); % values
-            % store cycle code and cycle prog
-            tmp=split(files(iSet).name,"-");
-            cyProgs(actualDataSets)=str2num(tmp{3});
-            if ( strcmpi(myFormat,"SFP") )
-                cyCodes(actualDataSets)=extractBetween(tmp{2},5,strlength(tmp{2}));
-            else
-                cyCodes(actualDataSets)=tmp{2};
+            % check cycle code
+            if ( strcmpi(myFormat,"SFP") || strcmpi(myFormat,"SFM") || strcmpi(myFormat,"QBM") )
+                tmpCyCode=extractBetween(tmpCyCode,5,strlength(tmpCyCode));
             end
         end
+        % store cycle prog and cycle code
+        cyProgs(actualDataSets)=tmpCyProg;
+        cyCodes(actualDataSets)=tmpCyCode;
         actualDataSets=actualDataSets+1;
     end
-    actualDataSets=actualDataSets-1;
-    fprintf("...acqured %i files;\n",actualDataSets);
-    if ( size(cyProgs,2)>size(cyProgs,1) )
-        cyProgs=cyProgs';
-    end
-    if ( size(cyCodes,2)>size(cyCodes,1) )
-        cyCodes=cyCodes';
+    nAcquired=size(measData,4);
+    fprintf("...acqured %i files;\n",nAcquired);
+    if ( nAcquired>0 )
+        cyCodes=PadCyCodes(cyCodes);
+        cyCodes=UpperCyCodes(cyCodes);
+        if ( size(cyProgs,2)>size(cyProgs,1) )
+            cyProgs=cyProgs';
+        end
+        if ( size(cyCodes,2)>size(cyCodes,1) )
+            cyCodes=cyCodes';
+        end
+    else
+        measData=missing;
+        cyProgs=missing;
+        cyCodes=missing;
     end
 end
-
-
