@@ -32,6 +32,9 @@ function ShowScanRawPlots(Is,FWHMs,BARs,INTs,nData,scanDescription,titleSeries,a
         titleSeries=compose("Series %02i",(1:size(FWHMs,3))');
     end
     nSeries=size(FWHMs,3);
+    nRows=nSeries;
+    nCols=3;
+    if ( ~ismissing(Is) ), nRows=nRows+1; end
     for jj=1:nSeries
         for kk=1:3 % FWHM,BAR,INT
             switch kk
@@ -42,19 +45,21 @@ function ShowScanRawPlots(Is,FWHMs,BARs,INTs,nData,scanDescription,titleSeries,a
                 case 3
                     whatToShow=INTs; whatName="integral"; labelY="[]";
             end
-            iPlot=kk+(jj-1)*3;
-            ax(iPlot)=subplot(nSeries+1,3,iPlot);
+            iPlot=kk+(jj-1)*nCols;
+            ax(iPlot)=subplot(nRows,nCols,iPlot);
             plot(whatToShow(1:nData(jj),1,jj),"*-"); hold on; plot(whatToShow(1:nData(jj),2,jj),"*-"); 
             grid on; ylabel(labelY); xlabel("ID []");
             title(sprintf("%s - %s",whatName,titleSeries(jj))); legend("HOR","VER","Location","best");
         end
     end
     % corrente
-    iPlot=iPlot+1;
-    ax(iPlot)=subplot(nSeries+1,3,iPlot);
-    plot(Is,"*-");
-    grid on; ylabel("[A]"); xlabel("ID []");
-    title("Scan current");
+    if ( ~ismissing(Is) )
+        iPlot=iPlot+1;
+        ax(iPlot)=subplot(nRows,nCols,iPlot);
+        plot(Is,"*-");
+        grid on; ylabel("[A]"); xlabel("ID []");
+        title("Scan current");
+    end
     % general
     sgtitle(scanDescription);
     linkaxes(ax,"x");
