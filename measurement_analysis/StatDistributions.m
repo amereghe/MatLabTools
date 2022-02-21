@@ -1,4 +1,4 @@
-function [BARs,FWxMs,INTs]=StatDistributions(profiles,FWxMval,noiseLevelFWxM,INTlevel,lDebug)
+function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,noiseLevelFWxM,INTlevel,myMask,lDebug)
 % StatDistributions                  to compute basic statistical infos of
 %                                       distributions (acquired by both DDS and CAMeretta);
 % The algorithm is based on the one for CAMeretta, but it is centred around
@@ -35,10 +35,16 @@ function [BARs,FWxMs,INTs]=StatDistributions(profiles,FWxMval,noiseLevelFWxM,INT
     ordPolyn=6;      % max polynomial order for FWxM determination
     excessPoints=1;  % use more points than ordPolyn, to avoid MatLab warnings
     nPointsMin=ordPolyn+excessPoints;
-    if ( ~exist('FWxMval','var') ), FWxMval=0.50; end
-    if ( ~exist('noiseLevelFWxM','var') ), noiseLevelFWxM=0.18; end
-    if ( ~exist('INTlevel','var') ), INTlevel=20000; end
-    if ( ~exist('lDebug','var') ), lDebug=true; end
+    if ( ~exist('FWxMval','var') ), FWxMval=missing(); end
+    if ( ~exist('noiseLevelFWxM','var') ), noiseLevelFWxM=missing(); end
+    if ( ~exist('INTlevel','var') ), INTlevel=missing(); end
+    if ( ~exist('lDebug','var') ), lDebug=missing(); end
+    if ( ~exist('myMask','var') ), myMask=missing(); end
+    %
+    if ( ismissing(FWxMval) ), FWxMval=0.50; end
+    if ( ismissing(noiseLevelFWxM) ), noiseLevelFWxM=0.18; end
+    if ( ismissing(INTlevel) ), INTlevel=20000; end
+    if ( ismissing(lDebug) ), lDebug=true; end
     
     fprintf("computing INTs, BARs and FWxMs...\n");
     % if >1, levels are assumed in percentage
@@ -47,11 +53,13 @@ function [BARs,FWxMs,INTs]=StatDistributions(profiles,FWxMval,noiseLevelFWxM,INT
     if ( FWxMval<noiseLevelFWxM ), FWxMval=noiseLevelFWxM; end
     
     % initialise vars
-    nLevels=length(FWxMval);        % how many levels
-    nDataSets=size(profiles,2)-1;   % let's crunch only sum profiles;
-    BARs=NaN(nDataSets,2);          % hor,ver BARs
-    FWxMs=NaN(nDataSets,2,nLevels); % hor,ver FWxMs
-    INTs=NaN(nDataSets,2);          % hor,ver INTs
+    nLevels=length(FWxMval);         % how many levels
+    nDataSets=size(profiles,2)-1;    % let's crunch only sum profiles;
+    BARs=NaN(nDataSets,2);           % hor,ver BARs
+    FWxMs=NaN(nDataSets,2,nLevels);  % hor,ver FWxMs
+    FWxMls=NaN(nDataSets,2,nLevels); % hor,ver FWxMs
+    FWxMrs=NaN(nDataSets,2,nLevels); % hor,ver FWxMs
+    INTs=NaN(nDataSets,2);           % hor,ver INTs
     
     % loop over profiles
     planes=[ "hor" "ver" ];
@@ -63,18 +71,26 @@ function [BARs,FWxMs,INTs]=StatDistributions(profiles,FWxMval,noiseLevelFWxM,INT
         if ( sum(tmpINTs)==0 ), continue; end
         if ( lDebug ), sgtitle(sprintf("profiles id #%d",iSet)); end
         % FWxMs
-        indices=CleanProfiles(tmpYs,noiseLevelFWxM);
         for iPlane=1:2
             if ( lDebug ), subplot(1,2,iPlane); end
-            nPoints=sum(indices(:,iPlane));
             % default values, in case fitting does not proceed
             tmpIndices=tmpYs(:,iPlane)>0;
-            FWxMleft=min(tmpXs(tmpIndices,iPlane))*ones(1,length(FWxMval));  % array
-            FWxMright=max(tmpXs(tmpIndices,iPlane))*ones(1,length(FWxMval)); % array
+            FWxMls(iSet,iPlane,:)=min(tmpXs(tmpIndices,iPlane))*ones(1,length(FWxMval));  % array
+            FWxMrs(iSet,iPlane,:)=max(tmpXs(tmpIndices,iPlane))*ones(1,length(FWxMval)); % array
             FWxMs(iSet,iPlane,:)=NaN(1,length(FWxMval));
-            myXs=tmpXs(:,iPlane); myYs=0.0*myXs; repYs=0.0*myXs;
+            myXs=tmpXs(tmpIndices,iPlane); myYs=0.0*myXs; repXs=0.0*myXs; repYs=0.0*myXs;
             [tmpMax,idMax]=max(tmpYs(tmpIndices,iPlane));
             FWxMvalAbs=FWxMval*tmpMax;                                       % array
+            % do the actual job
+            if ( ismissing(myMask) )
+                XsPreFilter=tmpXs(:,iPlane);
+                YsPreFilter=tmpYs(:,iPlane);
+            else
+                XsPreFilter=tmpXs(myMask(:,iPlane),iPlane);
+                YsPreFilter=tmpYs(myMask(:,iPlane),iPlane);
+            end
+            indices=CleanProfiles(YsPreFilter,noiseLevelFWxM);
+            nPoints=sum(indices);
             if ( tmpINTs(iPlane)<INTlevel)
                 warning("...cannot actually identify a bell-shaped profile on plane %s for data set %d! skipping...",planes(iPlane),iSet);
             elseif ( nPoints<2+excessPoints ) % at least a second order polynomial fitting
@@ -82,35 +98,41 @@ function [BARs,FWxMs,INTs]=StatDistributions(profiles,FWxMval,noiseLevelFWxM,INT
             else
                 nOrder=ordPolyn; % max order of polynom
                 if ( nPoints<nPointsMin ), nOrder=nPoints-excessPoints; end % reduce polynom order if there are not enough points...
-                [myXs,myYs]=GetSymmetricBell(tmpXs(indices(:,iPlane),iPlane),tmpYs(indices(:,iPlane),iPlane),asymThresh,nPointsMin,lDebug);
+                % [myXs,myYs]=GetSymmetricBell(XsPreFilter(indices),YsPreFilter(indices),asymThresh,nPointsMin,lDebug);
+                myXs=XsPreFilter(indices); myYs=YsPreFilter(indices);
                 pp=polyfit(myXs,myYs,nOrder);
-                repYs=polyval(pp,myXs);
+                newIndices=CleanProfiles(tmpYs(:,iPlane),noiseLevelFWxM);
+                % [repXs,repYs]=GetSymmetricBell(tmpXs(newIndices,iPlane),tmpYs(newIndices,iPlane),asymThresh,nPointsMin,lDebug);
+                repXs=tmpXs(newIndices,iPlane); repYs=tmpYs(newIndices,iPlane);
+                repYs=polyval(pp,repXs);
                 [tmpMax,idMax]=max(repYs);
                 FWxMvalAbs=FWxMval*tmpMax;                                   % array
                 if ( idMax==1 | idMax==length(repYs) )
                     warning("...not enough points for finding width on one of the two sides of profile on %s plane for data set %d! skipping...",planes(iPlane),iSet);
                 else
-                    FWxMleft=interp1(repYs(1:idMax),myXs(1:idMax),FWxMvalAbs);       % array
-                    FWxMright=interp1(repYs(idMax:end),myXs(idMax:end),FWxMvalAbs);  % array
-                    FWxMs(iSet,iPlane,:)=FWxMright-FWxMleft;                         % array
+                    tmpFWxMleftPos=interp1(repYs(1:idMax),repXs(1:idMax),FWxMvalAbs);      % array
+                    tmpFWxMrightPos=interp1(repYs(idMax:end),repXs(idMax:end),FWxMvalAbs); % array
+                    FWxMs(iSet,iPlane,:)=tmpFWxMrightPos-tmpFWxMleftPos;                   % array
                     % return total useful counts as INT
                     INTs(iSet,iPlane)=sum(myYs);
                     % return (refined) position of peak as BAR
-                    refXs=myXs(idMax-1):((myXs(idMax+1)-myXs(idMax-1))/200):myXs(idMax+1);
+                    refXs=repXs(idMax-1):((repXs(idMax+1)-repXs(idMax-1))/200):repXs(idMax+1);
                     refYs=polyval(pp,refXs);
                     [refMax,idRefMax]=max(refYs);
                     BARs(iSet,iPlane)=refXs(idRefMax);
+                    FWxMls(iSet,iPlane,:)=BARs(iSet,iPlane)-tmpFWxMleftPos;   % array
+                    FWxMrs(iSet,iPlane,:)=tmpFWxMrightPos-BARs(iSet,iPlane);  % array
                 end
             end
             if ( lDebug )
-                plot(tmpXs(tmpIndices,iPlane),tmpYs(tmpIndices,iPlane),"o", ...     % original signal (remove zeros)
-                     myXs,myYs,"*",myXs,repYs,".-", ...                             % filtered signal and interpolated signal
-                     [FWxMleft ; FWxMright],[FWxMvalAbs ; FWxMvalAbs],"k-",...      % FWxM
+                plot(tmpXs(:,iPlane),tmpYs(:,iPlane),"o", ...                       % original signal
+                     myXs,myYs,"*",repXs,repYs,".-", ...                            % filtered signal and interpolated signal
+                     [tmpFWxMleftPos ; tmpFWxMrightPos],[FWxMvalAbs ; FWxMvalAbs],"k-",...      % FWxM
                      [BARs(iSet,iPlane) BARs(iSet,iPlane)], [0.0 1.1*tmpMax],"k-"); % BAR
                 title(sprintf("%s plane",planes(iPlane))); grid on; xlabel("fiber position [mm]"); ylabel("counts []");
             end
         end
-        if ( lDebug ), pause(0.1); end
+        if ( lDebug ), pause(); end
     end
     fprintf("...done.\n");
 end
