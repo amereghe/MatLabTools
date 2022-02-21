@@ -15,6 +15,7 @@ For the time being:
 | `measurement_analysis` | scripts for performing some standard analysis or inspecting data |
 | `operations` | tools for manipulating operational parameters (e.g. to convert them to MADX input) |
 | `optics` | tools for manipulating/computing optics quantities |
+| `RP` | tools for parsing/writing log files by RP monitors |
 
 ### Naming Conventions
 No particularly strict rules, apart from:
