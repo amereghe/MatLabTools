@@ -37,16 +37,15 @@ function [z,zp,avedpp]=FitOpticsThroughOrbitData(CC,bars,d,dp)
                 error("specified D (%d) and DP (%d) have different dimensions!",length(d),length(dp));
             end
             ZZ=SolveOrbSystem(CC,bars);
-            avedpp=ZZ(3);
             if ( length(d)==1 )
-                [z,zp]=DecodeOrbitFit(ZZ,d,dp);
+                [z,zp,avedpp]=DecodeOrbitFit(ZZ,d,dp);
             else
                 % pre-allocate, to optimise CPU time
                 nFits=length(d);
                 z=zeros(1,nFits); zp=zeros(1,nFits);
                 % do the actual scan
                 for ii=1:nFits
-                    [z(ii),zp(ii)]=DecodeOrbitFit(ZZ,d(ii),dp(ii));
+                    [z(ii),zp(ii),avedpp]=DecodeOrbitFit(ZZ,d(ii),dp(ii));
                 end
             end
         else
