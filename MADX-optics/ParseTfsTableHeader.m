@@ -95,9 +95,9 @@ function [Qx,Qy,DQx,DQy,Laccel,headerNames,headerValues] = ...
             [tmpQx,tmpQy,tmpDQx,tmpDQy,tmpLaccel,tmpHeaderNames,tmpHeaderValues] = ...
                 ParseTfsTableHeader(fileName,nHeaderUsr);
             Qx=[ Qx tmpQx ];
-            Qy=[ Qx tmpQy ];
+            Qy=[ Qy tmpQy ];
             DQx=[ DQx tmpDQx ];
-            DQy=[ DQx tmpDQy ];
+            DQy=[ DQy tmpDQy ];
             Laccel=[ Laccel tmpLaccel ];
             headerNames=[ headerNames ; tmpHeaderNames ];
             headerValues=[ headerValues ; tmpHeaderValues ];
