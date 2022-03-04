@@ -19,25 +19,53 @@ function [tStamps,doses,means,maxs,mins]=ParseStationaryFiles(path2Files,lCumul)
 % - the counter is incremental;
 %
 % See also ParseDiodeFiles and ParsePolyMasterFiles
-    if ( ~exist('lCumul','var') ), lCumul=1; end
+    if ( ~exist('lCumul','var') ), lCumul=false; end
     files=dir(path2Files);
     nDataSets=length(files);
     fprintf("acquring %i data sets in %s ...\n",nDataSets,path2Files);
     nReadFiles=0;
     nCountsTot=0;
-    totDose=0.0;
     for iSet=1:nDataSets
         fileName=strcat(files(iSet).folder,"\",files(iSet).name);
         fileID = fopen(fileName,"r");
         C = textscan(fileID,'%s %s %f %f %f %f %d %d %s','HeaderLines',9,'Delimiter',';');
         fclose(fileID);
         nCounts=length(C{:,1});
-        tStamps(nCountsTot+1:nCountsTot+nCounts)=datetime(join(string([C{:,1},C{:,2}])),"InputFormat","dd.MM.yy HH:mm:ss");
-        means(nCountsTot+1:nCountsTot+nCounts)=C{:,3};
-        maxs(nCountsTot+1:nCountsTot+nCounts)=C{:,4};
-        mins(nCountsTot+1:nCountsTot+nCounts)=C{:,5};
-        doses(nCountsTot+1:nCountsTot+nCounts)=C{:,6}+totDose;
-        if ( lCumul ), totDose=doses(end); end
+        ttStamps=datetime(join(string([C{:,1},C{:,2}])),"InputFormat","dd.MM.yy HH:mm:ss");
+        tMeans=C{:,3};
+        tMaxs=C{:,4};
+        tMins=C{:,5};
+        tDoses=C{:,6};
+        if ( nCountsTot==0 )
+            % first data set: simply acquire data
+            tStamps=ttStamps;
+            means=tMeans;
+            maxs=tMaxs;
+            mins=tMins;
+            doses=tDoses;
+        else
+            % insert new data in proper position
+            [indCopy,iStart,iStop]=GetInsIndicesTimes(ttStamps,tStamps);
+            % - shift existing data
+            if ( iStart<nCountsTot )
+                tStamps(indCopy)=tStamps;
+                means(indCopy)=means;
+                maxs(indCopy)=maxs;
+                mins(indCopy)=mins;
+                doses(indCopy)=doses;
+            end
+            % - insert new data
+            tStamps(iStart:iStop)=ttStamps;
+            means(iStart:iStop)=tMeans;
+            maxs(iStart:iStop)=tMaxs;
+            mins(iStart:iStop)=tMins;
+            doses(iStart:iStop)=tDoses;
+            % - cumulative dose
+            if ( lCumul )
+                if ( iStart<nCountsTot ), doses(iStop+1:end)=doses(iStop+1:end)+tDoses(end); end
+                if ( iStart>1 ), doses(iStart:iStop)=doses(iStart:iStop)+doses(iStart-1); end
+            end
+        end 
         nCountsTot=nCountsTot+nCounts;
         fprintf("...acquired %d entries in file %s...\n",nCounts,files(iSet).name);
         nReadFiles=nReadFiles+1;
