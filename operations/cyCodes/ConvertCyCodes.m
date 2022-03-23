@@ -30,18 +30,18 @@ function vOut=ConvertCyCodes(cyCodesIN,what,pathP,pathC)
     % verify that all particle codes are recognizable
     unidentified=(partCodes<0 & partCodes>3 );
     if ( sum(unidentified)>0 )
-        error("unidentified particle in some cyCodes:\n%s",join(cyCodesIN(unidentified),newline));
+        warning("unidentified particle in some cyCodes:\n%s",join(cyCodesIN(unidentified),newline));
     end
     [lCCP,iCCP]=MapCyCode(rangeCodes,P_cyCodes);
     [lCCC,iCCC]=MapCyCode(rangeCodes,C_cyCodes);
     % verify that all ranges are recognizable
     unidentified=find(~lCCC & ~lCCP);
     if ( sum(unidentified)>0 )
-        error("unidentified range in some cyCodes:\n%s",join(cyCodesIN(unidentified),newline));
+        warning("unidentified range in some cyCodes:\n%s",join(cyCodesIN(unidentified),newline));
     end
     
     % assign values
-    vOut=zeros(length(cyCodesIN),1);
+    vOut=NaN(length(cyCodesIN),1);
     indices_P=(lCCP & FlagPart(partCodes,"p") );
     indices_C=(lCCC & FlagPart(partCodes,"C") );
     switch upper(what)
