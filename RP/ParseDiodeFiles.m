@@ -31,8 +31,24 @@ function [tStamps,counts]=ParseDiodeFiles(path2Files)
         end
         fclose(fileID);
         nCounts=length(C{:,1});
-        tStamps(nCountsTot+1:nCountsTot+nCounts)=C{1,1};
-        counts(nCountsTot+1:nCountsTot+nCounts)=C{1,2};
+        ttStamps=C{1,1};
+        tCounts=C{1,2};
+        if ( nCountsTot==0 )
+            % first data set: simply acquire data
+            tStamps=ttStamps;
+            counts=tCounts;
+        else
+            % insert new data in proper position
+            [indCopy,iStart,iStop]=GetInsIndicesTimes(ttStamps,tStamps);
+            % - shift existing data
+            if ( iStart<nCountsTot )
+                tStamps(indCopy)=tStamps;
+                counts(indCopy)=counts;
+            end
+            % - insert new data
+            tStamps(iStart:iStop)=ttStamps;
+            counts(iStart:iStop)=tCounts;
+        end
         nCountsTot=nCountsTot+nCounts;
         fprintf("...acquired %d entries in file %s...\n",nCounts,files(iSet).name);
         nReadFiles=nReadFiles+1;

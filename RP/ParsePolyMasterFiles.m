@@ -25,9 +25,25 @@ function [tStamps,doses]=ParsePolyMasterFiles(path2Files)
         C = textscan(fileID,'%s %s %s %s %s %s %s %s','HeaderLines',1,'Delimiter',';');
         fclose(fileID);
         nCounts=length(C{:,1});
-        tStamps(nCountsTot+1:nCountsTot+nCounts)=datetime(join(string([C{:,1},C{:,2}])),"InputFormat","yyyy/MM/dd HH:mm:ss");
         temp=split(C{:,6});
-        doses(nCountsTot+1:nCountsTot+nCounts)=str2double(temp(:,1));
+        ttStamps=datetime(join(string([C{:,1},C{:,2}])),"InputFormat","yyyy/MM/dd HH:mm:ss");
+        tDoses=str2double(temp(:,1));
+        if ( nCountsTot==0 )
+            % first data set: simply acquire data
+            tStamps=ttStamps;
+            doses=tDoses;
+        else
+            % insert new data in proper position
+            [indCopy,iStart,iStop]=GetInsIndicesTimes(ttStamps,tStamps);
+            % - shift existing data
+            if ( iStart<nCountsTot )
+                tStamps(indCopy)=tStamps;
+                doses(indCopy)=doses;
+            end
+            % - insert new data
+            tStamps(iStart:iStop)=ttStamps;
+            doses(iStart:iStop)=tDoses;
+        end
         nCountsTot=nCountsTot+nCounts;
         fprintf("...acquired %d entries in file %s...\n",nCounts,files(iSet).name);
         nReadFiles=nReadFiles+1;
