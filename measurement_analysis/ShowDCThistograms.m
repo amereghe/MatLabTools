@@ -1,23 +1,32 @@
-function ShowDCThistograms(DCTcurrs,DCTcyCodes,xVals,whatYlab,whatXlab)
+function ShowDCThistograms(DCTcurrs,DCTcyCodes,xVals,whatYlabs,whatXlab)
     fprintf("plotting histograms of DCT data...\n");
     [rangeCodes,partCodes]=DecodeCyCodes(DCTcyCodes);
     indicesP=FlagPart(partCodes,"p");
     indicesC=FlagPart(partCodes,"C");
+    nPlots=size(DCTcurrs,2);
     figure();
     
     % proton data
-    fprintf("...computing histograms for protons...\n");
-    [myXs,myYs,aves,maxs,uEks,Ibs,myHist]=GetHistograms(DCTcurrs(indicesP,1),xVals(indicesP));
-    fprintf("...showing proton data...\n");
-    subplot(1,2,1);
-    ShowHistograms(myXs,myYs,aves,maxs,uEks,Ibs,myHist,"proton",whatYlab,whatXlab);
+    for ii=1:nPlots
+        fprintf("...computing histograms for protons...\n");
+        [myXs,myYs,aves,maxs,uEks,Ibs,myHist]=GetHistograms(DCTcurrs(indicesP,ii),xVals(indicesP));
+        fprintf("...showing proton data...\n");
+        axP(ii)=subplot(nPlots,2,(ii-1)*2+1);
+        ShowHistograms(myXs,myYs,aves,maxs,uEks,Ibs,myHist,"proton",whatYlabs(ii),whatXlab);
+    end
 
     % carbon data
-    fprintf("...computing histograms for carbon ions...\n");
-    [myXs,myYs,aves,maxs,uEks,Ibs,myHist]=GetHistograms(DCTcurrs(indicesC,1),xVals(indicesC));
-    fprintf("...showing carbon ion data...\n");
-    subplot(1,2,2);
-    ShowHistograms(myXs,myYs,aves,maxs,uEks,Ibs,myHist,"carbon",whatYlab,whatXlab);
+    for ii=1:nPlots
+        fprintf("...computing histograms for carbon ions...\n");
+        [myXs,myYs,aves,maxs,uEks,Ibs,myHist]=GetHistograms(DCTcurrs(indicesC,ii),xVals(indicesC));
+        fprintf("...showing carbon ion data...\n");
+        axC(ii)=subplot(nPlots,2,ii*2);
+        ShowHistograms(myXs,myYs,aves,maxs,uEks,Ibs,myHist,"carbon",whatYlabs(ii),whatXlab);
+    end
+    
+    % global
+    linkaxes(axP,"x");
+    linkaxes(axC,"x");
     
     % bye bye
     fprintf("...done.\n");
