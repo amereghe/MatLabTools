@@ -9,9 +9,9 @@ function ShowDDSSummaryData(bars,fwhms,asyms,ints)
             case 2
                 what=fwhms; myYlab="%s [mm]"; myTitle="FWHM";
             case 3
-                what=asyms; myYlab="%s [mm]"; myTitle="ASYmmetry";
-            case 4
                 what=ints; myYlab="%s [counts]"; myTitle="INTegrals";
+            case 4
+                what=asyms; myYlab="%s [mm]"; myTitle="ASYmmetry";
         end
         axs(iWhat)=subplot(2,2,iWhat);
         for iPlane=1:length(planes)
