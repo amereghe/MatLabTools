@@ -2,6 +2,13 @@
 
 %% description
 % this is a script which parses DDS files and plots them
+% - the script crunches as many DDS files as desired, provided the
+%   fullpaths;
+% - both summary files and actual profiles in the same path are aquired;
+% - the script visualises in 3D the spill-per-spill profiles, horizontal and
+%   vertical planes separately;
+% - the script shows summary data, and compares summary data against
+%   statistics data computed on profiles;
 
 %% include libraries
 % - include Matlab libraries
@@ -11,16 +18,17 @@ addpath(genpath(pathToLibrary));
 %% settings
 clear kPath DDSpathMain DDSpaths DDSsummFiles DDSprofFiles
 
+% -------------------------------------------------------------------------
+% USER's input data
 kPath="S:\Accelerating-System\Accelerator-data";
 % kPath="K:";
 DDSpathMain="T:\AMereghetti\DDS_for_RP";
-
-DDSpaths=[
+DDSpaths=[...
     strcat(DDSpathMain,"\PRC-544-220410*") 
     ];
-
 DDSsummFiles=DDSpaths+"\Data-*.csv";
 DDSprofFiles=DDSpaths+"\Profiles\Data-*.csv";
+% -------------------------------------------------------------------------
 
 %% parse files
 % - clear summary data
