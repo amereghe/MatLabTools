@@ -45,7 +45,8 @@ Eks=ConvertCyCodes(DCTcyCodes,"Ek","MeVvsCyCo_P.xlsx");
 mms=ConvertCyCodes(DCTcyCodes,"mm","MeVvsCyCo_P.xlsx");
 
 % -------------------------------------------------------------------------
-% - data to show and labels (user's input)
+% USER's input data
+% - data to show and labels
 dataToShow=[DCTcurrs*1E9 DCTcurrs(:,1)./DCTcurrs(:,2)];
 labelsToShow=["DCT-Acc\_Part []" "DCT-Inj\_Part []" "T_{Acc/Inj} []"];
 % -------------------------------------------------------------------------

@@ -73,6 +73,10 @@ function [measData,cyCodes,cyProgs]=ParseDDSProfiles(paths2Files,fFormat)
             cyProgs=cyProgs';
             cyCodes=cyCodes';
         end
+        % sort by cyProg
+        [cyProgs,idx]=sort(cyProgs);
+        measData=measData(:,[1 idx'+1],:);
+        cyCodes=cyCodes(idx);
     else
         measData=missing;
         cyProgs=missing;
