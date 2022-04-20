@@ -21,12 +21,16 @@ function [tStamps,doses]=ParsePolyMasterFiles(path2Files)
     nCountsTot=0;
     for iSet=1:nDataSets
         fileName=strcat(files(iSet).folder,"\",files(iSet).name);
-        fileID = fopen(fileName,"r");
-        C = textscan(fileID,'%s %s %s %s %s %s %s %s','HeaderLines',1,'Delimiter',';');
-        fclose(fileID);
+        C=ActuallyParsePolimasterFile(fileName);
         nCounts=length(C{:,1});
+        try
+            % default format of date
+            ttStamps=datetime(join(string([C{:,1},C{:,2}])),"InputFormat","yyyy/MM/dd HH:mm:ss");
+        catch
+            % more recent (?) format of date
+            ttStamps=datetime(join(string([C{:,1},C{:,2}])),"InputFormat","dd/MM/yyyy HH:mm:ss");
+        end
         temp=split(C{:,6});
-        ttStamps=datetime(join(string([C{:,1},C{:,2}])),"InputFormat","yyyy/MM/dd HH:mm:ss");
         tDoses=str2double(temp(:,1));
         if ( nCountsTot==0 )
             % first data set: simply acquire data
@@ -62,4 +66,28 @@ function [tStamps,doses]=ParsePolyMasterFiles(path2Files)
         doses=missing;
     end
     fprintf("...acqured %i files, for a total of %d entries;\n",nReadFiles,nCountsTot);
+end
+
+function C=ActuallyParsePolimasterFile(fileName)
+    % default format of polimaster file:
+    % - a 1-line header;
+    % - a line with the integrated dose over 10 minutes; the format of the line is eg: "2021/07/23;23:04:26;PM1610 #218161;Dose Rate;0.0900 uSv/h;0.0000 uSv;0.0000 uSv;Gamma"
+    % - the reported dose is NOT cumulative!
+    fileID = fopen(fileName,"r");
+    C = textscan(fileID,'%s %s %s %s %s %s %s %s','HeaderLines',1,'Delimiter',';');
+    fclose(fileID);
+    
+    % alternative format of polimaster file:
+    % - a 1-line header;
+    % - a line with the integrated dose over 10 minutes; the format of the line is eg: "23/07/2021\t23:04:26\tPM1610 #218161\tDose Rate\t0.0900 uSv/h\t0.0000 uSv\t0.0000 uSv\tGamma"
+    % - the reported dose is NOT cumulative!
+    if ( ismissing(C{1,2}) )
+        fprintf("...trying with alternative format! \n");
+        fileID = fopen(fileName,"r");
+        C = textscan(fileID,'%s %s %s %s %s %s %s %s','HeaderLines',1,'Delimiter','\t');
+        fclose(fileID);
+%         % take into account different format of date
+%         mySplitDate=split(string(C{1,1}),"/");
+%         C{1,1}=cellstr(join(mySplitDate(:,3:-1:1),"/"));
+    end
 end
