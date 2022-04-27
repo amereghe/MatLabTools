@@ -19,7 +19,7 @@ function [tStamps,counts]=ParseDiodeFiles(path2Files,lCollapse)
 %
 % See also ParseStationaryFiles and ParsePolyMasterFiles.
 
-    if ( ~exist('lCollapse','var') ), lCollapse=false; end
+    if ( ~exist('lCollapse','var') ), lCollapse=true; end
     files=dir(path2Files);
     nDataSets=length(files);
     fprintf("acquring %i data sets in %s ...\n",nDataSets,path2Files);
