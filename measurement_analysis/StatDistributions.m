@@ -1,4 +1,4 @@
-function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,noiseLevelFWxM,INTlevel,myMask,lDebug)
+function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,noiseLevelFWxM,INTlevel,myMask,lDebug,dTitle)
 % StatDistributions                  to compute basic statistical infos of
 %                                       distributions (acquired by both DDS and CAMeretta);
 % The algorithm is based on the one for CAMeretta, but it is centred around
@@ -10,13 +10,14 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
 %   . rows: index of independent coordinate (e.g. time/position);
 %   . columns: index of the signal to process;
 %   NB: column 1 is the list of values of the independent variable;
-% - FWxMval (array): values (ratios to max) at which the FW should be computed
+% - FWxMval (1D array,optional): values (ratios to max) at which the FW should be computed
 %     (either as percentage or as ratio to 1); default (scalar): 50% (FWHM);
-% - noiseLevelFWxM (scalar): cut threshold for computing FWxM
+% - noiseLevelFWxM (scalar,optional): cut threshold for computing FWxM
 %     (either as percentage or as ratio to 1); default: 20%;
-% - INTlevel (scalar): min value of integral above which a profile should be
+% - INTlevel (scalar,optional): min value of integral above which a profile should be
 %     considered for analisis; default: 20k;
-% - lDebug (boolean): activate debug mode (for the time being, plots);
+% - lDebug (boolean,optional): activate debug mode (for the time being, plots);
+% - dTitle (string,optional): title to be displayed in debug plots;
 %
 % output:
 % - BARs (2D float array): max of smoothed distribution;
@@ -40,11 +41,13 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
     if ( ~exist('INTlevel','var') ), INTlevel=missing(); end
     if ( ~exist('lDebug','var') ), lDebug=missing(); end
     if ( ~exist('myMask','var') ), myMask=missing(); end
+    if ( ~exist('dTitle','var') ), dTitle=missing(); end
     %
     if ( ismissing(FWxMval) ), FWxMval=0.50; end
     if ( ismissing(noiseLevelFWxM) ), noiseLevelFWxM=0.18; end
     if ( ismissing(INTlevel) ), INTlevel=20000; end
     if ( ismissing(lDebug) ), lDebug=true; end
+    if ( ismissing(dTitle) ), dTitle=""; end
     
     fprintf("computing INTs, BARs and FWxMs...\n");
     % if >1, levels are assumed in percentage
@@ -129,7 +132,12 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
                      myXs,myYs,"*",repXs,repYs,".-", ...                            % filtered signal and interpolated signal
                      [tmpFWxMleftPos ; tmpFWxMrightPos],[FWxMvalAbs ; FWxMvalAbs],"k-",...      % FWxM
                      [BARs(iSet,iPlane) BARs(iSet,iPlane)], [0.0 1.1*tmpMax],"k-"); % BAR
-                title(sprintf("%s plane",planes(iPlane))); grid on; xlabel("fiber position [mm]"); ylabel("counts []");
+                grid on; xlabel("fiber position [mm]"); ylabel("counts []");
+                if ( strlength(dTitle)>0 )
+                    title(sprintf("%s plane - %s",planes(iPlane)),dTitle);
+                else
+                    title(sprintf("%s plane",planes(iPlane)));
+                end
             end
         end
         if ( lDebug ), pause(); end

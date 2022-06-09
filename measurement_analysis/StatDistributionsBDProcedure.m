@@ -71,7 +71,7 @@ function [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(profiles,noiseLevel,INTl
                     FWHMright=FWHMave+0.5*FWHMs(iSet,iPlane);
                 end
                 plot(tmpXs(:,iPlane),oriYs(:,iPlane),"o", ...                       % original signal
-                     tmpXs(:,iPlane),tmpYs(:,iPlane),".-", ...                       % filtered signal
+                     tmpXs(:,iPlane),tmpYs(:,iPlane),".-", ...                      % filtered signal
                      [FWHMleft FWHMright],[FWHMvalAbs FWHMvalAbs],"k-",...          % FWxM
                      [BARs(iSet,iPlane) BARs(iSet,iPlane)], [0.0 1.1*tmpMax],"k-"); % BAR
                 title(sprintf("%s plane",planes(iPlane))); grid on; xlabel("fiber position [mm]"); ylabel("counts []");

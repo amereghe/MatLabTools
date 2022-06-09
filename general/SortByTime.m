@@ -24,15 +24,15 @@ function [tStampsOUT,countsOUT,ids]=SortByTime(tStampsIN,countsIN,nData)
     end
     if ( size(tStampsIN,2)==nMonitors ) 
         for iMonitor=1:nMonitors
-            [~,ids(:,iMonitor)]=sort(tStampsIN(1:nData(iMonitor),iMonitor));
-            tStampsOUT(1:nData(iMonitor),iMonitor)=tStampsIN(ids(:,iMonitor),iMonitor);
-            countsOUT(1:nData(iMonitor),iMonitor)=countsIN(ids(:,iMonitor),iMonitor);
+            [~,ids(1:nData(iMonitor),iMonitor)]=sort(tStampsIN(1:nData(iMonitor),iMonitor));
+            tStampsOUT(1:nData(iMonitor),iMonitor)=tStampsIN(ids(1:nData(iMonitor),iMonitor),iMonitor);
+            countsOUT(1:nData(iMonitor),iMonitor)=countsIN(ids(1:nData(iMonitor),iMonitor),iMonitor);
         end
     else
-        [tStampsOUT(:),idx]=sort(tStampsIN(:));
+        [tStampsOUT,idx]=sort(tStampsIN(:));
         for iMonitor=1:nMonitors
-            ids(:,iMonitor)=idx(:);
-            countsOUT(1:nData(iMonitor),iMonitor)=countsIN(ids(:,iMonitor),iMonitor);
+            ids(1:nData(iMonitor),iMonitor)=idx(:);
+            countsOUT(1:nData(iMonitor),iMonitor)=countsIN(ids(1:nData(iMonitor),iMonitor),iMonitor);
         end
     end
     fprintf("...done;\n");

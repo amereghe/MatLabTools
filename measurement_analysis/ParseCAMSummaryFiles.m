@@ -86,7 +86,7 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
                     INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,7}(iStart:iStop,:);
                 end
             end
-            fprintf("   ...acquired %d entries in file %s...\n",nCounts,files(iSet).name);
+            fprintf("   ...acquired %d entries in file %s (%d/%d)...\n",nCounts,files(iSet).name,iSet,nDataSets);
             nCountsTot=nCountsTot+nCounts;
             nReadFiles=nReadFiles+1;
         end
