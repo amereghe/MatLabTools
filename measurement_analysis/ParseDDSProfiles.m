@@ -28,45 +28,56 @@ function [measData,cyCodes,cyProgs]=ParseDDSProfiles(paths2Files,fFormat)
     else
         error("wrong indication of format of file: %s. Can only be DDS and CAM",fFormat);
     end
-    fprintf("acquring %s profiles ...\n",fFormat);
+    actualDataSets=1;
+    measData=NaN(max(Nx,Ny),maxColumns,2,actualDataSets);
+    cyProgs=NaN(actualDataSets,1);
+    cyCodes=strings(actualDataSets,1);
     
-    actualDataSets=0;
+    fprintf("acquring %s profiles ...\n",fFormat);
     for iPath=1:length(paths2Files)
         files=dir(paths2Files(iPath));
         nDataSets=length(files);
         fprintf("...acquring %i data sets in %s ...\n",nDataSets,paths2Files(iPath));
 
+        nAcq=0;
         for iSet=1:nDataSets
-            fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
-            actualDataSets=actualDataSets+1;
+            % check cycle prog, to guarantee continuity
             if ( strcmpi(fFormat,"DDS") )
-                tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'HeaderLines',1,'MultipleDelimsAsOne',true));
-                % x-axis values
-                measData(1:Nx,1,1)=tmp(1:Nx,1);                % fiber positions
-                measData(1:Nx,1+actualDataSets,1)=tmp(1:Nx,2); % values
-                % y-axis values
+                tmp=split(files(iSet).name,"-");
+                tmpCyProg=str2num(tmp{3});
+            else  % CAM(eretta)
+                tmp=split(files(iSet).name,"_");
+                tmpCyProg=str2num(tmp{1});
+            end
+            tmpCyCode=string(tmp{2});
+            if ( actualDataSets>1 && tmpCyProg>cyProgs(actualDataSets-1)+1 )
+                % fast forward with NaNs
+                [measData,cyProgs,cyCodes,actualDataSets]=FastForwardProfileAcquisitions(measData,cyProgs,cyCodes,actualDataSets,tmpCyProg,cyProgs(actualDataSets-1));
+            end
+            %
+            nAcq=nAcq+1;
+            fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
+            tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'HeaderLines',1,'MultipleDelimsAsOne',true));
+            % x-axis values
+            measData(1:Nx,1,1)=tmp(1:Nx,1);                % fiber positions
+            measData(1:Nx,1+actualDataSets,1)=tmp(1:Nx,2); % values
+            % y-axis values
+            if ( strcmpi(fFormat,"DDS") )
                 measData(1:Ny,1,2)=tmp(1:Ny,3);                % fiber positions
                 measData(1:Ny,1+actualDataSets,2)=tmp(1:Ny,4); % values
-                % store cycle code and cycle prog
-                tmp=split(files(iSet).name,"-");
-                cyProgs(actualDataSets)=str2num(tmp{3});
             else  % CAM(eretta)
-                tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'HeaderLines',1,'MultipleDelimsAsOne',true));
-                % x-axis values
-                measData(1:Nx,1,1)=tmp(1:Nx,1);                % fiber positions
-                measData(1:Nx,1+actualDataSets,1)=tmp(1:Nx,2); % values
-                % y-axis values
                 measData(1:Ny,1,2)=tmp(1:Ny,1);                % fiber positions
                 measData(1:Ny,1+actualDataSets,2)=tmp(1:Ny,3); % values
-                % store cycle code and cycle prog
-                tmp=split(files(iSet).name,"_");
-                cyProgs(actualDataSets)=str2num(tmp{1});
             end
-            cyCodes(actualDataSets)=string(tmp{2});
+            % store cycle prog and cycle code
+            cyProgs(actualDataSets)=tmpCyProg;
+            cyCodes(actualDataSets)=tmpCyCode;
+            actualDataSets=actualDataSets+1;
         end
-        fprintf("...acqured %i files;\n",actualDataSets);
+        fprintf("...acqured %i files;\n",nAcq);
     end
-    if ( actualDataSets>0 )
+    nAcquired=size(measData,4);
+    if ( nAcquired>0 )
         cyCodes=PadCyCodes(cyCodes);
         cyCodes=UpperCyCodes(cyCodes);
         if ( size(cyProgs,2)>size(cyProgs,1) )
