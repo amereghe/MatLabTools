@@ -84,6 +84,7 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
             myXs=tmpXs(tmpIndices,iPlane); myYs=0.0*myXs; repXs=0.0*myXs; repYs=0.0*myXs;
             [tmpMax,idMax]=max(tmpYs(tmpIndices,iPlane));
             FWxMvalAbs=FWxMval*tmpMax;                                       % array
+            tmpFWxMleftPos=NaN(size(FWxMvalAbs)); tmpFWxMrightPos=NaN(size(FWxMvalAbs));
             % do the actual job
             if ( ismissing(myMask) )
                 XsPreFilter=tmpXs(:,iPlane);
@@ -140,7 +141,7 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
                 end
             end
         end
-        if ( lDebug ), pause(); end
+        if ( lDebug ), pause(0.01); end
     end
     fprintf("...done.\n");
 end

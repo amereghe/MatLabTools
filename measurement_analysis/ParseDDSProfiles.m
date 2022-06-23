@@ -28,6 +28,7 @@ function [measData,cyCodes,cyProgs]=ParseDDSProfiles(paths2Files,fFormat)
     else
         error("wrong indication of format of file: %s. Can only be DDS and CAM",fFormat);
     end
+    maxColumns=2;   % number of columns per cyProg
     actualDataSets=1;
     measData=NaN(max(Nx,Ny),maxColumns,2,actualDataSets);
     cyProgs=NaN(actualDataSets,1);
