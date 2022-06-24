@@ -45,19 +45,21 @@ function [vOut,Refs]=ConvertCyCodes(cyCodesIN,what,pathP,pathC,lDebug)
         end
     end
     
+    fprintf("converting cycodes into %s...\n",what);
+    
     % get maps
     [rangeCodes,partCodes]=DecodeCyCodes(cyCodesIN);
     % verify that all particle codes are recognizable
     unidentified=(partCodes<0 & partCodes>3 );
     if ( sum(unidentified)>0 )
-        warning("unidentified particle in some cyCodes:\n%s",join(cyCodesIN(unidentified),newline));
+        warning("unidentified particle in some cyCodes:\n%s",PrintUnidentified(cyCodesIN(unidentified)));
     end
     [lCCP,iCCP]=MapCyCode(rangeCodes,P_cyCodes);
     [lCCC,iCCC]=MapCyCode(rangeCodes,C_cyCodes);
     % verify that all ranges are recognizable
     unidentified=find(~lCCC & ~lCCP);
     if ( sum(unidentified)>0 )
-        warning("unidentified range in some cyCodes:\n%s",join(cyCodesIN(unidentified),newline));
+        warning("unidentified range in some cyCodes:\n%s",PrintUnidentified(cyCodesIN(unidentified)));
     end
     
     % assign values
@@ -85,4 +87,11 @@ function ShowDebugRefData(whatToShow,myYlabel,myTitle)
     plot(whatToShow,"o"); hold on; plot(sort(whatToShow),".");
     grid(); xlabel("ID []"); ylabel(myYlabel); title(myTitle);
     legend("Raw data","sorted data","Location","best");
+end
+
+function myMessage=PrintUnidentified(cyCodesINun)
+    % based on https://it.mathworks.com/matlabcentral/answers/299479-finding-the-frequency-of-unique-values
+    [ii,jj,kk]=unique(cyCodesINun);
+    freq=accumarray(kk,1);
+    myMessage=sprintf("cycle code: %s - occurrences: %.0f;\n",[ii freq]');
 end
