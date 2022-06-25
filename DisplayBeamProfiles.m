@@ -76,4 +76,4 @@ ShowBeamProfilesSummaryData(BarsSumm,FwhmsSumm,AsymsSumm,IntsSumm,myFigTitle);
 CompBars=BarsSumm; CompBars(:,:,2)=BARs;
 CompFwhms=FwhmsSumm; CompFwhms(:,:,2)=FWHMs;
 CompInts=IntsSumm; CompInts(:,:,2)=INTs;
-CompareStats(CompBars,CompFwhms,CompInts);
+CompareStats(CompBars,CompFwhms,CompInts,missing(),["stat on profiles" "summary data"]);
