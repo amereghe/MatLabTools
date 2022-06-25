@@ -1,7 +1,7 @@
 function [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(profiles,noiseLevel,INTlevel,lDebug)
 % StatDistributionsCAMProcedure      to compute basic statistical infos of
-%                                       distributions recorded by the
-%                                       CAMeretta;
+%                                       distributions recorded by monitors
+%                                       other than CAMeretta;
 % 
 % input:
 % - profiles (2D float array): signals to process:

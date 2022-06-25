@@ -1,4 +1,4 @@
-function ShowDDSSummaryData(bars,fwhms,asyms,ints)
+function ShowBeamProfilesSummaryData(bars,fwhms,asyms,ints,myFigTitle)
     figure();
     planes=["HOR" "VER"];
     
@@ -25,5 +25,6 @@ function ShowDDSSummaryData(bars,fwhms,asyms,ints)
     
     % global
     linkaxes(axs,"x");
+    if (exist("myFigTitle","var")), sgtitle(myFigTitle); end
     
 end
