@@ -51,7 +51,7 @@ function [measData,cyCodes,cyProgs]=ParseDDSProfiles(paths2Files,fFormat)
                 tmpCyProg=str2num(tmp{1});
             end
             tmpCyCode=string(tmp{2});
-            if ( actualDataSets>1 && tmpCyProg>cyProgs(actualDataSets-1)+1 )
+            if ( actualDataSets>1 && tmpCyProg>cyProgs(actualDataSets-1)+1 && nAcq>0 )
                 % fast forward with NaNs
                 [measData,cyProgs,cyCodes,actualDataSets]=FastForwardProfileAcquisitions(measData,cyProgs,cyCodes,actualDataSets,tmpCyProg,cyProgs(actualDataSets-1),fFormat);
             end

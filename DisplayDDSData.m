@@ -24,7 +24,10 @@ kPath="S:\Accelerating-System\Accelerator-data";
 % kPath="K:";
 DDSpathMain="T:\AMereghetti\DDS_for_RP";
 DDSpaths=[...
-    strcat(DDSpathMain,"\PRC-544-220410*") 
+    strcat(DDSpathMain,"\PRC-544-220410-2143") 
+    strcat(DDSpathMain,"\PRC-544-220410-2204") 
+    strcat(DDSpathMain,"\PRC-544-220410-2208") 
+    strcat(DDSpathMain,"\PRC-544-220410-2210") 
     ];
 DDSsummFiles=DDSpaths+"\Data-*.csv";
 DDSprofFiles=DDSpaths+"\Profiles\Data-*.csv";
@@ -41,7 +44,7 @@ clear DDSprofiles DDScyCodes DDScyProgs
 if (length(DDScyProgsSumm)<=1), error("...no summary data aquired!"); end
 % - parse DDS profiles
 [DDSprofiles,DDScyCodes,DDScyProgs]=ParseDDSProfiles(DDSprofFiles,"DDS");
-if (length(DDScyProgs)<=1), error("...no summary data aquired!"); end
+if (length(DDScyProgs)<=1), error("...no profiles aquired!"); end
 % - get statistics out of profiles
 [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(DDSprofiles);
 
