@@ -29,6 +29,7 @@ function [measData,cyCodes,cyProgs]=ParseDDSProfiles(paths2Files,fFormat)
         error("wrong indication of format of file: %s. Can only be DDS and CAM",fFormat);
     end
     actualDataSets=1;
+    maxColumns=2;
     measData=NaN(max(Nx,Ny),maxColumns,2,actualDataSets);
     cyProgs=NaN(actualDataSets,1);
     cyCodes=strings(actualDataSets,1);
@@ -50,9 +51,9 @@ function [measData,cyCodes,cyProgs]=ParseDDSProfiles(paths2Files,fFormat)
                 tmpCyProg=str2num(tmp{1});
             end
             tmpCyCode=string(tmp{2});
-            if ( actualDataSets>1 && tmpCyProg>cyProgs(actualDataSets-1)+1 )
+            if ( actualDataSets>1 && tmpCyProg>cyProgs(actualDataSets-1)+1 && nAcq>0 )
                 % fast forward with NaNs
-                [measData,cyProgs,cyCodes,actualDataSets]=FastForwardProfileAcquisitions(measData,cyProgs,cyCodes,actualDataSets,tmpCyProg,cyProgs(actualDataSets-1));
+                [measData,cyProgs,cyCodes,actualDataSets]=FastForwardProfileAcquisitions(measData,cyProgs,cyCodes,actualDataSets,tmpCyProg,cyProgs(actualDataSets-1),fFormat);
             end
             %
             nAcq=nAcq+1;
