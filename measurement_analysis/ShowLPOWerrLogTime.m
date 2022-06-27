@@ -28,7 +28,7 @@ function ShowLPOWerrLogTime(tStampsLPOWMon,LGENsLPOWMon,requestedLGENs,repoValsL
             currLGEN=requestedLGENs(iLGEN);
             LGENindices=(LGENsLPOWMon==currLGEN);
             % - repo values:
-            plot(datenum(tStampsLPOWMon(LGENindices)),repoValsLPOWMon(LGENindices),"k*");
+            plot(datenum(tStampsLPOWMon(LGENindices)),repoValsLPOWMon(LGENindices),"k-");
             jj=1; legends(jj)="repo value";
             % - proton values:
             myIndices=(indicesP & LGENindices);
