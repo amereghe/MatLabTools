@@ -4,6 +4,8 @@
 % this is a script which parses beam profiles files and plots them
 % - the script crunches as many files as desired, provided the fullpaths;
 % - for the time being, only CAMeretta/DDS/SFH/SFM monitors;
+%   QBM/GIM/PMM/PIB/SFP are NOT supported but the implementation should be
+%   straightforward;
 % - for CAMeretta/DDS: both summary files and actual profiles in the same
 %   path are aquired;
 % - for SFH/SFM: profiles are acquired, but only the integral ones are
@@ -29,7 +31,7 @@ MonPathMain="\alone_H5-009A-QUE";
 MonPaths=[...
     strcat(kPath,MonPathMain,"\PRC-544-220109-0259_U1-021B-SFM") 
     ];
-monType="SFM"; % DDS, CAM, SFH/SFM
+monType="SFM"; % DDS, CAM, SFH/SFM - QBM/GIM/PMM/PIB/SFP to come
 myTit=sprintf("%s profiles in %s",monType,MonPathMain);
 % -------------------------------------------------------------------------
 
