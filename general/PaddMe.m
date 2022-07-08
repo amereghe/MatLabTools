@@ -15,7 +15,7 @@ function NewMatrix=PaddMe(NewArray,OldMatrix,PadVal)
         NewMatrix(1:nRowsNew,nColsExist+1:nColsExist+nColsNew)=NewArray;
         if ( nRowsExist>nRowsNew )
             % fill in added columns with PadVals instead of 0.0
-            NewMatrix(nRowsNew+1:nRowsExist,:)=PadVal;
+            NewMatrix(nRowsNew+1:nRowsExist,nColsExist+1:nColsExist+nColsNew)=PadVal;
         end
     end
 end
