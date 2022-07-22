@@ -36,40 +36,37 @@ function X=SolveSigSystem(B,sigs,sig_dpp)
         error("Size of transport matrix (%d) and measurements (%d) do not agree!", ...
             size(B,3), length(sigs2) );
     end
+    indices=(~ismissing(sigs2) & sigs2>0.0);
+    nValidPoints=sum(indices);
+    if ( nValidPoints==0 )
+        error("no valid sigma data to fit!");
+    end
+    % min fit info
+    A=NaN(nValidPoints,3);
+    C=BuildTransportMatrixForOptics(B);
+    A(:,1)=C(1,1,indices);
+    A(:,2)=-C(1,2,indices); % ref: eqs. 5.47/5.48, Wiedemann, pag. 165, ed 2007
+    A(:,3)=C(1,3,indices);
     if ( size(B,1)==2 && size(B,2)==2 )
-        A=zeros(length(sigs2),3);
-        C=BuildTransportMatrixForOptics(B);
-        A(:,1)=C(1,1,:);
-        A(:,2)=-C(1,2,:);
-        A(:,3)=C(1,3,:);
-        X=linsolve(A,sigs2,opts);
+        X=linsolve(A,sigs2(indices),opts);
     elseif ( size(B,1)==3 && size(B,2)==3 )
         if ( exist('sig_dpp','var') )
             if ( sig_dpp == 0.0 )
-                % sig_dpp is set to null by user: perform a 3-params fit
-                A=zeros(length(sigs2),3);
+                % the system is solved as a pure betatronic one
+                X=linsolve(A,sigs2(indices),opts);
             else
-                % sig_dpp is given by user: perform a 5-params fit
-                A=zeros(length(sigs2),5);
+                % sig_dpp is given by user: perform a 5-params fit;
+                A(:,4)=2*B(1,1,indices).*B(1,3,indices);
+                A(:,5)=2*B(1,2,indices).*B(1,3,indices);
+                X=linsolve(A,sigs2(indices)-reshape(B(1,3,indices).^2*sig_dpp^2,nValidPoints,1),opts);
+                X(6)=sig_dpp^2;
             end
         else
-            A=zeros(length(sigs2),6);
-        end
-        A(:,1)=B(1,1,:).^2;
-        A(:,2)=2*B(1,1,:).*B(1,2,:);
-        A(:,3)=B(1,2,:).^2;
-        if ( exist('sig_dpp','var') )
-            if ( sig_dpp ~= 0.0 )
-                A(:,4)=2*B(1,1,:).*B(1,3,:);
-                A(:,5)=2*B(1,2,:).*B(1,3,:);
-            end
-            X=linsolve(A,sigs2-reshape(B(1,3,:).^2*sig_dpp^2,length(sigs2),1),opts);
-            X(6)=sig_dpp^2;
-        else
-            A(:,4)=2*B(1,1,:).*B(1,3,:);
-            A(:,5)=2*B(1,2,:).*B(1,3,:);
-            A(:,6)=B(1,3,:).^2;
-            X=linsolve(A,sigs2,opts);
+            % sig_dpp is derived from fitting
+            A(:,4)=2*B(1,1,indices).*B(1,3,indices);
+            A(:,5)=2*B(1,2,indices).*B(1,3,indices);
+            A(:,6)=B(1,3,indices).^2;
+            X=linsolve(A,sigs2(indices),opts);
         end
     else
         error("B can only be 2x2xNconfigs or 3x3xNconfigs");

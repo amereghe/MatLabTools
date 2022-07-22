@@ -23,10 +23,14 @@ function [beta,alpha,emiG,disp,dispP,sigdpp]=DecodeOpticsFit(SS)
 % see also BuildTransportMatrixForOptics, DecodeOrbitFit,
 %       FitOpticsThroughOrbitData, FitOpticsThroughSigmaData, SolveOrbSystem,
 %       and SolveSigSystem
+    beta=NaN(); alpha=NaN(); emiG=NaN();
+    disp=NaN(); dispP=NaN(); sigdpp=NaN();
     if ( length(SS)==6 )
         sigdpp=sqrt(SS(6));
-        disp=SS(4)/SS(6);
-        dispP=SS(5)/SS(6);
+        if ( sigdpp~=0.0 )
+            disp=SS(4)/SS(6);
+            dispP=SS(5)/SS(6);
+        end
         TT=zeros(3,1);
         if ( sigdpp==0.0 )
             TT(1)=SS(1);
@@ -38,9 +42,6 @@ function [beta,alpha,emiG,disp,dispP,sigdpp]=DecodeOpticsFit(SS)
             TT(3)=SS(3)-(dispP^2)*SS(6);
         end
     elseif ( length(SS)==3 )
-        disp=0.0;
-        dispP=0.0;
-        sigdpp=0.0;
         TT=SS;
     else
         error("SS can only be an array of 3 or 6 elements!");
