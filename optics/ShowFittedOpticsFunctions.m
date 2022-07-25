@@ -17,6 +17,12 @@ function ShowFittedOpticsFunctions(beta,alpha,emiG,disp,dispP,sigdpp,planeLab,la
 % - on the first one, there are the betatron optics functions and emittance;
 % - on the second one, the dispersion ones;
 %
+% NOTA BENE:
+% * if beta is 1D, then the optics scan is performed only
+%   on a sinlge variable, the values of which are stored in labels;
+% * if beta is 2D, the the optics scan is performed in sigdpp, parametric
+%   in a second variable expressed by labels;
+%
 % more info at:
 %      https://accelconf.web.cern.ch/d99/papers/PT10.pdf
 %
