@@ -34,6 +34,8 @@ function ShowFittedOpticsFunctions(beta,alpha,emiG,disp,dispP,sigdpp,planeLab,la
     
     nSeries=size(beta,2);
     cm=colormap(parula(nSeries));
+    xMin=min(xVals); xMax=max(xVals); dx=xMax-xMin;
+    xlims=[ xMin-0.05*dx xMax+0.05*dx];
     
     %% first row of plots: beta, alpha and emittance 
     ax1=subplot(2,3,1);
@@ -42,7 +44,7 @@ function ShowFittedOpticsFunctions(beta,alpha,emiG,disp,dispP,sigdpp,planeLab,la
         plot(xVals,beta(:,ii),'*-',"color",cm(ii,:));
     end
     title("\beta"); ylabel("[m]"); xlabel(myXlabel);
-    grid on;
+    grid on; xlim(xlims);
     if ( exist('labels','var') )
         if ( size(beta,2)==1 )
             xticks(1:length(labels));
@@ -59,7 +61,7 @@ function ShowFittedOpticsFunctions(beta,alpha,emiG,disp,dispP,sigdpp,planeLab,la
         plot(xVals,alpha(:,ii),'*-',"color",cm(ii,:));
     end
     title("\alpha"); ylabel("[]"); xlabel(myXlabel);
-    grid on;
+    grid on; xlim(xlims);
     if ( exist('labels','var') )
         if ( size(beta,2)==1 )
             xticks(1:length(labels));
@@ -76,7 +78,7 @@ function ShowFittedOpticsFunctions(beta,alpha,emiG,disp,dispP,sigdpp,planeLab,la
         plot(xVals,emiG(:,ii)*1E6,'*-',"color",cm(ii,:));
     end
     title("\epsilon"); ylabel("[\mum]"); xlabel(myXlabel);
-    grid on;
+    grid on; xlim(xlims);
     if ( exist('labels','var') )
         if ( size(beta,2)==1 )
             xticks(1:length(labels));
@@ -94,7 +96,7 @@ function ShowFittedOpticsFunctions(beta,alpha,emiG,disp,dispP,sigdpp,planeLab,la
         plot(xVals,disp(:,ii),'*-',"color",cm(ii,:));
     end
     title("D"); ylabel("[m]"); xlabel(myXlabel);
-    grid on;
+    grid on; xlim(xlims);
     if ( exist('labels','var') )
         if ( size(beta,2)==1 )
             xticks(1:length(labels));
@@ -111,7 +113,7 @@ function ShowFittedOpticsFunctions(beta,alpha,emiG,disp,dispP,sigdpp,planeLab,la
         plot(xVals,dispP(:,ii),'*-',"color",cm(ii,:));
     end
     title("D'"); ylabel("[]"); xlabel(myXlabel);
-    grid on;
+    grid on; xlim(xlims);
     if ( exist('labels','var') )
         if ( size(beta,2)==1 )
             xticks(1:length(labels));
@@ -129,7 +131,7 @@ function ShowFittedOpticsFunctions(beta,alpha,emiG,disp,dispP,sigdpp,planeLab,la
             plot(xVals,sigdpp(:,ii),'*-',"color",cm(ii,:));
         end
         title("\sigma_{\Deltap/p}"); ylabel("[]"); xlabel(myXlabel);
-        grid on;
+        grid on; xlim(xlims);
         xticks(1:length(labels)); xticklabels(labels); xtickangle(45); 
     end
 
