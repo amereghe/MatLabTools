@@ -39,7 +39,15 @@ function X=SolveSigSystem(B,sigs,sig_dpp)
     indices=(~ismissing(sigs2) & sigs2>0.0);
     nValidPoints=sum(indices);
     if ( nValidPoints==0 )
-        error("no valid sigma data to fit!");
+        warning("no valid sigma data to fit!");
+        if ( size(B,1)==2 && size(B,2)==2 )
+            X=NaN(3,1);
+        elseif ( size(B,1)==3 && size(B,2)==3 )    
+            X=NaN(6,1);
+        else
+            error("B can only be 2x2xNconfigs or 3x3xNconfigs");
+        end
+        return
     end
     % min fit info
     A=NaN(nValidPoints,3);

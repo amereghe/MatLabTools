@@ -27,17 +27,22 @@ function X=SolveOrbSystem(B,BARs)
         error("Size of transport matrix (%d) and measurements (%d) do not agree!", ...
             size(B,3), length(BARsM) );
     end
+    indices=(~ismissing(BARsM) & ~isnan(BARsM));
+    nValidPoints=sum(indices);
+    if ( nValidPoints==0 )
+        error("no valid baricentre data to fit!");
+    end
     if ( size(B,1)==2 && size(B,2)==2 )
-        A=zeros(length(BARsM),2);
-        A(:,1)=B(1,1,:);
-        A(:,2)=B(1,2,:);
-        X=linsolve(A,BARsM,opts);
+        A=zeros(nValidPoints,2);
+        A(:,1)=B(1,1,indices);
+        A(:,2)=B(1,2,indices);
+        X=linsolve(A,BARsM(indices),opts);
     elseif ( size(B,1)==3 && size(B,2)==3 )
-        A=zeros(length(BARsM),3);
-        A(:,1)=B(1,1,:);
-        A(:,2)=B(1,2,:);
-        A(:,3)=B(1,3,:);
-        X=linsolve(A,BARsM,opts);
+        A=zeros(nValidPoints,3);
+        A(:,1)=B(1,1,indices);
+        A(:,2)=B(1,2,indices);
+        A(:,3)=B(1,3,indices);
+        X=linsolve(A,BARsM(indices),opts);
     else
         error("B can only be 2x2xNconfigs or 3x3xNconfigs");
     end
