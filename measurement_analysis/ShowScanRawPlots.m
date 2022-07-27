@@ -47,9 +47,15 @@ function ShowScanRawPlots(Is,FWHMs,BARs,INTs,nData,scanDescription,titleSeries,a
             end
             iPlot=kk+(jj-1)*nCols;
             ax(iPlot)=subplot(nRows,nCols,iPlot);
-            plot(whatToShow(1:nData(jj),1,jj),"*-"); hold on; plot(whatToShow(1:nData(jj),2,jj),"*-"); 
+            plot(whatToShow(1:nData(jj),1,jj),"*-"); hold on; plot(whatToShow(1:nData(jj),2,jj),"*-");
+            if ( strcmpi(whatName,"FWHM") )
+                PlotMonsBinWidth([1 nData(jj)],titleSeries(jj));
+                legend("HOR","VER","MON bin width","Location","best");
+            else
+                legend("HOR","VER","Location","best");
+            end
             grid on; ylabel(labelY); xlabel("ID []");
-            title(sprintf("%s - %s",whatName,titleSeries(jj))); legend("HOR","VER","Location","best");
+            title(sprintf("%s - %s",whatName,titleSeries(jj)));
         end
     end
     % corrente

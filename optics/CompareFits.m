@@ -1,4 +1,4 @@
-function CompareFits(calcY,xVals,measY,measCurr,what,par1Names,par2Names,planeNames,myXlabel,par3Names,myTit)
+function CompareFits(calcY,xVals,measY,measCurr,what,par1Names,par2Names,planeNames,myXlabel,par3Names,myTit,myMon)
     if ( ~strcmpi(what,"SIG") && ~strcmpi(what,"BAR") )
         error("you can compare either SIGmas or BARicentres!");
     end
@@ -26,20 +26,20 @@ function CompareFits(calcY,xVals,measY,measCurr,what,par1Names,par2Names,planeNa
         cm=colormap(parula(nPar3));
         ii=0;
         for iPlane=1:nPlanes
-            yMin=min(measY(:,iPlane,:),[],"all");
-            yMax=max(measY(:,iPlane,:),[],"all");
-            yDlt=yMax-yMin;
             for iPar2=1:nPar2 % eg: fractEst
                 ii=ii+1; axs(iPar2,iPlane)=subplot(nPlanes,nPar2+1,ii);
                 % - measurements
-                plot(measCurr,measY(:,iPlane,iPar2),"k*"); hold on;
+                plot(measCurr(:,iPlane),measY(:,iPlane,iPar2),"k*"); hold on;
                 % - fits
                 for iPar3=1:nPar3 % eg: fit set
-                    hold on; plot(xVals(:,iPar3),calcY(:,iPar1,iPar2,iPlane,iPar3)*1E3,".-","color",cm(iPar3,:));
+                    hold on; plot(xVals(:,iPlane,iPar3),calcY(:,iPar1,iPar2,iPlane,iPar3)*1E3,".-","color",cm(iPar3,:));
+                end
+                % - bin width
+                if ( strcmpi(what,"SIG") )
+                    PlotMonsBinWidth(measCurr(:,iPlane),titleSeries(jj));
                 end
                 % - general
                 grid(); xlabel(myXlabel);
-                ylim([yMin-yDlt/10 yMax+yDlt/10]);
                 if ( strcmpi(what,"SIG") )
                     ylabel("\sigma [mm]");
                     title(sprintf("%s plane - %s",planeNames(iPlane),par2Names(iPar2)));
@@ -55,9 +55,17 @@ function CompareFits(calcY,xVals,measY,measCurr,what,par1Names,par2Names,planeNa
                 for iPar3=1:nPar3
                     hold on; plot(NaN(),NaN(),".-","Color",cm(iPar3,:));
                 end
-                legends=strings(nPar3+1,1);
-                legends(1)="measurements";
-                legends(2:end)=par3Names;
+                if ( strcmpi(what,"SIG") )
+                    hold on; plot(NaN(),NaN(),"r-");
+                    legends=strings(nPar3+2,1);
+                    legends(1)="measurements";
+                    legends(2:end-1)=par3Names;
+                    legends(end)="MON bin width";
+                else
+                    legends=strings(nPar3+1,1);
+                    legends(1)="measurements";
+                    legends(2:end)=par3Names;
+                end
                 legend(legends,"Location","best");
             end
         end
@@ -65,6 +73,6 @@ function CompareFits(calcY,xVals,measY,measCurr,what,par1Names,par2Names,planeNa
             linkaxes(axs(:,1),"xy"); % all HOR quantities
             linkaxes(axs(:,2),"xy"); % all VER quantities
         end
-        sgtitle(sprintf("%s - %s",par1Names(iPar1),myTit));
+        sgtitle(sprintf("%s - %s - %s",myTit,myMon,par1Names(iPar1)));
     end
 end
