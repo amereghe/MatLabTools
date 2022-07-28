@@ -42,7 +42,7 @@ function ShowScanAligned(Is,FWHMs,BARs,indices,scanDescription,titleSeries,actPl
             ax(iPlot)=subplot(nSeries,2,iPlot);
             yyaxis left;
             plot(Is(indices(1,1):indices(1,2)),whatToShow(indices(jj+1,1):indices(jj+1,2),1,jj),"*-"); ylabel(sprintf("HOR %s",labelY));
-            if ( strcmpi(whatName,"FWHM") ), PlotMonsBinWidth(Is(indices(1,1):indices(1,2)),titleSeries(jj)); end
+            if ( strcmpi(whatName,"FWHM") ), PlotMonsBinWidth(Is(indices(1,1):indices(1,2)),titleSeries(jj),"b"); end
             yyaxis right;
             plot(Is(indices(1,1):indices(1,2)),whatToShow(indices(jj+1,1):indices(jj+1,2),2,jj),"*-"); ylabel(sprintf("VER %s",labelY));
             if ( strcmpi(whatName,"FWHM") ), PlotMonsBinWidth(Is(indices(1,1):indices(1,2)),titleSeries(jj)); end
