@@ -71,14 +71,14 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
         tmpXs(:,1:2)=profiles(:,1,:);      % (nFibers,2)
         tmpYs(:,1:2)=profiles(:,1+iSet,:); % (nFibers,2)
         tmpINTs=sum(tmpYs);
-        if ( sum(tmpINTs)==0 ), continue; end
+        if ( sum(tmpINTs,"omitnan")==0 ), continue; end
         if ( lDebug ), sgtitle(sprintf("profiles id #%d",iSet)); end
         % FWxMs
         for iPlane=1:2
             if ( lDebug ), subplot(1,2,iPlane); end
             % default values, in case fitting does not proceed
             tmpIndices=tmpYs(:,iPlane)>0;
-            FWxMls(iSet,iPlane,:)=min(tmpXs(tmpIndices,iPlane))*ones(1,length(FWxMval));  % array
+            FWxMls(iSet,iPlane,:)=min(tmpXs(tmpIndices,iPlane))*ones(1,length(FWxMval)); % array
             FWxMrs(iSet,iPlane,:)=max(tmpXs(tmpIndices,iPlane))*ones(1,length(FWxMval)); % array
             FWxMs(iSet,iPlane,:)=NaN(1,length(FWxMval));
             myXs=tmpXs(tmpIndices,iPlane); myYs=0.0*myXs; repXs=0.0*myXs; repYs=0.0*myXs;
