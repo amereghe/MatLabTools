@@ -57,16 +57,19 @@ function X=SolveSigSystem(B,sigs,sig_dpp)
     A(:,3)=C(1,3,indices);
     if ( size(B,1)==2 && size(B,2)==2 )
         X=linsolve(A,sigs2(indices),opts);
+        % lb=[0 -inf 0]; ub=[inf inf inf]; XC = lsqlin(A,sigs2(indices),[],[],[],[],lb,ub);
     elseif ( size(B,1)==3 && size(B,2)==3 )
         if ( exist('sig_dpp','var') )
             if ( sig_dpp == 0.0 )
                 % the system is solved as a pure betatronic one
                 X=linsolve(A,sigs2(indices),opts);
+                % lb=[0 -inf 0]; ub=[inf inf inf]; XC = lsqlin(A,sigs2(indices),[],[],[],[],lb,ub);
             else
                 % sig_dpp is given by user: perform a 5-params fit;
                 A(:,4)=2*B(1,1,indices).*B(1,3,indices);
                 A(:,5)=2*B(1,2,indices).*B(1,3,indices);
                 X=linsolve(A,sigs2(indices)-reshape(B(1,3,indices).^2*sig_dpp^2,nValidPoints,1),opts);
+                % lb=[0 -inf 0 -inf -inf]; ub=[inf inf inf inf inf]; XC = lsqlin(A,sigs2(indices)-reshape(B(1,3,indices).^2*sig_dpp^2,nValidPoints,1),[],[],[],[],lb,ub);
                 X(6)=sig_dpp^2;
             end
         else
@@ -75,6 +78,7 @@ function X=SolveSigSystem(B,sigs,sig_dpp)
             A(:,5)=2*B(1,2,indices).*B(1,3,indices);
             A(:,6)=B(1,3,indices).^2;
             X=linsolve(A,sigs2(indices),opts);
+            % lb=[0 -inf 0 -inf -inf 0]; ub=[inf inf inf inf inf inf]; XC = lsqlin(A,sigs2(indices),[],[],[],[],lb,ub);
         end
     else
         error("B can only be 2x2xNconfigs or 3x3xNconfigs");
