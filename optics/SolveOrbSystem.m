@@ -30,7 +30,15 @@ function X=SolveOrbSystem(B,BARs)
     indices=(~ismissing(BARsM) & ~isnan(BARsM));
     nValidPoints=sum(indices);
     if ( nValidPoints==0 )
-        error("no valid baricentre data to fit!");
+        warning("no valid baricentre data to fit!");
+        if ( size(B,1)==2 && size(B,2)==2 )
+            X=NaN(3,1);
+        elseif ( size(B,1)==3 && size(B,2)==3 )    
+            X=NaN(6,1);
+        else
+            error("B can only be 2x2xNconfigs or 3x3xNconfigs");
+        end
+        return
     end
     if ( size(B,1)==2 && size(B,2)==2 )
         A=zeros(nValidPoints,2);
