@@ -49,4 +49,14 @@ function [beta,alpha,emiG,disp,dispP,sigdpp]=DecodeOpticsFit(SS)
     emiG=sqrt(TT(1)*TT(3)-TT(2)^2);
     beta=TT(1)/emiG;
     alpha=-TT(2)/emiG;
+    if ( ~isreal(emiG) || emiG<= 0.0)
+        % throw away results: unphysical!
+        warning("...emittance with imaginary part!");
+        beta=NaN(); alpha=NaN(); emiG=NaN();
+    end
+    if ( ~isreal(sigdpp) || sigdpp<= 0.0)
+        % throw away results: unphysical!
+        warning("...sigdpp with imaginary part!");
+        disp=NaN(); dispP=NaN(); sigdpp=NaN();
+    end
 end
