@@ -21,11 +21,7 @@ function ShowScanAligned(Is,FWHMs,BARs,indices,scanDescription,titleSeries,actPl
 %    .png file is saved;
 %    
     fprintf("plotting scan data: FWxMs and BARs vs Iscan...\n");
-    if ( exist('actPlotName','var') )
-        ff = figure('visible','off');
-    else
-        figure();
-    end
+    figure();
     if ( ~exist('titleSeries','var') || sum(ismissing(titleSeries)) )
         titleSeries=compose("Series %02i",(1:size(FWHMs,3))');
     end
@@ -55,9 +51,9 @@ function ShowScanAligned(Is,FWHMs,BARs,indices,scanDescription,titleSeries,actPl
     sgtitle(scanDescription);
     linkaxes(ax,"x");
     if ( exist('actPlotName','var') )
-        MapFileOut=sprintf("%s_scans.png",actPlotName);
+        MapFileOut=sprintf("%s_scans.fig",actPlotName);
+        savefig(MapFileOut);
         fprintf("...saving to file %s ...\n",MapFileOut);
-        exportgraphics(ff,MapFileOut,'Resolution',300); % resolution=DPI
     end
     fprintf("...done.\n");
 end
