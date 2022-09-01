@@ -1,4 +1,4 @@
-function X=SolveSigSystem(B,sigs,sig_dpp)
+function X=SolveSigSystem(B,sigs,sig_dpp,initConds,lDebug)
 % SolveSigSystem      perform a linear fit (e.g. of quad scans) to get
 %                       initial values of optics functions and beam
 %                       statistics data.
@@ -23,6 +23,7 @@ function X=SolveSigSystem(B,sigs,sig_dpp)
 %   . sigs: row vector of measured sigma values (nData,1) [mm];
 %   . sig_dpp (optional): value of sigma_delta_p_over_p to be used in the
 %     fit through data.
+%   . initConds (optional): initial guess values for X;
 %
 % more info at:
 %      https://accelconf.web.cern.ch/d99/papers/PT10.pdf
@@ -30,7 +31,8 @@ function X=SolveSigSystem(B,sigs,sig_dpp)
 % see also BuildTransportMatrixForOptics, DecodeOpticsFit, DecodeOrbitFit,
 %      FitOpticsThroughOrbitData, FitOpticsThroughSigmaData and SolveOrbSystem
 % 
-    opts.RECT=true;
+    if ( ~exist("lDebug","var") ), lDebug=true; end
+    if ( ~exist("initConds","var") ), initConds=missing(); end
     sigs2=(sigs*1E-3).^2; % from [mm] to [m], and then sigma matrix!
     if ( size(B,3)~=length(sigs2) )
         error("Size of transport matrix (%d) and measurements (%d) do not agree!", ...
@@ -56,20 +58,17 @@ function X=SolveSigSystem(B,sigs,sig_dpp)
     A(:,2)=-C(1,2,indices); % ref: eqs. 5.47/5.48, Wiedemann, pag. 165, ed 2007
     A(:,3)=C(1,3,indices);
     if ( size(B,1)==2 && size(B,2)==2 )
-        X=linsolve(A,sigs2(indices),opts);
-        % lb=[0 -inf 0]; ub=[inf inf inf]; XC = lsqlin(A,sigs2(indices),[],[],[],[],lb,ub);
+        X=SolveSigSystemActual(A,sigs2(indices),initConds,lDebug);
     elseif ( size(B,1)==3 && size(B,2)==3 )
         if ( exist('sig_dpp','var') )
-            if ( sig_dpp == 0.0 )
+            if ( ismissing(sig_dpp) || sig_dpp==0.0 )
                 % the system is solved as a pure betatronic one
-                X=linsolve(A,sigs2(indices),opts);
-                % lb=[0 -inf 0]; ub=[inf inf inf]; XC = lsqlin(A,sigs2(indices),[],[],[],[],lb,ub);
+                X=SolveSigSystemActual(A,sigs2(indices),initConds,lDebug);
             else
                 % sig_dpp is given by user: perform a 5-params fit;
                 A(:,4)=2*B(1,1,indices).*B(1,3,indices);
                 A(:,5)=2*B(1,2,indices).*B(1,3,indices);
-                X=linsolve(A,sigs2(indices)-reshape(B(1,3,indices).^2*sig_dpp^2,nValidPoints,1),opts);
-                % lb=[0 -inf 0 -inf -inf]; ub=[inf inf inf inf inf]; XC = lsqlin(A,sigs2(indices)-reshape(B(1,3,indices).^2*sig_dpp^2,nValidPoints,1),[],[],[],[],lb,ub);
+                X=SolveSigSystemActual(A,sigs2(indices)-reshape(B(1,3,indices).^2*sig_dpp^2,nValidPoints,1),initConds,lDebug);
                 X(6)=sig_dpp^2;
             end
         else
@@ -77,10 +76,30 @@ function X=SolveSigSystem(B,sigs,sig_dpp)
             A(:,4)=2*B(1,1,indices).*B(1,3,indices);
             A(:,5)=2*B(1,2,indices).*B(1,3,indices);
             A(:,6)=B(1,3,indices).^2;
-            X=linsolve(A,sigs2(indices),opts);
-            % lb=[0 -inf 0 -inf -inf 0]; ub=[inf inf inf inf inf inf]; XC = lsqlin(A,sigs2(indices),[],[],[],[],lb,ub);
+            X=SolveSigSystemActual(A,sigs2(indices),initConds,lDebug);
         end
     else
         error("B can only be 2x2xNconfigs or 3x3xNconfigs");
     end
 end
+
+function X=SolveSigSystemActual(A,sigs2,initConds,lDebug)
+    opts.RECT=true;
+    if ( ismissing(initConds) )
+        % X=linsolve(A,sigs2,opts);
+        [X,r]=linsolve(A,sigs2,opts);
+        if ( ( size(A,2)==5 && r==3 && sum(A(:,4:5),"all")>0 ) || ( size(A,2)==3 && r==2 ) )
+            if ( lDebug )
+                fprintf("==> new SIG fit %gD, %g points\n",size(A,2),size(A,1));
+            end
+            X=linsolve(A,sigs2,opts); % let MatLab raise the warning
+            if ( lDebug )
+                fprintf("==> done.\n");
+            end
+        end
+    else
+        % lb=[0 -inf 0]; ub=[inf inf inf]; XC = lsqlin(A,sigs2,[],[],[],[],lb,ub);
+        X = lsqlin(A,sigs2,[],[],[],[],[],[],initConds);
+    end
+end
+
