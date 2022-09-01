@@ -33,9 +33,11 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
     asymThresh=0.10; % thresholds for identifying asymmetric profiles (in y, the
                      %    tail on one side is longer than that on the other
                      %    side by this amount of the max)
-    ordPolyn=6;      % max polynomial order for FWxM determination
+    maxOrdPolyn=8;   % polynomial order for FWxM determination
+    BareMinOrdPolyn=4;   % polynomial order for FWxM determination
     excessPoints=1;  % use more points than ordPolyn, to avoid MatLab warnings
-    nPointsMin=ordPolyn+excessPoints;
+    nPointsMin=maxOrdPolyn+excessPoints;
+    nPointsBareMin=BareMinOrdPolyn+excessPoints;
     if ( ~exist('FWxMval','var') ), FWxMval=missing(); end
     if ( ~exist('noiseLevelFWxM','var') ), noiseLevelFWxM=missing(); end
     if ( ~exist('INTlevel','var') ), INTlevel=missing(); end
@@ -44,7 +46,7 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
     if ( ~exist('dTitle','var') ), dTitle=missing(); end
     %
     if ( ismissing(FWxMval) ), FWxMval=0.50; end
-    if ( ismissing(noiseLevelFWxM) ), noiseLevelFWxM=0.18; end
+    if ( ismissing(noiseLevelFWxM) ), noiseLevelFWxM=0.20; end
     if ( ismissing(INTlevel) ), INTlevel=20000; end
     if ( ismissing(lDebug) ), lDebug=true; end
     if ( ismissing(dTitle) ), dTitle=""; end
@@ -70,9 +72,8 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
     for iSet=1:nDataSets
         tmpXs(:,1:2)=profiles(:,1,:);      % (nFibers,2)
         tmpYs(:,1:2)=profiles(:,1+iSet,:); % (nFibers,2)
-        tmpINTs=sum(tmpYs);
+        tmpINTs=sum(tmpYs,"omitnan");
         if ( sum(tmpINTs,"omitnan")==0 ), continue; end
-        if ( lDebug ), sgtitle(sprintf("profiles id #%d",iSet)); end
         % FWxMs
         for iPlane=1:2
             if ( lDebug ), subplot(1,2,iPlane); end
@@ -95,27 +96,95 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
             end
             indices=CleanProfiles(YsPreFilter,noiseLevelFWxM);
             nPoints=sum(indices);
+            nOrder=NaN();
             if ( tmpINTs(iPlane)<INTlevel)
-                warning("...cannot actually identify a bell-shaped profile on plane %s for data set %d! skipping...",planes(iPlane),iSet);
-            elseif ( nPoints<2+excessPoints ) % at least a second order polynomial fitting
-                warning("...not enough points for fitting data for computing FWxM on %s plane for data set %d! skipping...",planes(iPlane),iSet);
+                warning("...too low intensity in profile on plane %s for data set %d! skipping...",planes(iPlane),iSet);
             else
-                nOrder=ordPolyn; % max order of polynom
-                if ( nPoints<nPointsMin ), nOrder=nPoints-excessPoints; end % reduce polynom order if there are not enough points...
+                nOrder=floor(nPoints/2);
+                if ( nOrder>=maxOrdPolyn )
+                    nOrder=maxOrdPolyn; % max order of polynom
+                else
+                    if ( nPoints>nPointsBareMin )
+                        nOrder=maxOrdPolyn;
+                        if ( mod(nPoints,2)==0 )
+                            [myMax,myID]=max(YsPreFilter(indices));
+                            if ( myID>=nPoints/2 || myID==nPoints )
+                                lL=false;
+                            else
+                                lL=true;
+                            end
+                            indices=ExtendRange(indices,YsPreFilter,lL);
+                            nPoints=sum(indices);
+                        end
+                        % try to extend range of points, adding the neighbours
+                        nPointsOld=nPoints-1;
+                        while ( nPoints<nPointsMin && nPoints>nPointsOld )
+                            nPointsOld=nPoints;
+                            indices=ExtendRange(indices,YsPreFilter);
+                            % - re-check polynomial order
+                            nPoints=sum(indices);
+                        end % reduce polynom order if there are not enough points...
+                    else
+                        nOrder=BareMinOrdPolyn;
+                        if ( mod(nPoints,2)==0 )
+                            [myMax,myID]=max(YsPreFilter(indices));
+                            if ( myID>=nPoints/2 || myID==nPoints )
+                                lL=false;
+                            else
+                                lL=true;
+                            end
+                            indices=ExtendRange(indices,YsPreFilter,lL);
+                            nPoints=sum(indices);
+                        end
+                        % try to extend range of points, adding the neighbours
+                        nPointsOld=nPoints-1;
+                        while ( nPoints<nPointsBareMin && nPoints>nPointsOld )
+                            nPointsOld=nPoints;
+                            indices=ExtendRange(indices,YsPreFilter);
+                            % - re-check polynomial order
+                            nPoints=sum(indices);
+                        end % reduce polynom order if there are not enough points...
+                    end
+                end
+                if ( nPoints<nPointsBareMin )
+                    warning("...not enough points for fitting data for computing FWxM on %s plane for data set %d! skipping...",planes(iPlane),iSet);
+                end
                 % [myXs,myYs]=GetSymmetricBell(XsPreFilter(indices),YsPreFilter(indices),asymThresh,nPointsMin,lDebug);
                 myXs=XsPreFilter(indices); myYs=YsPreFilter(indices);
                 pp=polyfit(myXs,myYs,nOrder);
                 newIndices=CleanProfiles(tmpYs(:,iPlane),noiseLevelFWxM);
                 % [repXs,repYs]=GetSymmetricBell(tmpXs(newIndices,iPlane),tmpYs(newIndices,iPlane),asymThresh,nPointsMin,lDebug);
-                repXs=tmpXs(newIndices,iPlane); repYs=tmpYs(newIndices,iPlane);
+                % - evaluate smooth curve on a much finer x-grid
+                newIndices=ExtendRange(newIndices,tmpYs(:,iPlane));
+                tmpMax=max(tmpXs(newIndices,iPlane));
+                tmpMin=min(tmpXs(newIndices,iPlane));
+                tmpDelta=min(diff(tmpXs(newIndices,iPlane)));
+                nSteps=ceil((tmpMax-tmpMin)/tmpDelta);
+                repXs=linspace(tmpMin,tmpMax,nSteps*10);
                 repYs=polyval(pp,repXs);
                 [tmpMax,idMax]=max(repYs);
+                while ( ( idMax==1 && repXs(idMax)>min(tmpXs(~isnan(tmpXs(:,iPlane)),iPlane)) ) || ...
+                        ( idMax==length(repYs) && repXs(idMax)<max(tmpXs(~isnan(tmpXs(:,iPlane)),iPlane)) ) )
+                    if ( idMax==1 )
+                        repXs=repXs(2:end);
+                        repYs=repYs(2:end);
+                        [tmpMax,idMax]=max(repYs);
+                    else
+                        repXs=repXs(1:end-1);
+                        repYs=repYs(1:end-1);
+                        [tmpMax,idMax]=max(repYs);
+                    end
+                end
                 FWxMvalAbs=FWxMval*tmpMax;                                   % array
                 if ( idMax==1 | idMax==length(repYs) )
                     warning("...not enough points for finding width on one of the two sides of profile on %s plane for data set %d! skipping...",planes(iPlane),iSet);
-                else
-                    tmpFWxMleftPos=interp1(repYs(1:idMax),repXs(1:idMax),FWxMvalAbs);      % array
-                    tmpFWxMrightPos=interp1(repYs(idMax:end),repXs(idMax:end),FWxMvalAbs); % array
+                else 
+                    myLowerCut=idMax-find(diff(repYs(idMax:-1:1))>0,1)+1; % consider interpolated data down to first min on the left
+                    if ( isempty(myLowerCut) ), myLowerCut=1; end
+                    tmpFWxMleftPos=interp1(repYs(myLowerCut:idMax),repXs(myLowerCut:idMax),FWxMvalAbs);      % array
+                    myUpperCut=idMax+find(diff(repYs(idMax:end))>0,1)-1; % consider interpolated data down to first min on the right
+                    if ( isempty(myUpperCut) ), myUpperCut=length(repYs); end
+                    tmpFWxMrightPos=interp1(repYs(idMax:myUpperCut),repXs(idMax:myUpperCut),FWxMvalAbs); % array
                     FWxMs(iSet,iPlane,:)=tmpFWxMrightPos-tmpFWxMleftPos;                   % array
                     % return total useful counts as INT
                     INTs(iSet,iPlane)=sum(myYs);
@@ -132,16 +201,21 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
                 plot(tmpXs(:,iPlane),tmpYs(:,iPlane),"o", ...                       % original signal
                      myXs,myYs,"*",repXs,repYs,".-", ...                            % filtered signal and interpolated signal
                      [tmpFWxMleftPos ; tmpFWxMrightPos],[FWxMvalAbs ; FWxMvalAbs],"k-",...      % FWxM
-                     [BARs(iSet,iPlane) BARs(iSet,iPlane)], [0.0 1.1*tmpMax],"k-"); % BAR
+                     [BARs(iSet,iPlane) BARs(iSet,iPlane)], [0.0 1.1*tmpMax],"k-",... % BAR
+                     myXs,ones(size(myXs))*noiseLevelFWxM*max(tmpYs(:,iPlane)),"r-"); % noise level
                 grid on; xlabel("fiber position [mm]"); ylabel("counts []");
+                if ( nPoints<15 && ~isnan(BARs(iSet,iPlane)) ), xlim([BARs(iSet,iPlane)-12 BARs(iSet,iPlane)+12]); end
                 if ( strlength(dTitle)>0 )
-                    title(sprintf("%s plane - %s",planes(iPlane)),dTitle);
+                    title(sprintf("%s plane - fit order: %d - # points: %d - %s",planes(iPlane)),nOrder,nPoints,dTitle);
                 else
-                    title(sprintf("%s plane",planes(iPlane)));
+                    title(sprintf("%s plane - fit order: %d - # points: %d",planes(iPlane),nOrder,nPoints));
                 end
             end
         end
-        if ( lDebug ), pause(0.01); end
+        if ( lDebug )
+            sgtitle(sprintf("profiles id #%d",iSet));
+            pause(0.1);
+        end
     end
     fprintf("...done.\n");
 end
@@ -168,5 +242,29 @@ function [myXs,myYs]=GetSymmetricBell(tmpXs,tmpYs,asymThresh,nPointsMin,lDebug)
     else
         myXs=tmpXs;
         myYs=tmpYs;
+    end
+end
+
+function newIndices=ExtendRange(indices,Ys,lL)
+    if ( ~exist("lL","var") )
+        lL=true;
+        lR=true;
+    else
+        lR=~lL;
+    end
+    newIndices=indices;
+    % - left side:
+    if ( lL )
+        iMin=find(newIndices,1);
+        if ( iMin>1 && ~isnan(Ys(iMin-1)) )
+            newIndices(iMin-1)=true;
+        end
+    end
+    % - right side:
+    if ( lR )
+        iMax=find(newIndices,1,"last");
+        if ( iMax<length(newIndices) && ~isnan(Ys(iMax+1)) )
+            newIndices(iMax+1)=true;
+        end
     end
 end
