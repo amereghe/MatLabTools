@@ -43,9 +43,9 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,FWHMval,noiseL
     
     % initialise vars
     nDataSets=size(profiles,2)-1; % let's crunch only sum profiles;
-    BARs=zeros(nDataSets,2);  % hor,ver BARs
-    FWHMs=zeros(nDataSets,2); % hor,ver FWHMs
-    INTs=zeros(nDataSets,2); % hor,ver INTs
+    BARs=NaN(nDataSets,2);  % hor,ver BARs
+    FWHMs=NaN(nDataSets,2); % hor,ver FWHMs
+    INTs=NaN(nDataSets,2); % hor,ver INTs
     
     % loop over profiles
     planes=[ "hor" "ver" ];
@@ -53,8 +53,8 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,FWHMval,noiseL
     for iSet=1:nDataSets
         tmpXs(:,1:2)=profiles(:,1,:);      % (nFibers,2)
         tmpYs(:,1:2)=profiles(:,1+iSet,:); % (nFibers,2)
-        tmpINTs=sum(tmpYs);
-        if ( sum(tmpINTs)== 0 ), continue; end
+        tmpINTs=sum(tmpYs,"omitnan");
+        if ( sum(tmpINTs,"omitnan")== 0 ), continue; end
         if ( lDebug ), sgtitle(sprintf("CAMeretta profiles id #%d",iSet)); end
         % INTs
         INTs(iSet,1:2)=tmpINTs; % take as integral the counts on the entire profile
