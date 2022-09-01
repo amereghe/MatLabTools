@@ -31,6 +31,7 @@ function NewMat=ExpandMat(ExistMat,AppMat)
                 % init matrix to be returned
                 if ( isstring(AppMat) )
                     NewMat=strings(max(eSize(1),aSize(1)),jDimApp);
+                    NewMat(:,:)=missing();
                 else
                     NewMat=NaN(max(eSize(1),aSize(1)),jDimApp);
                 end
@@ -42,6 +43,7 @@ function NewMat=ExpandMat(ExistMat,AppMat)
                 % init matrix to be returned
                 if ( isstring(AppMat) )
                     NewMat=strings(max(eSize(1),aSize(1)),max(eSize(2),aSize(2)),jDimApp);
+                    NewMat(:,:,:)=missing();
                 else
                     NewMat=NaN(max(eSize(1),aSize(1)),max(eSize(2),aSize(2)),jDimApp);
                 end
@@ -53,6 +55,7 @@ function NewMat=ExpandMat(ExistMat,AppMat)
                 % init matrix to be returned
                 if ( isstring(AppMat) )
                     NewMat=strings(max(eSize(1),aSize(1)),max(eSize(2),aSize(2)),max(eSize(3),aSize(3)),jDimApp);
+                    NewMat(:,:,:,:)=missing();
                 else
                     NewMat=NaN(max(eSize(1),aSize(1)),max(eSize(2),aSize(2)),max(eSize(3),aSize(3)),jDimApp);
                 end
@@ -64,6 +67,7 @@ function NewMat=ExpandMat(ExistMat,AppMat)
                 % init matrix to be returned
                 if ( isstring(AppMat) )
                     NewMat=strings(max(eSize(1),aSize(1)),max(eSize(2),aSize(2)),max(eSize(3),aSize(3)),max(eSize(4),aSize(4)),jDimApp);
+                    NewMat(:,:,:,:,:)=missing();
                 else
                     NewMat=NaN(max(eSize(1),aSize(1)),max(eSize(2),aSize(2)),max(eSize(3),aSize(3)),max(eSize(4),aSize(4)),jDimApp);
                 end
@@ -76,6 +80,7 @@ function NewMat=ExpandMat(ExistMat,AppMat)
                 if ( isstring(AppMat) )
                     NewMat=strings(max(eSize(1),aSize(1)),max(eSize(2),aSize(2)),max(eSize(3),aSize(3)),max(eSize(4),aSize(4)),...
                         max(eSize(5),aSize(5)),jDimApp);
+                    NewMat(:,:,:,:,:,:)=missing();
                 else
                     NewMat=NaN(max(eSize(1),aSize(1)),max(eSize(2),aSize(2)),max(eSize(3),aSize(3)),max(eSize(4),aSize(4)),...
                         max(eSize(5),aSize(5)),jDimApp);
@@ -89,6 +94,7 @@ function NewMat=ExpandMat(ExistMat,AppMat)
                 if ( isstring(AppMat) )
                     NewMat=strings(max(eSize(1),aSize(1)),max(eSize(2),aSize(2)),max(eSize(3),aSize(3)),max(eSize(4),aSize(4)),...
                         max(eSize(5),aSize(5)),max(eSize(6),aSize(6)),jDimApp);
+                    NewMat(:,:,:,:,:,:,:)=missing();
                 else
                     NewMat=NaN(max(eSize(1),aSize(1)),max(eSize(2),aSize(2)),max(eSize(3),aSize(3)),max(eSize(4),aSize(4)),...
                         max(eSize(5),aSize(5)),max(eSize(6),aSize(6)),jDimApp);
@@ -102,6 +108,7 @@ function NewMat=ExpandMat(ExistMat,AppMat)
                 if ( isstring(AppMat) )
                     NewMat=strings(max(eSize(1),aSize(1)),max(eSize(2),aSize(2)),max(eSize(3),aSize(3)),max(eSize(4),aSize(4)),...
                         max(eSize(5),aSize(5)),max(eSize(6),aSize(6)),max(eSize(7),aSize(7)),jDimApp);
+                    NewMat(:,:,:,:,:,:,:,:)=missing();
                 else
                     NewMat=NaN(max(eSize(1),aSize(1)),max(eSize(2),aSize(2)),max(eSize(3),aSize(3)),max(eSize(4),aSize(4)),...
                         max(eSize(5),aSize(5)),max(eSize(6),aSize(6)),max(eSize(7),aSize(7)),jDimApp);
