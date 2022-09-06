@@ -105,6 +105,8 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
                     nOrder=maxOrdPolyn; % max order of polynom
                 else
                     if ( nPoints>nPointsBareMin )
+                        % extend range of data to be fitted, in order to
+                        %   use a polynom at maxOrdPolyn order
                         nOrder=maxOrdPolyn;
                         if ( mod(nPoints,2)==0 )
                             [myMax,myID]=max(YsPreFilter(indices));
@@ -125,10 +127,12 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
                             nPoints=sum(indices);
                         end % reduce polynom order if there are not enough points...
                     else
+                        % extend range of data to be fitted, in order to
+                        %   use a polynom at BareMinOrdPolyn order
                         nOrder=BareMinOrdPolyn;
                         if ( mod(nPoints,2)==0 )
-                            [myMax,myID]=max(YsPreFilter(indices));
-                            if ( myID>=nPoints/2 || myID==nPoints )
+                            [myMin,myID]=min(YsPreFilter(indices));
+                            if ( myID==1 )
                                 lL=false;
                             else
                                 lL=true;
@@ -204,7 +208,8 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
                      [BARs(iSet,iPlane) BARs(iSet,iPlane)], [0.0 1.1*tmpMax],"k-",... % BAR
                      myXs,ones(size(myXs))*noiseLevelFWxM*max(tmpYs(:,iPlane)),"r-"); % noise level
                 grid on; xlabel("fiber position [mm]"); ylabel("counts []");
-                if ( nPoints<15 && ~isnan(BARs(iSet,iPlane)) ), xlim([BARs(iSet,iPlane)-12 BARs(iSet,iPlane)+12]); end
+                if ( nPoints<15 && ~isnan(BARs(iSet,iPlane)) ), xlim([min(repXs)-5 max(repXs)+5]); end
+                yl=ylim; ylim([0 yl(2)]);
                 if ( strlength(dTitle)>0 )
                     title(sprintf("%s plane - fit order: %d - # points: %d - %s",planes(iPlane)),nOrder,nPoints,dTitle);
                 else
@@ -214,7 +219,7 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
         end
         if ( lDebug )
             sgtitle(sprintf("profiles id #%d",iSet));
-            pause(0.1);
+            pause(0.25);
         end
     end
     fprintf("...done.\n");
