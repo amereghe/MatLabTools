@@ -13,4 +13,7 @@ function [z0,zp0,ave_dpp]=DecodeOrbitFit(X,D0,Dp0)
     ave_dpp =X(3);
     z0 =X(1)-D0 *ave_dpp;
     zp0=X(2)-Dp0*ave_dpp;
+    % clean away NaNs
+    z0 (isnan(z0 ))=X(1);
+    zp0(isnan(zp0))=X(2);
 end
