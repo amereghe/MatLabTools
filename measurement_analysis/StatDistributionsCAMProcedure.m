@@ -97,6 +97,8 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,FWHMval,noiseL
                     FWHMvalAbs=FWHMval*tmpMax;
                     if ( idMax==1 | idMax==length(repYs) )
                         warning("...not enough points for finding width on one of the two sides of profile on %s plane for data set %d! skipping...",planes(iPlane),iSet);
+                    elseif ( all(abs(pp(1:end-1))<1E-14) )
+                        warning("...flat profile!");
                     else
                         FWHMleft=interp1(repYs(1:idMax),myXs(1:idMax),FWHMvalAbs);
                         FWHMright=interp1(repYs(idMax:end),myXs(idMax:end),FWHMvalAbs);
