@@ -46,8 +46,8 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
     if ( ~exist('dTitle','var') ), dTitle=missing(); end
     %
     if ( ismissing(FWxMval) ), FWxMval=0.50; end
-    if ( ismissing(noiseLevelFWxM) ), noiseLevelFWxM=0.20; end
-    if ( ismissing(INTlevel) ), INTlevel=20000; end
+    if ( ismissing(noiseLevelFWxM) ), noiseLevelFWxM=0.1; end
+    if ( ismissing(INTlevel) ), INTlevel=10000; end
     if ( ismissing(lDebug) ), lDebug=true; end
     if ( ismissing(dTitle) ), dTitle=""; end
     
@@ -100,58 +100,38 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
             if ( tmpINTs(iPlane)<INTlevel)
                 warning("...too low intensity in profile on plane %s for data set %d! skipping...",planes(iPlane),iSet);
             else
-                nOrder=floor(nPoints/2);
+                nOrder=nPoints-1;
                 if ( nOrder>=maxOrdPolyn )
                     nOrder=maxOrdPolyn; % max order of polynom
+                    indices=ExtendRange(indices,YsPreFilter);
+                    nPoints=sum(indices);
                 else
-                    if ( nPoints>nPointsBareMin )
-                        % extend range of data to be fitted, in order to
-                        %   use a polynom at maxOrdPolyn order
-                        nOrder=maxOrdPolyn;
-                        if ( mod(nPoints,2)==0 )
-                            [myMax,myID]=max(YsPreFilter(indices));
-                            if ( myID>=nPoints/2 || myID==nPoints )
-                                lL=false;
-                            else
-                                lL=true;
-                            end
-                            indices=ExtendRange(indices,YsPreFilter,lL);
-                            nPoints=sum(indices);
+                    if ( mod(nPoints,2)==0 )
+                        % add a point, to have an odd number of points
+                        [myMin,myID]=min(YsPreFilter(indices));
+                        if ( myID==1 )
+                            lL=false;
+                        else
+                            lL=true;
                         end
-                        % try to extend range of points, adding the neighbours
-                        nPointsOld=nPoints-1;
-                        while ( nPoints<nPointsMin && nPoints>nPointsOld )
-                            nPointsOld=nPoints;
-                            indices=ExtendRange(indices,YsPreFilter);
-                            % - re-check polynomial order
-                            nPoints=sum(indices);
-                        end % reduce polynom order if there are not enough points...
-                    else
-                        % extend range of data to be fitted, in order to
-                        %   use a polynom at BareMinOrdPolyn order
-                        nOrder=BareMinOrdPolyn;
-                        if ( mod(nPoints,2)==0 )
-                            [myMin,myID]=min(YsPreFilter(indices));
-                            if ( myID==1 )
-                                lL=false;
-                            else
-                                lL=true;
-                            end
-                            indices=ExtendRange(indices,YsPreFilter,lL);
-                            nPoints=sum(indices);
-                        end
-                        % try to extend range of points, adding the neighbours
-                        nPointsOld=nPoints-1;
-                        while ( nPoints<nPointsBareMin && nPoints>nPointsOld )
-                            nPointsOld=nPoints;
-                            indices=ExtendRange(indices,YsPreFilter);
-                            % - re-check polynomial order
-                            nPoints=sum(indices);
-                        end % reduce polynom order if there are not enough points...
+                        indices=ExtendRange(indices,YsPreFilter,lL);
+                        nPoints=sum(indices);
+                    end
+                    % try to extend range of points, adding the neighbours
+                    nPointsOld=nPoints-1; nOrder=nPoints-1;
+                    while ( nPoints<nPointsBareMin && nPoints>nPointsOld && nOrder<BareMinOrdPolyn )
+                        nPointsOld=nPoints;
+                        indices=ExtendRange(indices,YsPreFilter);
+                        % - re-check polynomial order
+                        nPoints=sum(indices); nOrder=nPoints-1;
+                    end
+                    if ( YsPreFilter(find(indices,1))>noiseLevelFWxM*max(tmpYs(:,iPlane)) || YsPreFilter(find(indices,1,"last"))>noiseLevelFWxM*max(tmpYs(:,iPlane)) )
+                        indices=ExtendRange(indices,YsPreFilter);
+                        nPoints=sum(indices); nOrder=nPoints-1;
                     end
                 end
-                if ( nPoints<nPointsBareMin )
-                    warning("...not enough points for fitting data for computing FWxM on %s plane for data set %d! skipping...",planes(iPlane),iSet);
+                if ( nOrder>maxOrdPolyn )
+                    nOrder=maxOrdPolyn; % max order of polynom
                 end
                 % [myXs,myYs]=GetSymmetricBell(XsPreFilter(indices),YsPreFilter(indices),asymThresh,nPointsMin,lDebug);
                 myXs=XsPreFilter(indices); myYs=YsPreFilter(indices);
