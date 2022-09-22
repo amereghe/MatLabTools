@@ -1,5 +1,6 @@
-function Plot2DHistograms(showMe,showMe1DX,showMe1DY,xShow,yShow,xShowLabel,yShowLabel,contours,lHist)
+function Plot2DHistograms(showMe,showMe1DX,showMe1DY,xShow,yShow,xShowLabel,yShowLabel,contours,lHist,lSquared)
     if ( ~exist("lHist","var") ), lHist=true; end
+    if ( ~exist("lSquared","var") ), lSquared=false; end
     
     %% 2D histogram
     axM=subplot('Position', [0.10, 0.10, 0.6, 0.6]);
@@ -20,6 +21,14 @@ function Plot2DHistograms(showMe,showMe1DX,showMe1DY,xShow,yShow,xShowLabel,ySho
     % colorbar();
     % caxis manual;
     % caxis([cmin cmax]);
+    if ( lSquared )
+        myMin=min(min(xShow),min(yShow)); myMax=max(max(xShow),max(yShow));
+        if ( exist("contours","var") )
+            myMin=min(myMin,min(contours,[],"all"));
+            myMax=max(myMax,max(contours,[],"all"));
+        end
+        xlim([myMin myMax]); ylim([myMin myMax]);
+    end
     grid on;
     % set(axM,'ColorScale','log')
     
@@ -27,7 +36,9 @@ function Plot2DHistograms(showMe,showMe1DX,showMe1DY,xShow,yShow,xShowLabel,ySho
     axX=subplot('Position', [0.10, 0.75, 0.6, 0.15]);
     edges = xShow(2:end) - 0.5*(xShow(2)-xShow(1));
     bar(edges,showMe1DX,1);
-    xlim([min(xShow) max(xShow)]);
+    if ( ~lSquared )
+        xlim([min(xShow) max(xShow)]);
+    end
     ylabel('[]');
     set(axX,'xticklabel',{[]})
     grid on;
@@ -36,7 +47,9 @@ function Plot2DHistograms(showMe,showMe1DX,showMe1DY,xShow,yShow,xShowLabel,ySho
     axY=subplot('Position', [0.75, 0.10, 0.15, 0.6]);
     edges = yShow(2:end) - 0.5*(yShow(2)-yShow(1));
     barh(edges,showMe1DY,1);
-    ylim([min(yShow) max(yShow)]);
+    if ( ~lSquared )
+        ylim([min(yShow) max(yShow)]);
+    end
     xlabel('[]');
     set(axY,'yticklabel',{[]})
     grid on;
