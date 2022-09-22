@@ -56,27 +56,35 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
     if ( noiseLevelFWxM>1 ), noiseLevelFWxM=noiseLevelFWxM*1.0E-2; end
     if ( FWxMval>1 ), FWxMval=FWxMval*1.0E-2; end
     if ( FWxMval<noiseLevelFWxM ), FWxMval=noiseLevelFWxM; end
+    if ( lDebug )
+        lFWHM=(FWxMval==0.5);
+        if ( ~any(lFWHM) )
+            FWxMval=[ FWxMval 0.5 ];
+            lFWHM=(FWxMval==0.5);
+        end
+    end
     
     % initialise vars
     nLevels=length(FWxMval);         % how many levels
+    nPlanes=size(profiles,3);        % how many planes, in general 2
     nDataSets=size(profiles,2)-1;    % let's crunch only sum profiles;
-    BARs=NaN(nDataSets,2);           % hor,ver BARs
-    FWxMs=NaN(nDataSets,2,nLevels);  % hor,ver FWxMs
-    FWxMls=NaN(nDataSets,2,nLevels); % hor,ver FWxMs
-    FWxMrs=NaN(nDataSets,2,nLevels); % hor,ver FWxMs
-    INTs=NaN(nDataSets,2);           % hor,ver INTs
+    BARs=NaN(nDataSets,nPlanes);           % hor,ver BARs
+    FWxMs=NaN(nDataSets,nPlanes,nLevels);  % hor,ver FWxMs
+    FWxMls=NaN(nDataSets,nPlanes,nLevels); % hor,ver FWxMs
+    FWxMrs=NaN(nDataSets,nPlanes,nLevels); % hor,ver FWxMs
+    INTs=NaN(nDataSets,nPlanes);           % hor,ver INTs
     
     % loop over profiles
     planes=[ "hor" "ver" ];
     if ( lDebug ), ff=figure(); end
     for iSet=1:nDataSets
-        tmpXs(:,1:2)=profiles(:,1,:);      % (nFibers,2)
-        tmpYs(:,1:2)=profiles(:,1+iSet,:); % (nFibers,2)
+        tmpXs(:,1:nPlanes)=profiles(:,1,:);      % eg (nFibers,2)
+        tmpYs(:,1:nPlanes)=profiles(:,1+iSet,:); % eg (nFibers,2)
         tmpINTs=sum(tmpYs,"omitnan");
         if ( sum(tmpINTs,"omitnan")==0 ), continue; end
         % FWxMs
-        for iPlane=1:2
-            if ( lDebug ), subplot(1,2,iPlane); end
+        for iPlane=1:nPlanes
+            if ( lDebug ), subplot(1,nPlanes,iPlane); end
             % default values, in case fitting does not proceed
             tmpIndices=tmpYs(:,iPlane)>0;
             FWxMls(iSet,iPlane,:)=min(tmpXs(tmpIndices,iPlane))*ones(1,length(FWxMval)); % array
@@ -86,6 +94,7 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
             [tmpMax,idMax]=max(tmpYs(tmpIndices,iPlane));
             FWxMvalAbs=FWxMval*tmpMax;                                       % array
             tmpFWxMleftPos=NaN(size(FWxMvalAbs)); tmpFWxMrightPos=NaN(size(FWxMvalAbs));
+            nRepYs=NaN(size(repXs));
             % do the actual job
             if ( ismissing(myMask) )
                 XsPreFilter=tmpXs(:,iPlane);
@@ -98,7 +107,11 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
             nPoints=sum(indices);
             nOrder=NaN();
             if ( tmpINTs(iPlane)<INTlevel)
-                warning("...too low intensity in profile on plane %s for data set %d! skipping...",planes(iPlane),iSet);
+                if ( nPlanes==2 )
+                    warning("...too low intensity in profile on plane %s for data set %d! skipping...",planes(iPlane),iSet);
+                else
+                    warning("...too low intensity in profile for data set %d! skipping...",iSet);
+                end
             else
                 nOrder=nPoints-1;
                 if ( nOrder>=maxOrdPolyn )
@@ -134,7 +147,7 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
                     nOrder=maxOrdPolyn; % max order of polynom
                 end
                 % [myXs,myYs]=GetSymmetricBell(XsPreFilter(indices),YsPreFilter(indices),asymThresh,nPointsMin,lDebug);
-                myXs=XsPreFilter(indices); myYs=YsPreFilter(indices);
+                myXs=XsPreFilter(indices); myYs=YsPreFilter(indices); % points used to fit
                 pp=polyfit(myXs,myYs,nOrder);
                 newIndices=CleanProfiles(tmpYs(:,iPlane),noiseLevelFWxM);
                 % [repXs,repYs]=GetSymmetricBell(tmpXs(newIndices,iPlane),tmpYs(newIndices,iPlane),asymThresh,nPointsMin,lDebug);
@@ -159,9 +172,14 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
                         [tmpMax,idMax]=max(repYs);
                     end
                 end
+                nRepYs=NaN(size(repXs));
                 FWxMvalAbs=FWxMval*tmpMax;                                   % array
                 if ( idMax==1 | idMax==length(repYs) )
-                    warning("...not enough points for finding width on one of the two sides of profile on %s plane for data set %d! skipping...",planes(iPlane),iSet);
+                    if ( nPlanes==2 )
+                        warning("...not enough points for finding width on one of the two sides of profile on %s plane for data set %d! skipping...",planes(iPlane),iSet);
+                    else
+                        warning("...not enough points for finding width on one of the two sides of profile for data set %d! skipping...",iSet);
+                    end
                 else 
                     myLowerCut=idMax-find(diff(repYs(idMax:-1:1))>0,1)+1; % consider interpolated data down to first min on the left
                     if ( isempty(myLowerCut) ), myLowerCut=1; end
@@ -170,36 +188,126 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
                     if ( isempty(myUpperCut) ), myUpperCut=length(repYs); end
                     tmpFWxMrightPos=interp1(repYs(idMax:myUpperCut),repXs(idMax:myUpperCut),FWxMvalAbs); % array
                     FWxMs(iSet,iPlane,:)=tmpFWxMrightPos-tmpFWxMleftPos;                   % array
+                    if ( any(isnan(FWxMs(iSet,iPlane,:))) && ( ...
+                            tmpYs(1  ,iPlane)<noiseLevelFWxM*max(tmpYs(:,iPlane)) && ...
+                            tmpYs(end,iPlane)<noiseLevelFWxM*max(tmpYs(:,iPlane))  ) )
+                        warning("...trying to find a trapezoidal fit...");
+                        % try to fit a trapezoid
+                        % - use only points above threshold and first
+                        %   couple around
+                        indices=CleanProfiles(YsPreFilter,noiseLevelFWxM);
+                        indices=ExtendRange(indices,YsPreFilter);
+                        myXs=XsPreFilter(indices); myYs=YsPreFilter(indices); % points used to fit
+                        % - find flat part (ie between the two extreme local maxima),
+                        %   but avoid getting trapped in local minima right at the tails:
+                        mySearch=repYs; myDiff=diff(mySearch); iLeft=NaN();
+                        for ii=2:length(myDiff)
+                            if ( myDiff(ii)<0 && myDiff(ii-1)>0 && mySearch(ii)>tmpMax*0.85 )
+                                iLeft=ii;
+                                break
+                            end
+                        end
+                        if ( isnan(iLeft) )
+                            error("unable to find left maximum");
+                        end
+                        mySearch=repYs(end:-1:1); myDiff=diff(mySearch);
+                        for ii=2:length(myDiff)
+                            if ( myDiff(ii)<0 && myDiff(ii-1)>0 && mySearch(ii)>tmpMax*0.85 )
+                                iRight=ii;
+                                break
+                            end
+                        end
+                        if ( isnan(iRight) )
+                            error("unable to find right maximum");
+                        end
+                        iRight=length(repYs)-iRight+1;
+                        tIndices=false(size(myXs)); iLeft=iLeft+1; iRight=iRight-1;
+                        while(~any(tIndices) && 1<=iLeft && iRight<=length(repXs))
+                            iLeft=iLeft-1; iRight=iRight+1;
+                            tIndices=(repXs(iLeft)<=myXs & myXs<=repXs(iRight));
+                        end
+                        tMean=mean(myYs(tIndices)); tSig=std(myYs(tIndices));
+                        % - find points above mean(flat)-n*sig(flat) and get actual mean
+                        nSig=2;
+                        tIndices=(tMean-nSig*tSig<=myYs);
+                        fMean=mean(myYs(tIndices));
+                        % - find points on the left slope and fit linearly
+                        lIndices=1:find(tIndices>0,1,"first")-1;
+                        if (length(lIndices)==1)
+                            % only the first point! use also the first one of the flat top
+                            lIndices=1:find(tIndices>0,1,"first");
+                        end
+                        pl=polyfit(myXs(lIndices),myYs(lIndices),1);
+                        xl0=-pl(2)/pl(1);
+                        xlm=(fMean-pl(2))/pl(1);
+                        % - find points on the right slope and fit linearly
+                        rIndices=find(tIndices>0,1,"last")+1:length(myYs);
+                        if (length(rIndices)==1)
+                            % only the first point! use also the first one of the flat top
+                            rIndices=find(tIndices>0,1,"last"):length(myYs);
+                        end
+                        pr=polyfit(myXs(rIndices),myYs(rIndices),1);
+                        xrm=(fMean-pr(2))/pr(1);
+                        xr0=-pr(2)/pr(1);
+                        % - put all points together, to have the
+                        %   trapezoidal profile
+                        xCentre=0.5*(xlm+xrm);
+                        trpXs=[ min(myXs) xl0 xlm   xCentre xrm   xr0 max(myXs)];
+                        trpYs=[ 0         0   fMean fMean   fMean 0   0        ];
+                        iFitL=2; iFitR=5;
+                        if ( xl0<=min(myXs) ), trpXs(1)=[]; trpYs(1)=[]; iFitL=iFitL-1; iFitR=iFitR-1; end
+                        if ( xr0>=max(myXs) ), trpXs(end)=[]; trpYs(end)=[]; end
+                        nRepYs=interp1(trpXs,trpYs,repXs);
+                        tmpFWxMleftPos=interp1(trpYs(iFitL:iFitL+1),trpXs(iFitL:iFitL+1),FWxMvalAbs);    % array
+                        tmpFWxMrightPos=interp1(trpYs(iFitR:iFitR+1),trpXs(iFitR:iFitR+1),FWxMvalAbs);   % array
+                        FWxMs(iSet,iPlane,:)=tmpFWxMrightPos-tmpFWxMleftPos;         % array
+                        % return (refined) position of peak as BAR
+                        BARs(iSet,iPlane)=xCentre;
+                    else
+                        % return (refined) position of peak as BAR
+                        refXs=repXs(idMax-1):((repXs(idMax+1)-repXs(idMax-1))/200):repXs(idMax+1);
+                        refYs=polyval(pp,refXs);
+                        [refMax,idRefMax]=max(refYs);
+                        BARs(iSet,iPlane)=refXs(idRefMax);
+                    end
                     % return total useful counts as INT
                     INTs(iSet,iPlane)=sum(myYs);
-                    % return (refined) position of peak as BAR
-                    refXs=repXs(idMax-1):((repXs(idMax+1)-repXs(idMax-1))/200):repXs(idMax+1);
-                    refYs=polyval(pp,refXs);
-                    [refMax,idRefMax]=max(refYs);
-                    BARs(iSet,iPlane)=refXs(idRefMax);
                     FWxMls(iSet,iPlane,:)=BARs(iSet,iPlane)-tmpFWxMleftPos;   % array
                     FWxMrs(iSet,iPlane,:)=tmpFWxMrightPos-BARs(iSet,iPlane);  % array
+                    %
                 end
             end
             if ( lDebug )
                 plot(tmpXs(:,iPlane),tmpYs(:,iPlane),"o", ...                       % original signal
                      myXs,myYs,"*",repXs,repYs,".-", ...                            % filtered signal and interpolated signal
+                     repXs,nRepYs,".-", ...
                      [tmpFWxMleftPos ; tmpFWxMrightPos],[FWxMvalAbs ; FWxMvalAbs],"k-",...      % FWxM
                      [BARs(iSet,iPlane) BARs(iSet,iPlane)], [0.0 1.1*tmpMax],"k-",... % BAR
                      myXs,ones(size(myXs))*noiseLevelFWxM*max(tmpYs(:,iPlane)),"r-"); % noise level
                 grid on; xlabel("fiber position [mm]"); ylabel("counts []");
-                if ( nPoints<15 && ~isnan(BARs(iSet,iPlane)) ), xlim([min(repXs)-5 max(repXs)+5]); end
-                yl=ylim; ylim([0 yl(2)]);
-                if ( strlength(dTitle)>0 )
-                    title(sprintf("%s plane - fit order: %d - # points: %d - %s",planes(iPlane)),nOrder,nPoints,dTitle);
+                xl=xlim();
+                if ( FWxMs(iSet,iPlane,lFWHM)<(xl(2)-xl(1))/4 && ~isnan(BARs(iSet,iPlane)) )
+                    xlim([min(repXs)-FWxMs(iSet,iPlane,lFWHM)/2 max(repXs)+FWxMs(iSet,iPlane,lFWHM)/2]);
+                end
+                yl=ylim(); ylim([0 yl(2)]);
+                if ( nPlanes==2 )
+                    if ( strlength(dTitle)>0 )
+                        title(sprintf("%s plane - fit order: %d - # points: %d - %s",planes(iPlane),nOrder,nPoints,dTitle));
+                    else
+                        title(sprintf("%s plane - fit order: %d - # points: %d",planes(iPlane),nOrder,nPoints));
+                    end
                 else
-                    title(sprintf("%s plane - fit order: %d - # points: %d",planes(iPlane),nOrder,nPoints));
+                    if ( strlength(dTitle)>0 )
+                        title(sprintf("fit order: %d - # points: %d - %s",nOrder,nPoints,dTitle));
+                    else
+                        title(sprintf("fit order: %d - # points: %d",nOrder,nPoints));
+                    end
                 end
             end
         end
         if ( lDebug )
             sgtitle(sprintf("profiles id #%d",iSet));
-            pause(0.25);
+            pause(0.2);
         end
     end
     fprintf("...done.\n");
@@ -240,7 +348,7 @@ function newIndices=ExtendRange(indices,Ys,lL)
     newIndices=indices;
     % - left side:
     if ( lL )
-        iMin=find(newIndices,1);
+        iMin=find(newIndices,1,"first");
         if ( iMin>1 && ~isnan(Ys(iMin-1)) )
             newIndices(iMin-1)=true;
         end
