@@ -81,7 +81,8 @@ function [cyCodes,ranges,Eks,Brhos,currents,fields,kicks,psNames,FileNameCurrent
             CyCoData={CyCoData{:,1} ; CyCoData{:,2} ; CyCoData{:,4} ; temp{:,1} }';
             buffer = vertcat( CyCoData{:,1} ) ;      % extract only first four digits of cyco
             CyCoData(:,1) = cellstr(buffer(:,1:4)) ; % 
-        case {"LINEZ","SALA1","LINEV","SALA2V","LINEU","SALA2H","LINET","SALA3"}
+        case {"LINEZ","SALA1","LINEV","SALA2V","LINEU","SALA2H","LINET","SALA3",...
+                "XPRX1","ISO1","XPRX2","ISO2","XPRX3","ISO3","XPRX4","ISO4"}
             switch beamPart
                 case "PROTON"
                     % BUILD TABLEs WITH CyCo, Range, Energy and Brho
