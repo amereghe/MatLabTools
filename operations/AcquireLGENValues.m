@@ -88,17 +88,17 @@ function [cyCodes,ranges,Eks,Brhos,currents,fields,kicks,psNames,FileNameCurrent
                     % PARSE FILE WITH CURRENTS AT FT - columns in final cell array:
                     switch machine
                         case {"LINEZ","SALA1"}
-                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala1\Protoni_Sala1_2021-02-13.xlsx";
-                            currentData = GetOPDataFromTables(FileNameCurrents,"15.02.2021 - 09.31");
+                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala1\Protoni_Sala1_2022-03-09.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents,"09.03.2022 - 10.27");
                         case {"LINEV","SALA2V"}
                             FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala2V\Protoni_Sala2V_2021-02-13.xlsx";
-                            currentData = GetOPDataFromTables(FileNameCurrents,"15.02.2021 - 09.32");
+                            currentData = GetOPDataFromTables(FileNameCurrents,"27.01.2022 - 09.08");
                         case {"LINEU","SALA2H"}
-                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala2H\Protoni_Sala2H_2021-02-13.xlsx";
-                            currentData = GetOPDataFromTables(FileNameCurrents,"15.02.2021 - 09.31");
+                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala2H\Protoni_Sala2H_2021-08-09.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents,"09.08.2021 - 14.51");
                         case {"LINET","SALA3"}
-                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala3\Protoni_Sala3_2021-02-13.xlsx";
-                            currentData = GetOPDataFromTables(FileNameCurrents,"15.02.2021 - 09.32");
+                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala3\Protoni_Sala3_2021-08-11.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents,"11.08.2021 - 08.59");
                     end
                 case "CARBON"
                     % BUILD TABLEs WITH CyCo, Range, Energy and Brho
@@ -110,7 +110,7 @@ function [cyCodes,ranges,Eks,Brhos,currents,fields,kicks,psNames,FileNameCurrent
                     switch machine
                         case {"LINEZ","SALA1"}
                             FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Carbonio\lineaZ\fuocopiccolo\Carbonio_Sala1_FromRepoNovembre2020.xlsx";
-                            currentData = GetOPDataFromTables(FileNameCurrents,"09.11.2020 - 10.11");
+                            currentData = GetOPDataFromTables(FileNameCurrents,"09.11.2020 - 10.10");
                         case {"LINEV","SALA2V"}
                             FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Carbonio\lineaV\FuocoPiccolo\Carbonio_Sala2V_FromRepo.xlsx";
                             currentData = GetOPDataFromTables(FileNameCurrents,"21.08.2019 - 12.11");

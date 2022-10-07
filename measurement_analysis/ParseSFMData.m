@@ -119,6 +119,7 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
             % y-axis values
             measData(1:Ny,1:maxColumns,2,actualDataSets)=tmp(1:Ny,1+2:2+maxColumns); % values
         else % "SFH","SFM","SFP",
+            fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
             % check cycle prog, to guarantee continuity
             tmp=split(files(iSet).name,"-");
             tmpCyProg=str2num(tmp{3});
@@ -128,7 +129,6 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(path2Files,fFormat)
                 [measData,cyProgs,cyCodes,actualDataSets]=FastForwardProfileAcquisitions(measData,cyProgs,cyCodes,actualDataSets,tmpCyProg,cyProgs(actualDataSets-1));
             end
             %
-            fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
             tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'HeaderLines',10,'MultipleDelimsAsOne',true));
             % actual number of columns in file (ie frames+1)
             nColumns=size(tmp,2);
