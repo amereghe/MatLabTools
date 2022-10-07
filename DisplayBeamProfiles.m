@@ -3,12 +3,12 @@
 %% description
 % this is a script which parses beam profiles files and plots them
 % - the script crunches as many files as desired, provided the fullpaths;
-% - for the time being, only CAMeretta/DDS/SFH/SFM monitors;
-%   QBM/GIM/PMM/PIB/SFP are NOT supported but the implementation should be
+% - for the time being, only CAMeretta/DDS/SFH/SFM/SFP monitors;
+%   QBM/GIM/PMM/PIB are NOT supported but the implementation should be
 %   straightforward;
 % - for CAMeretta/DDS: both summary files and actual profiles in the same
 %   path are aquired;
-% - for SFH/SFM: profiles are acquired, but only the integral ones are
+% - for SFH/SFM/SFP: profiles are acquired, but only the integral ones are
 %   shown;
 % - the script visualises in 3D the spill-per-spill profiles, horizontal and
 %   vertical planes separately;
