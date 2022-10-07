@@ -25,13 +25,15 @@ clear kPath MonPathMain MonPaths SummFiles ProfFiles
 
 % -------------------------------------------------------------------------
 % USER's input data
-kPath="D:\GuessOptics\data\PROTON\090mm\HEBT";
+kPath="S:\Accelerating-System\Accelerator-data";
 % kPath="K:";
-MonPathMain="\alone_H5-009A-QUE";
+% MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\23-08-2022";
+% MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\13-09-2022";
+MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\13-09-2022\post-steering";
 MonPaths=[...
-    strcat(kPath,MonPathMain,"\PRC-544-220109-0259_U1-021B-SFM") 
+    strcat(kPath,MonPathMain,"\PRC-*-HE-030B-SFP") 
     ];
-monType="SFM"; % DDS, CAM, SFH/SFM - QBM/GIM/PMM/PIB/SFP to come
+monType="SFP"; % DDS, CAM, SFH/SFM - QBM/GIM/PMM/PIB/SFP to come
 myTit=sprintf("%s profiles in %s",monType,MonPathMain);
 % -------------------------------------------------------------------------
 
@@ -44,7 +46,7 @@ switch upper(monType)
     case "DDS"
         SummFiles=MonPaths+"\Data-*.csv";
         ProfFiles=MonPaths+"\Profiles\Data-*.csv";
-    case {"SFH","SFM"}
+    case {"SFH","SFM","SFP"}
         ProfFiles=MonPaths+"\Data-*.csv";
     otherwise
         error("Mon type NOT recognised: %s! - presently only CAM/DDS/SFM/SFH are available",monType);
@@ -67,7 +69,7 @@ switch upper(monType)
         % - quick check of consistency of parsed data
         if ( length(cyProgsSumm)~=length(cyProgs) ), error("...inconsistent data set between summary data and actual profiles"); end
     
-    otherwise % SFH,SFM
+    otherwise % SFH,SFM,SFP
         % - parse profiles
         [diffProfiles,cyCodes,cyProgs]=ParseSFMData(ProfFiles,monType);
         if (length(cyProgs)<=1), error("...no profiles aquired!"); end
@@ -79,7 +81,14 @@ end
 if ( strcmpi(monType,"CAM") )
     [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles);
 else
-    [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(profiles);
+    if ( strcmpi(monType,"SFP") )
+        noiseLevel=0.1;
+        INTlevel=5;
+        lDebug=true;
+        [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(profiles,noiseLevel,INTlevel,lDebug);
+    else
+        [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(profiles);
+    end
 end
 
 %% show data
