@@ -29,9 +29,11 @@ kPath="S:\Accelerating-System\Accelerator-data";
 % kPath="K:";
 % MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\23-08-2022";
 % MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\13-09-2022";
-MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\13-09-2022\post-steering";
+% MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\13-09-2022\post-steering";
+MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\2022-10-08\pre-steering";
+% MonPathMain="\scambio\Alessio\2022-10-09\BD_Scans\HE-030B-SFP\P_030mm";
 MonPaths=[...
-    strcat(kPath,MonPathMain,"\PRC-*-HE-030B-SFP") 
+    strcat(kPath,MonPathMain,"\PRC-544-*-SFP") 
     ];
 monType="SFP"; % DDS, CAM, SFH/SFM - QBM/GIM/PMM/PIB/SFP to come
 myTit=sprintf("%s profiles in %s",monType,MonPathMain);
@@ -102,8 +104,12 @@ if ( strcmpi(monType,"CAM") || strcmpi(monType,"DDS") )
     CompBars=BarsSumm; CompBars(:,:,2)=BARs;
     CompFwhms=FwhmsSumm; CompFwhms(:,:,2)=FWHMs;
     CompInts=IntsSumm; CompInts(:,:,2)=INTs;
-    ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),missing(),["stat on profiles" "summary data"],missing(),sprintf("%s - summary vs profile stats",myTit));
+    ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),missing(),["summary data" "stat on profiles"],missing(),sprintf("%s - summary vs profile stats",myTit));
 else
     % - series
     ShowBeamProfilesSummaryData(BARs,FWHMs,INTs,missing(),missing(),"integral profiles",missing(),myTit);
 end
+
+%% save summary data
+oFileName=strcat(kPath,"\scambio\Alessio\Carbonio_preSteering_summary-from-profiles.csv");
+SaveSummary(oFileName,BARs,FWHMs,INTs,cyCodes,cyProgs,"DDS");
