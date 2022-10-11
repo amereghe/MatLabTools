@@ -20,7 +20,7 @@ addpath(genpath(pathToLibrary));
 kPath="S:\Accelerating-System\Accelerator-data";
 % kPath="K:";
 
-beamPart="PROTON";
+beamPart="CARBON";
 machine="ISO3";
 config="TM"; % select configuration: TM, RFKO
 % -------------------------------------------------------------------------
@@ -40,19 +40,21 @@ cyCodesTM=upper(string(cyCodesTM));
 
 % -------------------------------------------------------------------------
 % USER's input data
-wrMagnetNames=[ "HE-H07A-CEB" "HE-018A-QUE" "HE-H27A-CEB" ];
-wrRange=[191   265    167]; % [mm]
-wrScan=["scanTM" "scan" "scanTM"];
-wrDImin=[40   0 20]; % [A]
-wrDImax=[40 350 20]; % [A]
-wrDIdel=[5   50 40];  % [A]
-wrNtimes=[ 1 1 10 ];
-wrIbef=[5  0 5 ];   % [A]
-wrNIbef=[5  3 5];
-wrIaft=[350 350 350 ]; % [A]
-wrNIaft=[2  5 5 ];
-wrImin=[ 0 0 0];
-wrImax=[ 350 350 350];
+% wrMagnetNames=[ "H2-012A-QUE" "H2-016A-QUE" "H2-022A-QUE" "HE-025A-QUE" ];
+wrMagnetNames=[ "H2-012A-QUE" "H2-016A-QUE" "H2-022A-QUE" "HE-025A-QUE" ];
+% wrMagnetNames=[ "HE-018A-QUE" "HE-020A-QUE" "HE-023A-QUE" "HE-025A-QUE" ];
+wrRange=[30 30 30 30]; % [mm]
+wrScan=["scanTM" "scanTM" "scanTM" "scanTM"];
+wrDImin=[20   20   20   20  ]; % [A]
+wrDImax=[20 20 20 20  ]; % [A]
+wrDIdel=[1   1   1   1  ];  % [A]
+wrNtimes=[ 1 1 1 1];
+wrIbef=[5 5 5 5 ];   % [A]
+wrNIbef=[3 3 3 3];
+wrIaft=[350 350 350 350 ]; % [A]
+wrNIaft=[2  2 2  2];
+wrImin=[ 5 5 5 5 ];
+wrImax=[ 350 350 350 350];
 oFileName="test.xlsx";
 
 % -------------------------------------------------------------------------
@@ -64,6 +66,12 @@ for ii=1:length(wrMagnetNames)
     jj=find(strcmpi(string(PSmapping.Magnet_NAME),wrMagnetNames(ii)));
     if ( isempty(jj) ), error("Magnet name %s not found in LGEN mapping table!",wrMagnetNames(ii)); end
     wrPSnames(ii)=string(PSmapping.LGEN(jj));
+    % echo TM values
+    rTM=find(rangesTM==wrRange(ii));
+    if ( isempty(rTM) ), error("Range %d mm not available in TM table!",wrRange(ii)); end
+    pTM=find(strcmpi(psNamesTM,string(PSmapping.LGEN(jj))));
+    if ( isempty(pTM) ), error("LGEN name %s not found in TM table!",PSmapping.LGEN(jj)); end
+    warning("...TM value of %s (aka %s) for %s at %d mm: %f A;",wrPSnames(ii),wrMagnetNames(ii),beamPart,wrRange(ii),currentsTM(rTM,pTM));
     % array characteristics
     switch upper(wrScan(ii))
         case "SCAN"
@@ -73,14 +81,9 @@ for ii=1:length(wrMagnetNames)
             Idel=wrDIdel(ii);
         case "SCANTM"
             % scan around TM value
-            rTM=find(rangesTM==wrRange(ii));
-            if ( isempty(rTM) ), error("Range %d mm not available in TM table!",wrRange(ii)); end
-            pTM=find(strcmpi(psNamesTM,string(PSmapping.LGEN(jj))));
-            if ( isempty(pTM) ), error("LGEN name %s not found in TM table!",PSmapping.LGEN(jj)); end
             Imin=currentsTM(rTM,pTM)-wrDImin(ii);
             Imax=currentsTM(rTM,pTM)+wrDImax(ii);
             Idel=wrDIdel(ii);
-            warning("...TM value of %s (aka %s) at %d mm: %f A;",wrPSnames(ii),wrMagnetNames(ii),wrRange(ii),currentsTM(rTM,pTM));
     end
     tmpScan=(Imin:Idel:Imax)';
     tmpScan=CorrectRange(tmpScan,wrImin(ii),wrImax(ii));
@@ -122,7 +125,7 @@ function scanOut=DecorateScan(scanIn,Imin,Imax,nImin,nImax)
     scanOut(1:nImin)=Imin;
     scanOut(  nImin+1:nImin+length(scanIn))=scanIn;
     scanOut(          nImin+length(scanIn)+1:nImin+length(scanIn)+nImax)=Imax;
-    scanOut(                                 nImin+length(scanIn)+nImin+1:end)=Imin;
+    scanOut(                                 nImin+length(scanIn)+nImax+1:end)=Imin;
 end
 
 function ScansOut=AlignDataSets(ScansIn)
