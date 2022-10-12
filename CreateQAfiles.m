@@ -31,10 +31,15 @@ config="TM"; % select configuration: TM, RFKO
 clear PSmapping; PSmapping=readtable("PSmapping.xlsx");
 
 % - get TM values
-clear cyCodesTM rangesTM EksTM BrhosTM currentsTM fieldsTM kicksTM psNamesTM FileNameCurrentsTM ;
+clear cyCodesTM rangesTM EksTM BrhosTM currentsTM fieldsTM kicksTM psNamesTM FileNameCurrentsTM magNamesTM ;
 [cyCodesTM,rangesTM,EksTM,BrhosTM,currentsTM,fieldsTM,kicksTM,psNamesTM,FileNameCurrentsTM]=AcquireLGENValues(beamPart,machine,config);
 psNamesTM=string(psNamesTM);
 cyCodesTM=upper(string(cyCodesTM));
+magNamesTM=MagNames2LGENnames(psNamesTM,true,PSmapping);
+
+% - visual checks
+% LGENvisualCheck(psNamesTM,BrhosTM,"B\rho [Tm]",currentsTM,"I [A]",magNamesTM,sprintf("%s - %s - %s - I(B\rho)",beamPart,machine,config));
+LGENvisualCheck(psNamesTM,BrhosTM,"B\rho [Tm]",currentsTM./BrhosTM,"I/B\rho [A/Tm]",magNamesTM,sprintf("%s - %s - %s - I/B\rho(B\rho)",beamPart,machine,config));
 
 %% processing
 
@@ -60,12 +65,8 @@ oFileName="test.xlsx";
 % -------------------------------------------------------------------------
 
 % actually build array/matrix of values
-scans=missing(); wrPSnames=strings(length(wrMagnetNames),1);
+scans=missing(); wrPSnames=MagNames2LGENnames(wrMagnetNames,false,PSmapping);
 for ii=1:length(wrMagnetNames)
-    % find LGEN name
-    jj=find(strcmpi(string(PSmapping.Magnet_NAME),wrMagnetNames(ii)));
-    if ( isempty(jj) ), error("Magnet name %s not found in LGEN mapping table!",wrMagnetNames(ii)); end
-    wrPSnames(ii)=string(PSmapping.LGEN(jj));
     % echo TM values
     rTM=find(rangesTM==wrRange(ii));
     if ( isempty(rTM) ), error("Range %d mm not available in TM table!",wrRange(ii)); end
