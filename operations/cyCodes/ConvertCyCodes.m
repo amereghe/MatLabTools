@@ -93,5 +93,7 @@ function myMessage=PrintUnidentified(cyCodesINun)
     % based on https://it.mathworks.com/matlabcentral/answers/299479-finding-the-frequency-of-unique-values
     [ii,jj,kk]=unique(cyCodesINun);
     freq=accumarray(kk,1);
-    myMessage=sprintf("cycle code: %s - occurrences: %.0f;\n",[ii freq]');
+    indices=(ismissing(ii));
+    myMessage=sprintf("cycle code: %s - occurrences: %.0f;\n",[ii(~indices) freq(~indices)]');
+    myMessage=sprintf("cycle code: <missing> - occurrences: %.0f;\n",freq(indices));
 end
