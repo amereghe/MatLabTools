@@ -1,6 +1,6 @@
-function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2Files,fFormat,lSkip)
-% ParseCAMSummaryFiles        parse summary files of Cameretta (ministrip monitor),
-%                                DDS (nozzle) and GIM
+function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseBeamProfileSummaryFiles(paths2Files,fFormat,lSkip)
+% ParseBeamProfileSummaryFiles        parse summary files of Cameretta (ministrip monitor),
+%                                     DDS (nozzle) and GIM
 %
 % input:
 % - paths2Files (array of strings): path(s) where the file(s) is located (a dir command is anyway performed).
@@ -101,7 +101,7 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
                     cyCodes(nCountsTot+1:nCountsTot+nCounts)=extractBetween(tmpCyCodes,5,strlength(tmpCyCodes));
                     for ii=1:2
                         BARs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,3+(ii-1)*2};
-                        FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,4+(ii-1)*2};
+                        FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,4+(ii-1)*2}*sig2FWHM;
                         ASYMs(nCountsTot+1:nCountsTot+nCounts,ii)=0.0;
                         INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,6+ii};
                     end

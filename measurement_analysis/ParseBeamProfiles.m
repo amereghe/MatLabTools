@@ -1,7 +1,7 @@
-function [measData,cyCodes,cyProgs]=ParseSFMData(paths2Files,fFormat)
-% ParseSFMData     parses distributions recorded by CAM, DDS, GIM, PIB/PMM,
-%                     QBM and SFH/SFM/SFP;
-%                  for the time being, the function does not parse QIM data
+function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
+% ParseBeamProfiles     parses distributions recorded by CAM, DDS, GIM, PIB/PMM,
+%                          QBM and SFH/SFM/SFP;
+%                       for the time being, the function does not parse QIM data
 %
 % input:
 % - paths2Files (array of strings): path(s) where the file(s) is(are)
@@ -57,37 +57,40 @@ function [measData,cyCodes,cyProgs]=ParseSFMData(paths2Files,fFormat)
     measData=NaN(max(Nx,Ny),maxColumns,2,actualDataSets);
     cyProgs=NaN(actualDataSets,1);
     cyCodes=strings(actualDataSets,1);
-    
 
     %% actually parse
     for iPath=1:length(paths2Files)
         
         %% filename and extension
-        [filepath,name,ext]=fileparts(paths2Files(iPath));
-        if (strlength(name)==0)
-            switch upper(fFormat)
-                case "GIM"
-                    name="XY_*";
-                case "SFP"
-                    name="Data-*";
-                otherwise
-                    error("...please specify name for %s profile files",fFormat);
-            end
-        end
-        if (strlength(ext)==0)
-            switch upper(fFormat)
-                case "GIM"
-                    ext=".txt";
-                case "SFP"
-                    ext=".csv";
-                otherwise
-                    error("...please specify extension for %s profile files",fFormat);
-            end
+        switch upper(fFormat)
+            case "CAM"
+                tmpPath=paths2Files(iPath);
+                if (~contains(tmpPath,"\profiles\")), tmpPath=strcat(tmpPath,"\profiles\"); end
+                [filepath,name,ext]=fileparts(tmpPath);
+                if (strlength(name)==0), name="*_profiles"; end
+                if (strlength(ext)==0), ext=".txt"; end
+            case "DDS"
+                tmpPath=paths2Files(iPath);
+                if (~contains(tmpPath,"\Profiles\")), tmpPath=strcat(tmpPath,"\Profiles\"); end
+                [filepath,name,ext]=fileparts(tmpPath);
+                if (strlength(name)==0), name="Data-*"; end
+                if (strlength(ext)==0), ext=".csv"; end
+            case "GIM"
+                [filepath,name,ext]=fileparts(paths2Files(iPath));
+                if (strlength(name)==0), name="XY_*"; end
+                if (strlength(ext)==0), ext=".txt"; end
+            case {"SFH","SFM","SFP"}
+                [filepath,name,ext]=fileparts(paths2Files(iPath));
+                if (strlength(name)==0), name="Data-*"; end
+                if (strlength(ext)==0), ext=".csv"; end
+            otherwise
+                error("...please specify name for %s profile files",fFormat);
         end
 
-        files=dir(strcat(filepath,"\",name,ext));
+        tmpPath=strcat(filepath,"\",name,ext);
+        files=dir(tmpPath);
         nDataSets=length(files);
-        fprintf("acquring %i data sets with %s format...\n",nDataSets,upper(fFormat));
+        fprintf("acquring %i data sets with %s format in path %s ...\n",nDataSets,upper(fFormat),tmpPath);
 
         nAcq=0;
         for iSet=1:nDataSets
