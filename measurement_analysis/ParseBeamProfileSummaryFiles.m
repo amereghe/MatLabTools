@@ -53,7 +53,23 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseBeamProfileSummaryFiles(pa
     nReadFiles=0;
     nCountsTot=0;
     for iPath=1:length(paths2Files)
-        files=dir(paths2Files(iPath));
+        % filename and extension
+        switch upper(fFormat)
+            case "CAM"
+                [filepath,name,ext]=fileparts(paths2Files(iPath));
+                if (strlength(name)==0), name="*_summary"; end
+                if (strlength(ext)==0), ext=".txt"; end
+            case "DDS"
+                [filepath,name,ext]=fileparts(paths2Files(iPath));
+                if (strlength(name)==0), name="Data-*"; end
+                if (strlength(ext)==0), ext=".csv"; end
+            case "GIM"
+                [filepath,name,ext]=fileparts(paths2Files(iPath));
+                if (strlength(name)==0), name="Data_SummaryGIM"; end
+                if (strlength(ext)==0), ext=".txt"; end
+        end
+        tmpPath=strcat(filepath,"\",name,ext);
+        files=dir(tmpPath);
         nDataSets=length(files);
         fprintf("...acquring %i data sets in %s ...\n",nDataSets,paths2Files(iPath));
         for iSet=1:nDataSets
@@ -68,46 +84,75 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseBeamProfileSummaryFiles(pa
                     C = textscan(fileID,'%s %s %f %f %f %f %f %f','HeaderLines',1);
             end
             fclose(fileID);
-            nCounts=length(C{:,1});
+            nLines=length(C{:,1});
+            
+            % take into account missing cyProgs
+            clear tmpCyProgs actCyProgs;
             switch upper(fFormat)
                 case "CAM"
-                    cyCodes(nCountsTot+1:nCountsTot+nCounts)=string(C{:,1});
-                    for ii=1:2
-                        BARs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,1+ii};
-                        FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,3+ii};
-                        ASYMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,5+ii};
-                        INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,7+ii};
-                    end
-                    cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,10});
+                    tmpCyProgs=str2double(C{:,10});
                 case "DDS"
-                    iStop=nCounts;
+                    iStop=nLines;
                     if (lSkip)
                         iStart=3;
-                        nCounts=nCounts-2;
+                        nLines=nLines-2;
                     else
                         iStart=1;
                     end
-                    cyCodes(nCountsTot+1:nCountsTot+nCounts)=string(C{:,1}(iStart:iStop,:));
-                    cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,2}(iStart:iStop,:));
+                    tmpCyProgs=str2double(C{:,2}(iStart:iStop,:));
+                case "GIM"
+                    tmpCyProgs=str2double(C{:,1});
+            end
+            actCyProgs=tmpCyProgs(1):tmpCyProgs(end); nCyProgs=length(actCyProgs);
+            if (nCyProgs~=nLines)
+                fprintf("...taking into account missing cyProgs:\n");
+                indices=find(diff(tmpCyProgs)>1);
+                for iDiff=1:length(indices)
+                    cyProgMin=tmpCyProgs(indices(iDiff))+1;
+                    cyProgMax=tmpCyProgs(indices(iDiff)+1)-1;
+                    fprintf("   ...%d in range [%d:%d]\n",cyProgMax-cyProgMin+1,cyProgMin,cyProgMax);
+                end
+                [~,~,ib]=intersect(tmpCyProgs,actCyProgs);
+            else
+                ib=1:nCyProgs;
+            end
+            cyProgs(nCountsTot+1:nCountsTot+nCyProgs)=string(actCyProgs);
+            cyCodes(nCountsTot+1:nCountsTot+nCyProgs)="";
+            BARs(nCountsTot+1:nCountsTot+nCyProgs,1:2)=NaN();
+            FWHMs(nCountsTot+1:nCountsTot+nCyProgs,1:2)=NaN();
+            ASYMs(nCountsTot+1:nCountsTot+nCyProgs,1:2)=NaN();
+            INTs(nCountsTot+1:nCountsTot+nCyProgs,1:2)=NaN();
+            
+            % actually parse data
+            switch upper(fFormat)
+                case "CAM"
+                    cyCodes(nCountsTot+ib)=string(C{:,1});
                     for ii=1:2
-                        BARs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,1+2*ii}(iStart:iStop,:);            % cols 3 and 5
-                        FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,2+2*ii}(iStart:iStop,:)*sig2FWHM;  % cols 4 and 6
-                        ASYMs(nCountsTot+1:nCountsTot+nCounts,ii)=0.0;
-                        INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,7}(iStart:iStop,:);
+                        BARs(nCountsTot+ib,ii)=C{:,1+ii};
+                        FWHMs(nCountsTot+ib,ii)=C{:,3+ii};
+                        ASYMs(nCountsTot+ib,ii)=C{:,5+ii};
+                        INTs(nCountsTot+ib,ii)=C{:,7+ii};
+                    end
+                case "DDS"
+                    cyCodes(nCountsTot+ib)=string(C{:,1}(iStart:iStop,:));
+                    for ii=1:2
+                        BARs(nCountsTot+ib,ii)=C{:,1+2*ii}(iStart:iStop,:);            % cols 3 and 5
+                        FWHMs(nCountsTot+ib,ii)=C{:,2+2*ii}(iStart:iStop,:)*sig2FWHM;  % cols 4 and 6
+                        ASYMs(nCountsTot+ib,ii)=0.0;
+                        INTs(nCountsTot+ib,ii)=C{:,7}(iStart:iStop,:);
                     end
                 case "GIM"
-                    cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,1});
-                    tmpCyCodes=string(C{:,2});
-                    cyCodes(nCountsTot+1:nCountsTot+nCounts)=extractBetween(tmpCyCodes,5,strlength(tmpCyCodes));
+                    % tmpCyCodes=string(C{:,2});
+                    cyCodes(nCountsTot+ib)=extractBetween(string(C{:,2}),5,strlength(string(C{:,2})));
                     for ii=1:2
-                        BARs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,3+(ii-1)*2};
-                        FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,4+(ii-1)*2}*sig2FWHM;
-                        ASYMs(nCountsTot+1:nCountsTot+nCounts,ii)=0.0;
-                        INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,6+ii};
+                        BARs(nCountsTot+ib,ii)=C{:,3+(ii-1)*2};
+                        FWHMs(nCountsTot+ib,ii)=C{:,4+(ii-1)*2}*sig2FWHM;
+                        ASYMs(nCountsTot+ib,ii)=0.0;
+                        INTs(nCountsTot+ib,ii)=C{:,6+ii};
                     end
             end
-            fprintf("   ...acquired %d entries in file %s (%d/%d)...\n",nCounts,files(iSet).name,iSet,nDataSets);
-            nCountsTot=nCountsTot+nCounts;
+            fprintf("   ...acquired %d entries in file %s (%d/%d)...\n",nLines,files(iSet).name,iSet,nDataSets);
+            nCountsTot=nCountsTot+nCyProgs;
             nReadFiles=nReadFiles+1;
         end
     end
@@ -134,5 +179,5 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseBeamProfileSummaryFiles(pa
         ASYMs=missing;
         INTs=missing;
     end
-    fprintf("...acqured %i files, for a total of %d entries;\n",nReadFiles,nCountsTot);
+    fprintf("...acqured %i files, for a total of %d cyProgs;\n",nReadFiles,nCountsTot);
 end

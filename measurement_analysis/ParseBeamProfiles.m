@@ -134,7 +134,7 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
                     measData(1:Ny,1,2)=tmp(1:Ny,3);                % fiber positions
                     measData(1:Ny,1+actualDataSets,2)=tmp(1:Ny,4); % values
                 case "GIM"
-                    if (strcmp(files(iSet).name,"Dati_SummaryGIM.txt") | startswith(files(iSet).name,"Int_","IgnoreCase",true) | startswith(files(iSet).name,"Profiles_","IgnoreCase",true))
+                    if (strcmp(files(iSet).name,"Dati_SummaryGIM.txt") | startsWith(files(iSet).name,"Int_","IgnoreCase",true) | startsWith(files(iSet).name,"Profiles_","IgnoreCase",true))
                         % matlab does not support single char wildcard...
                         continue
                     end
@@ -155,7 +155,7 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
                     % x-axis values
                     measData(1:Nx,1:nColumns,1,actualDataSets)=tmp(1:Nx,1:nColumns); % values
                     % y-axis values
-                    measData(1:Ny,1:nColumns,2,actualDataSets)=tmp(Nx+2+1:Nx+2+Ny,1:nColumns); % values
+                    measData(1:Ny,1:nColumns,2,actualDataSets)=tmp(Nx+2:Nx+1+Ny,1:nColumns); % values
                     % check cycle code
                     tmpCyCode=extractBetween(tmpCyCode,5,strlength(tmpCyCode));
                 case {"PMM","PIB"}
@@ -213,8 +213,12 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
     end
     
     %% post-processing
-    nAcquired=size(measData,4);
-    fprintf("...acqured %i files;\n",nAcquired);
+    if ( strcmpi(fFormat,"CAM") | strcmpi(fFormat,"DDS") )
+        nAcquired=size(measData,2)-1;
+    else
+        nAcquired=size(measData,4);
+    end
+    fprintf("...for a total of %i cyProgs;\n",nAcquired);
     if ( nAcquired>0 )
         cyCodes=PadCyCodes(cyCodes);
         cyCodes=UpperCyCodes(cyCodes);
@@ -226,7 +230,11 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
         end
         % sort by cyProg
         [cyProgs,idx]=sort(cyProgs);
-        measData=measData(:,[1 idx'+1],:,:);
+        if ( strcmpi(fFormat,"CAM") | strcmpi(fFormat,"DDS") )
+            measData=measData(:,[1 idx'+1],:,:);
+        else
+            measData=measData(:,:,:,idx);
+        end
         cyCodes=cyCodes(idx);
         cyProgs=string(cyProgs);
     else
