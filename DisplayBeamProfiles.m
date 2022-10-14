@@ -30,8 +30,8 @@ kPath="P:\Accelerating-System\Accelerator-data";
 % kPath="K:";
 % MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\23-08-2022";
 % MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\13-09-2022";
-MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\13-09-2022\post-steering";
-% MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\2022-10-08\pre-steering";
+% MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\13-09-2022\post-steering";
+MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\2022-10-08\pre-steering";
 % MonPathMain="\scambio\Alessio\2022-10-09\BD_Scans\HE-030B-SFP\P_030mm";
 % GIM in and He-025B-SFM
 % MonPathMain="\Area dati MD\00sfh\Recal_H2025SFM\GIMIN\Hor\2022-08-22";
@@ -49,23 +49,6 @@ myTit=sprintf("%s profiles in %s",monType,MonPathMain);
 % -------------------------------------------------------------------------
 
 %% parse files
-% - files to crunch:
-switch upper(monType)
-    case "CAM"
-        SummFiles=MonPaths+"\*summary.txt";
-        ProfFiles=MonPaths+"\profiles\*_profiles.txt";
-    case "DDS"
-        SummFiles=MonPaths+"\Data-*.csv";
-        ProfFiles=MonPaths+"\Profiles\Data-*.csv";
-    case "GIM"
-        SummFiles=MonPaths+"\Data_*.txt";
-        ProfFiles=MonPaths+"\XY_*.txt";
-    case {"SFH","SFM","SFP"}
-        ProfFiles=MonPaths+"\Data-*.csv";
-    otherwise
-        error("Mon type NOT recognised: %s! - presently only CAM/DDS/SFM/SFH are available",monType);
-end
-
 % - clear summary data
 clear cyProgsSumm cyCodesSumm BarsSumm FwhmsSumm AsymsSumm IntsSumm
 % - clear profiles
@@ -75,17 +58,17 @@ clear profiles cyCodes cyProgs
 switch upper(monType)
     case {"CAM","DDS","GIM"}
         % - parse summary files
-        [cyProgsSumm,cyCodesSumm,BarsSumm,FwhmsSumm,AsymsSumm,IntsSumm]=ParseCAMSummaryFiles(SummFiles,monType,0);
+        [cyProgsSumm,cyCodesSumm,BarsSumm,FwhmsSumm,AsymsSumm,IntsSumm]=ParseBeamProfileSummaryFiles(MonPaths,monType);
         if (length(cyProgsSumm)<=1), error("...no summary data aquired!"); end
         % - parse profiles
-        [profiles,cyCodes,cyProgs]=ParseSFMData(ProfFiles,monType);
+        [profiles,cyCodes,cyProgs]=ParseBeamProfiles(MonPaths,monType);
         if (length(cyProgs)<=1), error("...no profiles aquired!"); end
         % - quick check of consistency of parsed data
         if ( length(cyProgsSumm)~=length(cyProgs) ), error("...inconsistent data set between summary data and actual profiles"); end
     
     otherwise % SFH,SFM,SFP
         % - parse profiles
-        [diffProfiles,cyCodes,cyProgs]=ParseSFMData(ProfFiles,monType);
+        [diffProfiles,cyCodes,cyProgs]=ParseBeamProfiles(MonPaths,monType);
         if (length(cyProgs)<=1), error("...no profiles aquired!"); end
         % - get integral profiles
         profiles=SumSpectra(diffProfiles); 
