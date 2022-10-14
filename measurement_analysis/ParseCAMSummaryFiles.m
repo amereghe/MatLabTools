@@ -1,6 +1,6 @@
 function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2Files,fFormat,lSkip)
-% ParseCAMSummaryFiles        parse summary files of Cameretta (ministrip monitor)
-%                                and DDS (nozzle)
+% ParseCAMSummaryFiles        parse summary files of Cameretta (ministrip monitor),
+%                                DDS (nozzle) and GIM
 %
 % input:
 % - paths2Files (array of strings): path(s) where the file(s) is located (a dir command is anyway performed).
@@ -18,8 +18,11 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
 % - INTs (2D array of floats): integral of distribution [number of ions];
 %
 % For the time being, the column "RippleFilter" in the DDS summary file
-%   is not returned. In addition, for DDS, ASYMs are filled with zeros,
+%   is not returned; similarly. In addition, ASYMs are filled with zeros,
 %   and INTs are repeated.
+% Similarly, for the GIM summary files, INTs are filled with the columns 
+%   "1mm_Intensity" and "5mm_Intensity". In addition, ASYMs are filled with
+%   zeros.
 %
 % The 2D arrays have:
 % - horizontal plane in column 1;
@@ -32,11 +35,14 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
 % - DDS:
 %   . 1 header line;
 %   . a line for each cycle prog; the format of the line is eg: "0A003E440900	195445867	-0.51	4.613	-0.151	5.959	835773	0"
+% - GIM:
+%   . 1 header line;
+%   . a line for each cycle prog; the format of the line is eg: "187881743	0000060030440900	-20.007	2.649	-2.143	2.538	119518867	120512835"
 
     
     if ( ~exist('fFormat','var') ), fFormat="CAM"; end % default: CAMeretta
-    if ( ~strcmpi(fFormat,"CAM") && ~strcmpi(fFormat,"DDS") )
-        error("wrong indication of format of file: %s. Can only be DDS and CAM",fFormat);
+    if ( ~strcmpi(fFormat,"CAM") && ~strcmpi(fFormat,"DDS") && ~strcmpi(fFormat,"GIM") )
+        error("wrong indication of format of file: %s. Can only be CAM, DDS and GIM",fFormat);
     end
     if ( strcmpi(fFormat,"DDS") )
         if ( ~exist('lSkip','var') ), lSkip=1; end
@@ -53,38 +59,52 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseCAMSummaryFiles(paths2File
         for iSet=1:nDataSets
             fileName=strcat(files(iSet).folder,"\",files(iSet).name);
             fileID = fopen(fileName,"r");
-            if ( strcmpi(fFormat,"CAM") )
-                C = textscan(fileID,'%s %f %f %f %f %f %f %f %f %s','HeaderLines',1);
-            else % DDS
-                C = textscan(fileID,'%s %s %f %f %f %f %f %f','HeaderLines',1);
+            switch upper(fFormat)
+                case "CAM"
+                    C = textscan(fileID,'%s %f %f %f %f %f %f %f %f %s','HeaderLines',1);
+                case "DDS"
+                    C = textscan(fileID,'%s %s %f %f %f %f %f %f','HeaderLines',1);
+                case "GIM"
+                    C = textscan(fileID,'%s %s %f %f %f %f %f %f','HeaderLines',1);
             end
             fclose(fileID);
             nCounts=length(C{:,1});
-            if ( strcmpi(fFormat,"CAM") )
-                cyCodes(nCountsTot+1:nCountsTot+nCounts)=string(C{:,1});
-                for ii=1:2
-                    BARs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,1+ii};
-                    FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,3+ii};
-                    ASYMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,5+ii};
-                    INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,7+ii};
-                end
-                cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,10});
-            else % DDS
-                iStop=nCounts;
-                if (lSkip)
-                    iStart=3;
-                    nCounts=nCounts-2;
-                else
-                    iStart=1;
-                end
-                cyCodes(nCountsTot+1:nCountsTot+nCounts)=string(C{:,1}(iStart:iStop,:));
-                cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,2}(iStart:iStop,:));
-                for ii=1:2
-                    BARs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,1+2*ii}(iStart:iStop,:);            % cols 3 and 5
-                    FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,2+2*ii}(iStart:iStop,:)*sig2FWHM;  % cols 4 and 6
-                    ASYMs(nCountsTot+1:nCountsTot+nCounts,ii)=0.0;
-                    INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,7}(iStart:iStop,:);
-                end
+            switch upper(fFormat)
+                case "CAM"
+                    cyCodes(nCountsTot+1:nCountsTot+nCounts)=string(C{:,1});
+                    for ii=1:2
+                        BARs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,1+ii};
+                        FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,3+ii};
+                        ASYMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,5+ii};
+                        INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,7+ii};
+                    end
+                    cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,10});
+                case "DDS"
+                    iStop=nCounts;
+                    if (lSkip)
+                        iStart=3;
+                        nCounts=nCounts-2;
+                    else
+                        iStart=1;
+                    end
+                    cyCodes(nCountsTot+1:nCountsTot+nCounts)=string(C{:,1}(iStart:iStop,:));
+                    cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,2}(iStart:iStop,:));
+                    for ii=1:2
+                        BARs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,1+2*ii}(iStart:iStop,:);            % cols 3 and 5
+                        FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,2+2*ii}(iStart:iStop,:)*sig2FWHM;  % cols 4 and 6
+                        ASYMs(nCountsTot+1:nCountsTot+nCounts,ii)=0.0;
+                        INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,7}(iStart:iStop,:);
+                    end
+                case "GIM"
+                    cyProgs(nCountsTot+1:nCountsTot+nCounts)=string(C{:,1});
+                    tmpCyCodes=string(C{:,2});
+                    cyCodes(nCountsTot+1:nCountsTot+nCounts)=extractBetween(tmpCyCodes,5,strlength(tmpCyCodes));
+                    for ii=1:2
+                        BARs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,3+(ii-1)*2};
+                        FWHMs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,4+(ii-1)*2};
+                        ASYMs(nCountsTot+1:nCountsTot+nCounts,ii)=0.0;
+                        INTs(nCountsTot+1:nCountsTot+nCounts,ii)=C{:,6+ii};
+                    end
             end
             fprintf("   ...acquired %d entries in file %s (%d/%d)...\n",nCounts,files(iSet).name,iSet,nDataSets);
             nCountsTot=nCountsTot+nCounts;
