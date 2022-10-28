@@ -42,7 +42,7 @@ function [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(profiles,noiseLevel,INTl
         INTs(iSet,1:2)=sum(tmpYs,"omitnan");
         if ( sum(INTs(iSet,:),"omitnan")== 0 ), continue; end
         if ( lDebug )
-            sgtitle(sprintf("DDS profiles id #%d",iSet));
+            sgtitle(sprintf("Profile id #%d",iSet));
             oriYs=tmpYs(:,1:2);
         end
         tmpYs(tmpYs<noiseLevel)=0.0;
