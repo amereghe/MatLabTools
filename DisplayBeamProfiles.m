@@ -148,7 +148,7 @@ end
 % - 3D plot of profiles
 ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),mmsProf,"Range [mm]",myLabels);
 % - statistics on profiles
-ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),missing(),myLabels,missing(),myTit);
+ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),mmsProf,"Range [mm]",myLabels,missing(),myTit);
 % - statistics on profiles vs summary files
 for iDataAcq=1:nDataSets
     switch upper(monTypes(iDataAcq))
@@ -157,7 +157,9 @@ for iDataAcq=1:nDataSets
             CompBars=BARsSumm(:,:,iDataAcq); CompBars(:,:,2)=BARsProf(:,:,iDataAcq);
             CompFwhms=FWHMsSumm(:,:,iDataAcq); CompFwhms(:,:,2)=FWHMsProf(:,:,iDataAcq);
             CompInts=INTsSumm(:,:,iDataAcq); CompInts(:,:,2)=INTsProf(:,:,iDataAcq);
-            ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),missing(),["summary data" "stat on profiles"],missing(),sprintf("%s - %s - summary vs profile stats",myTit,myLabels(iDataAcq)));
+            CompXs=mmsSumm(:,iDataAcq); CompXs(:,2)=mmsProf(:,iDataAcq);
+            ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),CompXs,"Range [mm]",...
+                ["summary data" "stat on profiles"],missing(),sprintf("%s - %s - summary vs profile stats",myTit,myLabels(iDataAcq)));
     end
 end
 
