@@ -22,7 +22,7 @@ function [Eks,cyCodes,mms]=ParseMeVvsCyCo(varIN,kPath,sheetName)
 
     % check input
     if ( ~exist('kPath','var') )
-        kPath="S:\Accelerating-System\Accelerator-data";
+        kPath="P:\Accelerating-System\Accelerator-data";
     end
     if ( ~exist('sheetName','var') )
         sheetName="Sheet1";
