@@ -1,7 +1,6 @@
-function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,indices,labels,whatNames,myTitle)
-% ShowBeamProfilesSummaryData      to create a figure where Baricentres, SIGmas/FWHMs,
-%                                   INTegrals and ASYMmetries of beam
-%                                   profiles are shown;
+function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,xVals,xLab,labels,whatNames,myTitle)
+% ShowBeamProfilesSummaryData      to create a figure showing Baricentres, SIGmas/FWHMs,
+%                                   INTegrals and ASYMmetries of beam profiles;
 % 
 % in case of multiple data sets, they are compared.
 % 
@@ -13,13 +12,17 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,indices,labels,whatNam
 % - SIGs (float(nScanPoints,nPlanes,nSets)): sigmas of distributions [mm];
 % - INTs (float(nScanPoints,nPlanes,nSets)): integrals of distributions [mm];
 % - ASYMs (float(nScanPoints,nPlanes,nSets), can be missing): asymmetry [mm];
-% - indices ([IDmin IDmax], optional): IDs of the scan points to be taken;
+% - xVals (float(nScanPoints,nSets), optional): independent variable;
+%   if not given, the measurement ID is reported;
+% - xLab (string, optional): name and unit of the independent variable;
+%   if not given, "ID []" is reported;
 % - labels (strings(nSets)): a label for each scan;
 % - whatNames (strings(nCols)): a label for each quantity;
 % - myTitle (string): figure title;
 % 
 
-    if ( ~exist('indices','var') ), indices=missing(); end
+    if ( ~exist("xVals","var") ), xVals=missing(); end
+    if ( ~exist("xLab","var") ), xLab=missing(); end
     if ( ~exist('labels','var') ), labels=missing(); end
     if ( ~exist('whatNames','var') ), whatNames=missing(); end
     if ( ~exist('myTitle','var') ), myTitle=missing(); end
@@ -29,12 +32,15 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,indices,labels,whatNam
     planes=["Hor" "Ver"];
     nRows=length(planes); % Hor, Ver
     nSets=size(INTs,3);
+    nVals=size(INTs,1);
 
-    if ( ismissing(indices) )
-        iis=1:size(INTs,1)';
-    else
-        iis=(indices(1):indices(2))';
+    if ( ismissing(xVals) )
+        xVals=NaN(nVals,nSets);
+        for iSet=1:nSets
+            xVals(:,iSet)=1:nVals;
+        end
     end
+    if ( ismissing(xLab) ), xLab="ID []"; end
     if ( ismissing(labels) )
         labels=compose("Series %02i",(1:nSets)');
     end
@@ -71,10 +77,10 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,indices,labels,whatNam
             end
             for iSet=1:nSets
                 if ( iSet>1 ), hold on; end
-                plot(iis,what(iis,iRow,iSet),"-","Marker",markers(iSet));
+                plot(xVals(:,iSet),what(:,iRow,iSet),"-","Marker",markers(iSet));
             end
             if (lLog), set(gca,'YScale','log'); end
-            xlabel("ID []"); ylabel(myYLab); grid on; title(sprintf("%s - %s",planes(iRow),whatNames(iCol)));
+            xlabel(xLab); ylabel(myYLab); grid on; title(sprintf("%s - %s",planes(iRow),whatNames(iCol)));
             legend(labels,"location","best");
         end
     end
