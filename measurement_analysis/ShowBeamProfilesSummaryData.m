@@ -22,6 +22,7 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,indices,labels,whatNam
     if ( ~exist('indices','var') ), indices=missing(); end
     if ( ~exist('labels','var') ), labels=missing(); end
     if ( ~exist('whatNames','var') ), whatNames=missing(); end
+    if ( ~exist('myTitle','var') ), myTitle=missing(); end
     
     nCols=3; % SIGs, BARs, INTs
     if ( ~ismissing(ASYMs) ), nCols=4; end
@@ -42,7 +43,7 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,indices,labels,whatNam
     end
     
     % actually generate figure
-    if (exist("myTitle","var"))
+    if (~ismissing(myTitle))
         figure("Name",LabelMe(myTitle));
     else
         figure();
@@ -52,7 +53,7 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,indices,labels,whatNam
         markers=[ "o" "*" ];
     else
         markers=strings(nSets,1);
-        markers="*";
+        markers(:)=".";
     end
     for iRow=1:nRows
         for iCol=1:nCols
@@ -60,24 +61,25 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,indices,labels,whatNam
             subplot(nRows,nCols,iPlot);
             switch iCol
                 case 1
-                    what=SIGs; myYLab="[mm]";
+                    what=SIGs; myYLab="[mm]"; lLog=false;
                 case 2
-                    what=BARs; myYLab="[mm]";
+                    what=BARs; myYLab="[mm]"; lLog=false;
                 case 3
-                    what=INTs; myYLab="[]";
+                    what=INTs; myYLab="[]"; lLog=true;
                 case 4
-                    what=ASYMs; myYLab="[mm]";
+                    what=ASYMs; myYLab="[mm]"; lLog=false;
             end
             for iSet=1:nSets
                 if ( iSet>1 ), hold on; end
                 plot(iis,what(iis,iRow,iSet),"-","Marker",markers(iSet));
             end
+            if (lLog), set(gca,'YScale','log'); end
             xlabel("ID []"); ylabel(myYLab); grid on; title(sprintf("%s - %s",planes(iRow),whatNames(iCol)));
             legend(labels,"location","best");
         end
     end
     
-    if (exist("myTitle","var"))
+    if (~ismissing(myTitle))
         sgtitle(LabelMe(myTitle));
     end
     

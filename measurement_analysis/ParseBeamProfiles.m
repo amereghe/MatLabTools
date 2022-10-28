@@ -65,13 +65,19 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
         switch upper(fFormat)
             case "CAM"
                 tmpPath=paths2Files(iPath);
-                if (~contains(tmpPath,"\profiles\")), tmpPath=strcat(tmpPath,"\profiles\"); end
+                if (~contains(tmpPath,"\profiles\"))
+                    if (~endsWith(tmpPath,"\")), tmpPath=strcat(tmpPath,"\"); end
+                    tmpPath=strcat(tmpPath,"profiles\");
+                end
                 [filepath,name,ext]=fileparts(tmpPath);
                 if (strlength(name)==0), name="*_profiles"; end
                 if (strlength(ext)==0), ext=".txt"; end
             case "DDS"
                 tmpPath=paths2Files(iPath);
-                if (~contains(tmpPath,"\Profiles\")), tmpPath=strcat(tmpPath,"\Profiles\"); end
+                if (~contains(tmpPath,"\Profiles\"))
+                    if (~endsWith(tmpPath,"\")), tmpPath=strcat(tmpPath,"\"); end
+                    tmpPath=strcat(tmpPath,"Profiles\");
+                end
                 [filepath,name,ext]=fileparts(tmpPath);
                 if (strlength(name)==0), name="Data-*"; end
                 if (strlength(ext)==0), ext=".csv"; end
