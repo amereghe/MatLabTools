@@ -72,6 +72,13 @@ function [currentTable]=BuildCurrentTable(cyCodesQuery,cyProgsQuery,LGENnamesQue
                 [Is,comCyProgs,iDesired]=GetCurrentsFromLPOWMon(LGENnamesQuery(iLGEN),cyProgsQuery(:,iSeries),LGENnamesLPOWMon,cyProgsLPOWMon,currentsLPOWMon);
                 if ( ~ismissing(Is) ), currentTable(iDesired+iAdds(1+iSeries),iLGEN,iSeries)=Is; end
             end
+            
+            % bring list of currents back/forth, such that indexing of
+            %    table coincides with that of XLS file
+            if ( iAdds(1)>0 )
+                currentTable(1:end-iAdds(1),iLGEN,iSeries)=currentTable(1+iAdds(1):end,iLGEN,iSeries);
+                currentTable(end-iAdds(1):end,iLGEN,iSeries)=NaN();
+            end
         end
     end
     
