@@ -45,7 +45,7 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseBeamProfileSummaryFiles(pa
         error("wrong indication of format of file: %s. Can only be CAM, DDS and GIM",fFormat);
     end
     if ( strcmpi(fFormat,"DDS") )
-        if ( ~exist('lSkip','var') ), lSkip=1; end
+        if ( ~exist('lSkip','var') ), lSkip=true; end
     end
     sig2FWHM=2*sqrt(2*log(2));
     
@@ -57,7 +57,7 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseBeamProfileSummaryFiles(pa
         switch upper(fFormat)
             case "CAM"
                 [filepath,name,ext]=fileparts(paths2Files(iPath));
-                if (strlength(name)==0), name="*_summary"; end
+                if (strlength(name)==0), name="*summary"; end
                 if (strlength(ext)==0), ext=".txt"; end
             case "DDS"
                 [filepath,name,ext]=fileparts(paths2Files(iPath));
