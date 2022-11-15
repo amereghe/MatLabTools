@@ -2,7 +2,7 @@
 
 %% description
 % this is a script which parses beam profiles files and plots them
-% - the script crunches as many files as desired, provided the fullpaths;
+% - the script crunches as many data sets as desired, provided the fullpaths;
 % - for the time being, only CAMeretta/DDS/GIM/SFH/SFM/SFP monitors;
 %   QBM/PMM/PIB are NOT supported but the implementation should be
 %   straightforward;
@@ -15,51 +15,35 @@
 % - the script shows summary data; for CAMeretta/DDS/GIM only, the script also
 %   compares summary data against statistics data computed on profiles;
 
-%% include libraries
-% % - include Matlab libraries
-% pathToLibrary=".\";
-% addpath(genpath(pathToLibrary));
+%% manual run
+if (~exist("MonPaths","var")) 
+    % script manually run by user
 
-%% settings
-clear kPath myTit monTypes MonPaths myLabels
+    % -------------------------------------------------------------------------
+    % default stuff
+    % -------------------------------------------------------------------------
+    % - include Matlab libraries
+    pathToLibrary=".\";
+    addpath(genpath(pathToLibrary));
+    % - clear settings
+    clear kPath myTit monTypes MonPaths myLabels
 
-% -------------------------------------------------------------------------
-% USER's input data
-kPath="P:\Accelerating-System\Accelerator-data";
-% kPath="K:";
-% MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\23-08-2022";
-% MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\13-09-2022";
-% MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\13-09-2022\post-steering";
-% MonPathMain="\Area dati MD\00XPR\XPR3\Protoni\MachinePhoto\2022-10-08\pre-steering";
-% MonPathMain="\scambio\Alessio\2022-10-09\BD_Scans\HE-030B-SFP\P_030mm";
-% GIM in and He-025B-SFM
-% MonPathMain="\Area dati MD\00sfh\Recal_H2025SFM\GIMIN\Hor\2022-08-22";
-% MonPathMain="\Area dati MD\00sfh\Recal_H2025SFM\GIMIN\Ver\2022-08-22";
-% MonPathMain="\Area dati MD\00sfh\Recal_H2025SFM\GIMIN\Hor\2022-07-19";
-% MonPathMain="\Area dati MD\00sfh\Recal_H2025SFM\GIMIN\Ver\2022-07-19";
-% MonPathMain="\Area dati MD\00sfh\Recal_H2025SFM\GIMOUT\Hor\2022-09-12_varieEnergie";
-% MonPathMain="\Area dati MD\00sfh\Recal_H2025SFM\GIMOUT\Hor\2022-10-02_270mm";
-% - GIM profiles
-% MonPathMain="\Area dati MD\00Summary\Carbonio\2022\09-Settembre\30-09-2022\GIM";
-% MonPathMain="\Area dati MD\00Summary\Protoni\2022\09-Settembre\30-09-2022\GIM";
-% myTit=sprintf("%s profiles in %s",monType,MonPathMain);
+    % -------------------------------------------------------------------------
+    % USER's input data
+    % -------------------------------------------------------------------------
+    kPath="P:\Accelerating-System\Accelerator-data";
+    myTit="Steering ISO2 - Carbonio - DDS";
+    monTypes="DDS"; % CAM, DDS, GIM, SFH/SFM/SFP - QBM/PMM/PIB to come
+    MonPaths=[...
+        strcat(kPath,"\Area dati MD\00Steering\SteeringPazienti\carbonio\XPR2\2022.10.26\PRC-544-*-DDSF\") 
+        ];
+    myLabels=[...
+        "2022-10-26 - pre-steering"
+        ];
+    lSkip=false; % DDS summary file: skip first 2 lines (in addition to header line)
+end
 
-% % manual input
-% myTit="Steering ISO2 - Carbonio - DDS";
-% monTypes="DDS"; % CAM, DDS, GIM, SFH/SFM - QBM/PMM/PIB/SFP to come
-% MonPaths=[...
-%     strcat(kPath,"\Area dati MD\00Steering\SteeringPazienti\carbonio\XPR2\2022.10.26\PRC-544-*-DDSF\") 
-%     ];
-% myLabels=[...
-%     "2022-10-26 - pre-steering"
-%     ];
-% lSkip=false;
-
-% load pre-defined settings/paths
-run("../../chooseSettings.m");
-% -------------------------------------------------------------------------
-
-% check of user input data
+%% check of user input data
 if ( length(MonPaths)~=length(myLabels) )
     error("number of paths different from number of labels: %d~=%d",length(MonPaths),length(myLabels));
 else
