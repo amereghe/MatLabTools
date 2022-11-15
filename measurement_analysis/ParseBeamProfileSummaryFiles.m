@@ -61,7 +61,7 @@ function [cyProgs,cyCodes,BARs,FWHMs,ASYMs,INTs]=ParseBeamProfileSummaryFiles(pa
                 if (strlength(ext)==0), ext=".txt"; end
             case "DDS"
                 [filepath,name,ext]=fileparts(paths2Files(iPath));
-                if (strlength(name)==0), name="Data-*"; end
+                if (strlength(name)==0), name="Data-*-DDSF"; end
                 if (strlength(ext)==0), ext=".csv"; end
             case "GIM"
                 [filepath,name,ext]=fileparts(paths2Files(iPath));
