@@ -36,18 +36,10 @@ function [z,zp,avedpp]=FitOpticsThroughOrbitData(CC,bars,d,dp)
                 %   have it.
                 error("specified D (%d) and DP (%d) have different dimensions!",length(d),length(dp));
             end
+            % pre-allocate, to optimise CPU time
             ZZ=SolveOrbSystem(CC,bars);
-            if ( length(d)==1 )
-                [z,zp,avedpp]=DecodeOrbitFit(ZZ,d,dp);
-            else
-                % pre-allocate, to optimise CPU time
-                nFits=length(d);
-                z=zeros(1,nFits); zp=zeros(1,nFits);
-                % do the actual scan
-                for ii=1:nFits
-                    [z(ii),zp(ii),avedpp]=DecodeOrbitFit(ZZ,d(ii),dp(ii));
-                end
-            end
+            [z,zp,avedpp]=DecodeOrbitFit(ZZ,d,dp);
+            z=z'; zp=zp';
         else
             error("cannot separate betatron orbit from dispersion contribution without D or DP.");
         end
