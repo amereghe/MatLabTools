@@ -19,9 +19,6 @@ addpath(genpath(pathToLibrary));
 
 % -------------------------------------------------------------------------
 % USER's input data
-kPath="P:\Accelerating-System\Accelerator-data";
-% kPath="K:";
-
 machine="ISO3";
 beamPart="CARBON";
 config="TM"; % select configuration: TM, RFKO
