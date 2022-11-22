@@ -10,29 +10,32 @@
 
 %% include libraries
 % - include Matlab libraries
-pathToLibrary=".\";
+pathToLibrary="./";
+addpath(genpath(pathToLibrary));
+pathToLibrary="../MachineRefs";
 addpath(genpath(pathToLibrary));
 
 %% settings
 
 % -------------------------------------------------------------------------
 % USER's input data
-kPath="S:\Accelerating-System\Accelerator-data";
+kPath="P:\Accelerating-System\Accelerator-data";
 % kPath="K:";
 
-beamPart="CARBON";
 machine="ISO3";
+beamPart="CARBON";
 config="TM"; % select configuration: TM, RFKO
 % -------------------------------------------------------------------------
 
 %% parse DBs
+myConfig=sprintf("%s,%s,%s",machine,beamPart,config);
 
 % - get PS mapping
-clear PSmapping; PSmapping=readtable("PSmapping.xlsx");
+clear PSmapping; FullFileName=ReturnDefFile("PSmapping",myConfig); PSmapping=readtable(FullFileName);
 
 % - get TM values
 clear cyCodesTM rangesTM EksTM BrhosTM currentsTM fieldsTM kicksTM psNamesTM FileNameCurrentsTM magNamesTM ;
-[cyCodesTM,rangesTM,EksTM,BrhosTM,currentsTM,fieldsTM,kicksTM,psNamesTM,FileNameCurrentsTM]=AcquireLGENValues(beamPart,machine,config);
+[cyCodesTM,rangesTM,EksTM,BrhosTM,currentsTM,fieldsTM,kicksTM,psNamesTM,FileNameCurrentsTM]=AcquireLGENValues(myConfig);
 psNamesTM=string(psNamesTM);
 cyCodesTM=upper(string(cyCodesTM));
 magNamesTM=MagNames2LGENnames(psNamesTM,true,PSmapping);
