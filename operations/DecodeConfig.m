@@ -21,31 +21,28 @@ function [machine,beamPart,focus,config]=DecodeConfig(myConfig)
     
     % - default values (focus depends on the particle)
     if (~exist("myConfig","var")), myConfig=missing(); end
-    machine="SYNCHRO"; beamPart="PROTON"; config="TM";
+    machine="SYNCHRO"; beamPart="PROTON"; config="TM"; focus="";
     % - actual requests by user
     if (~ismissing(myConfig) && strlength(myConfig)>0)
         myInfo=split(myConfig,",");
         if (length(myInfo)>=1)
-            if ( strlength(myInfo(1))>0 )
-                machine=upper(myInfo(1)); % capitalize
-            end
+            if ( strlength(myInfo(1))>0 ), machine=myInfo(1); end
         end
         if (length(myInfo)>=2)
-            if ( strlength(myInfo(2))>0 )
-                beamPart=upper(myInfo(2)); % capitalize
-            end
+            if ( strlength(myInfo(2))>0 ), beamPart=myInfo(2); end
         end
         if (length(myInfo)>=3)
-            if ( strlength(myInfo(3))>0 )
-                config=upper(myInfo(3)); % capitalize
-            end
+            if ( strlength(myInfo(3))>0 ), config=myInfo(3); end
         end
         if (length(myInfo)>=4)
-            if ( strlength(myInfo(4))>0 )
-                focus=upper(myInfo(4)); % capitalize
-            end
+            if ( strlength(myInfo(4))>0 ), focus=myInfo(4); end
         end
     end
+    % - capitalize info
+    machine=upper(machine);
+    beamPart=upper(beamPart);
+    config=upper(config);
+    focus=upper(focus);
     % - take into account nick-names, typos, etc...
     switch erase(machine,stripMeAll) % erase characters
         case {"LINEZ","SALA1"}
@@ -72,10 +69,10 @@ function [machine,beamPart,focus,config]=DecodeConfig(myConfig)
     switch erase(beamPart,stripMeAll) % erase characters
         case {"PROTON","PROTONI","PROT","P"}
             beamPart="P";
-            if (~exist("focus","var")), focus="FG"; end
+            if (~exist("focus","var") || strlength(focus)==0), focus="FG"; end
         case {"CARBON","CARBONIO","CARB","C"}
             beamPart="C";
-            if (~exist("focus","var")), focus="FP"; end
+            if (~exist("focus","var") || strlength(focus)==0), focus="FP"; end
         otherwise
             error("particle %s NOT recognised!",beamPart);
     end
@@ -95,7 +92,9 @@ function [machine,beamPart,focus,config]=DecodeConfig(myConfig)
         case {"FP","PICCOLO"}
             focus="FP";
         otherwise
-            error("focus %s NOT recognised!",focus);
+            if (strlength(focus)>0)
+                error("focus %s NOT recognised!",focus);
+            end
     end
     if (strcmp(machine,"SYNCHRO")), focus=""; end
     
