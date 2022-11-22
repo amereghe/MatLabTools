@@ -23,54 +23,10 @@ function [cyCodes,ranges,Eks,Brhos,currents,fields,kicks,psNames,FileNameCurrent
     end
 
     %% do the job
-    switch machine
-        case "SYNCHRO"
-            switch beamPart
-                case "PROTON"
-                    % BUILD TABLE WITH CyCo, Range, Energy and Brho
-                    % - get CyCo (col 1 []), range (col 2 [mm]) and Energy (col 4 [MeV/n]) - columns in cell array
-                    FileName="P:\Accelerating-System\Accelerator-data\Area dati MD\00Rampe\MatlabRampGen2.8\INPUT\CSV-TRATTAMENTI\Protoni.csv";
-                    CyCoData = GetOPDataFromTables(FileName);
-                    % - build array of values of Brho (as in RampGen)
-                    mp = 938.255; An = 1; Zn = 1;
-                    % PARSE FILE WITH CURRENTS AT FT - columns in final cell array:
-                    % - nRows: number of power supplies + a header
-                    % - nColumns: number of cycle codes + 2 (PS name + property)
-                    FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\Sincro\CorrentiFlatTop\ProtoniSincro_2021-02-13.xlsx"; % AMereghetti, 2021-11-19: no longer there!
-                    currentData = GetOPDataFromTables(FileNameCurrents,"Foglio1");
-                case "CARBON"
-                    if ( strcmp(config,"RFKO") )
-                        error("no source of data available for %s %s %s",machine,beamPart,config);
-                    end
-                    % BUILD TABLE WITH CyCo, Range, Energy and Brho
-                    % - get CyCo (col 1 []), range (col 2 [mm]) and Energy (col 4 [MeV/n]) - columns in cell array
-                    FileName="P:\Accelerating-System\Accelerator-data\Area dati MD\00Rampe\MatlabRampGen2.8\INPUT\CSV-TRATTAMENTI\Carbonio.csv";
-                    CyCoData = GetOPDataFromTables(FileName);
-                    % - build array of values of Brho (as in RampGen)
-                    mp = 931.2225; An = 12; Zn = 6;
-                    % PARSE FILE WITH CURRENTS AT FT - columns in final cell array:
-                    % - nRows: number of power supplies + a header
-                    % - nColumns: number of cycle codes + 2 (PS name + property)
-                    FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\Sincro\CorrentiFlatTop\CarbonioSincro_2021-02-05.xlsx"; % AMereghetti, 2021-11-19: no longer there!
-                    currentData = GetOPDataFromTables(FileNameCurrents,"Foglio1");
-                otherwise
-                    error("no source of data available for %s %s %s",machine,beamPart,config);
-            end % switch: LGEN, SYNCHRO, beamPart
-            % continue crunching CyCo data
-            CyCoData = CyCoData(2:end,:); % remove header
-            c = 2.99792458e8;  % velocità della luce [m/s]
-            BRO = @(x)(An/Zn)*((mp*sqrt((1 + x/mp).^2 - 1))/c)*10^6;
-            temp=num2cell(BRO(cell2mat(CyCoData(:,4))));
-            % - make a unique table: 1=CyCo[], 2=range[mm], 3=Energy[MeV/n], 4=Brho[Tm] - columns in final cell array
-            CyCoData={CyCoData{:,1} ; CyCoData{:,2} ; CyCoData{:,4} ; temp{:,1} }';
-            buffer = vertcat( CyCoData{:,1} ) ;      % extract only first four digits of cyco
-            CyCoData(:,1) = cellstr(buffer(:,1:4)) ; % 
-        otherwise
-            currentData = GetOPDataFromTables(path2Files(1)); FileNameCurrents=path2Files(1);
-            CyCoData = GetOPDataFromTables(path2Files(2));
-            % - make a unique table: 1=CyCo[], 2=range[mm], 3=Energy[MeV/n], 4=Brho[Tm] - columns in final cell array
-            CyCoData=CyCoData(2:end,1:4);
-    end
+    currentData = GetOPDataFromTables(path2Files(1)); FileNameCurrents=path2Files(1);
+    CyCoData = GetOPDataFromTables(path2Files(2));
+    % - make a unique table: 1=CyCo[], 2=range[mm], 3=Energy[MeV/n], 4=Brho[Tm] - columns in final cell array
+    CyCoData=CyCoData(2:end,1:4);
 
     % get currents and PSs to be crunched
     % - nRows: number of power supplies + a header
