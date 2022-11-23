@@ -14,7 +14,7 @@ addpath(genpath(pathToLibrary));
 
 % -------------------------------------------------------------------------
 % USER's input data
-machine=["ISO1" "ISO2" "ISO3" "ISO4" "ISO1" "ISO2" "ISO3" "ISO4"]';
+machine=["ISO1" "ISO2" "ISO3" "ISO4" "ISO1" "ISO2" "ISO3" "ISO4"];
 beamPart=["PROTON" "PROTON" "PROTON" "PROTON" "CARBON" "CARBON" "CARBON" "CARBON" ];
 % machine="ISO2";
 % beamPart=["PROTON" "CARBON" ];
