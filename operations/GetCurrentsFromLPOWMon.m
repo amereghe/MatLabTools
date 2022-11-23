@@ -35,7 +35,7 @@ function [Is,comCyProgs,iDesired]=GetCurrentsFromLPOWMon(LGENnameQuery,cyProgsQu
     else
         tmpCyProgs=cyProgsLPOWMon(tmpIndices);
         tmpIs=currentsLPOWMon(tmpIndices);
-        [tmpComCyProgs,ia,ib]=intersect(cyProgsQuery,tmpCyProgs);
+        [tmpComCyProgs,ia,ib]=intersect(string(cyProgsQuery),tmpCyProgs);
         if ( isempty(tmpComCyProgs) )
             fprintf("...found NO values;\n");
         else

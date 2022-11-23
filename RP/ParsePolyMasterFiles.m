@@ -21,8 +21,10 @@ function [tStamps,doses]=ParsePolyMasterFiles(path2Files)
     nCountsTot=0;
     for iSet=1:nDataSets
         fileName=strcat(files(iSet).folder,"\",files(iSet).name);
+        fprintf("...file %s (%d/%d)...\n",files(iSet).name,iSet,nDataSets);
         C=ActuallyParsePolimasterFile(fileName);
         nCounts=length(C{:,1});
+        fprintf("...found %d entries...\n",nCounts);
         try
             % default format of date
             ttStamps=datetime(join(string([C{:,1},C{:,2}])),"InputFormat","yyyy/MM/dd HH:mm:ss");
@@ -49,7 +51,7 @@ function [tStamps,doses]=ParsePolyMasterFiles(path2Files)
             doses(iStart:iStop)=tDoses;
         end
         nCountsTot=nCountsTot+nCounts;
-        fprintf("...acquired %d entries in file %s...\n",nCounts,files(iSet).name);
+        fprintf("...acquired;\n");
         nReadFiles=nReadFiles+1;
     end
     if ( nDataSets>0 )

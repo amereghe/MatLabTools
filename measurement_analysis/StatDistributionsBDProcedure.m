@@ -1,7 +1,7 @@
 function [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(profiles,noiseLevel,INTlevel,lDebug)
 % StatDistributionsCAMProcedure      to compute basic statistical infos of
-%                                       distributions recorded by the
-%                                       CAMeretta;
+%                                       distributions recorded by monitors
+%                                       other than CAMeretta;
 % 
 % input:
 % - profiles (2D float array): signals to process:
@@ -29,9 +29,9 @@ function [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(profiles,noiseLevel,INTl
     
     fprintf("computing BARs and FWHMs as in procedure...\n");
     nDataSets=size(profiles,2)-1; % let's crunch only sum profiles;
-    BARs=zeros(nDataSets,2);  % hor,ver BARs
-    FWHMs=zeros(nDataSets,2); % hor,ver FWHMs
-    INTs=zeros(nDataSets,2); % hor,ver INTs
+    BARs=NaN(nDataSets,2);  % hor,ver BARs
+    FWHMs=NaN(nDataSets,2); % hor,ver FWHMs
+    INTs=NaN(nDataSets,2); % hor,ver INTs
     
     % loop over profiles
     planes=[ "hor" "ver" ];
@@ -39,19 +39,19 @@ function [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(profiles,noiseLevel,INTl
     for iSet=1:nDataSets
         tmpXs(:,1:2)=profiles(:,1,:);      % (nFibers,2)
         tmpYs(:,1:2)=profiles(:,1+iSet,:); % (nFibers,2)
-        INTs(iSet,1:2)=sum(tmpYs);
-        if ( sum(INTs(iSet,:))== 0 ), continue; end
+        INTs(iSet,1:2)=sum(tmpYs,"omitnan");
+        if ( sum(INTs(iSet,:),"omitnan")== 0 ), continue; end
         if ( lDebug )
-            sgtitle(sprintf("DDS profiles id #%d",iSet));
+            sgtitle(sprintf("Profile id #%d",iSet));
             oriYs=tmpYs(:,1:2);
         end
         tmpYs(tmpYs<noiseLevel)=0.0;
         for iPlane=1:2
             if ( lDebug ), subplot(1,2,iPlane); end
-            norm=sum(tmpYs(:,iPlane));
+            norm=sum(tmpYs(:,iPlane),"omitnan");
             if ( norm>INTlevel )
-                BARs(iSet,iPlane)=sum(tmpXs(:,iPlane).*tmpYs(:,iPlane))/norm;
-                FWHMs(iSet,iPlane)=sqrt(sum(((tmpXs(:,iPlane)-BARs(iSet,iPlane)).^2).*tmpYs(:,iPlane))/norm)*2*sqrt(2*log(2)); % from st dev to FWHM
+                BARs(iSet,iPlane)=sum(tmpXs(:,iPlane).*tmpYs(:,iPlane),"omitnan")/norm;
+                FWHMs(iSet,iPlane)=sqrt(sum(((tmpXs(:,iPlane)-BARs(iSet,iPlane)).^2).*tmpYs(:,iPlane),"omitnan")/norm)*2*sqrt(2*log(2)); % from st dev to FWHM
             end
             if ( lDebug )
                 tmpIndices=tmpYs(:,iPlane)>0;

@@ -22,16 +22,15 @@ function ShowScanRawPlots(Is,FWHMs,BARs,INTs,nData,scanDescription,titleSeries,a
 %    .png file is saved;
 %    
     fprintf("plotting raw data of scans: FWHMs, BARs and Integrals vs ID...\n");
-    if ( exist('actPlotNames','var') )
-        ff = figure('visible','off');
-        ff.Position=[ ff.Position(1:2) 1.6*ff.Position(3:4) ]; % increase the default size of the plot
-    else
-        figure();
-    end
+    figure();
     if ( ~exist('titleSeries','var') || sum(ismissing(titleSeries)) )
         titleSeries=compose("Series %02i",(1:size(FWHMs,3))');
     end
-    for jj=1:size(FWHMs,3)
+    nSeries=size(FWHMs,3);
+    nRows=nSeries;
+    nCols=3;
+    if ( ~ismissing(Is) ), nRows=nRows+1; end
+    for jj=1:nSeries
         for kk=1:3 % FWHM,BAR,INT
             switch kk
                 case 1
@@ -41,25 +40,33 @@ function ShowScanRawPlots(Is,FWHMs,BARs,INTs,nData,scanDescription,titleSeries,a
                 case 3
                     whatToShow=INTs; whatName="integral"; labelY="[]";
             end
-            iPlot=kk+(jj-1)*3;
-            ax(iPlot)=subplot(3,3,iPlot);
-            plot(whatToShow(1:nData(jj),1,jj),"*-"); hold on; plot(whatToShow(1:nData(jj),2,jj),"*-"); 
+            iPlot=kk+(jj-1)*nCols;
+            ax(iPlot)=subplot(nRows,nCols,iPlot);
+            plot(whatToShow(1:nData(jj),1,jj),"*-"); hold on; plot(whatToShow(1:nData(jj),2,jj),"*-");
+            if ( strcmpi(whatName,"FWHM") )
+                PlotMonsBinWidth([1 nData(jj)],titleSeries(jj));
+                legend("HOR","VER","MON bin width","Location","best");
+            else
+                legend("HOR","VER","Location","best");
+            end
             grid on; ylabel(labelY); xlabel("ID []");
-            title(sprintf("%s - %s",whatName,titleSeries(jj))); legend("HOR","VER","Location","best");
+            title(sprintf("%s - %s",whatName,titleSeries(jj)));
         end
     end
     % corrente
-    iPlot=iPlot+1;
-    ax(iPlot)=subplot(3,3,iPlot);
-    plot(Is,"*-");
-    grid on; ylabel("[A]"); xlabel("ID []");
-    title("Scan current");
+    if ( ~ismissing(Is) )
+        iPlot=iPlot+1;
+        ax(iPlot)=subplot(nRows,nCols,iPlot);
+        plot(Is,"*-");
+        grid on; ylabel("[A]"); xlabel("ID []");
+        title("Scan current");
+    end
     % general
     sgtitle(scanDescription);
     linkaxes(ax,"x");
-    if ( exist('actPlotNames','var') )
-        MapFileOut=sprintf("%s_rawData.png",actPlotName);
-        exportgraphics(ff,MapFileOut,'Resolution',300); % resolution=DPI
+    if ( exist('actPlotName','var') )
+        MapFileOut=sprintf("%s_RawData.fig",actPlotName);
+        savefig(MapFileOut);
         fprintf("...saving to file %s ...\n",MapFileOut);
     end
     fprintf("...done.\n");

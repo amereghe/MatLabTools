@@ -2,10 +2,10 @@
 % to-do:
 % - allow to plot any quantity as a function of any other one
 
+% load particle data
+run(".\particleData.m");
+
 % proton data
-Ap=1;
-Zp=1;
-mp=938.27208816; % [MeV]
 EkMin_p=7; % [MeV]
 EkMax_p=250; % [MeV]
 EkStep_p=1; % [MeV]
@@ -13,9 +13,6 @@ Ek_p=EkMin_p:EkStep_p:EkMax_p; % [MeV]
 range_p=@(x) 2.03E-02*x.^1.79; % range [mm], x [MeV], from fit of PSTAR data over [7MeV:300MeV], https://physics.nist.gov/cgi-bin/Star/ap_table.pl
 
 % carbon data
-AC=12;
-ZC=6;
-mC=931.49410242*AC; % [MeV]
 EkMin_C=7; % [MeV/A]
 EkMax_C=440; % [MeV/A]
 EkStep_C=1; % [MeV/A]
@@ -28,12 +25,8 @@ cLight=299792458E0; % [m/s]
 circumference=77.640; % [m]
 
 % relativistic quantities
-gamma_p=Ek_p/mp+1;
-betagamma_p=sqrt(gamma_p.^2-1);
-beta_p=betagamma_p./gamma_p;
-gamma_C=(Ek_C*AC)/mC+1;
-betagamma_C=sqrt(gamma_C.^2-1);
-beta_C=betagamma_C./gamma_C;
+[beta_p,gamma_p,betagamma_p]=ComputeRelativisticQuantities(Ek_p,mp);
+[beta_C,gamma_C,betagamma_C]=ComputeRelativisticQuantities(Ek_C*AC,mC);
 
 % plots
 % - independent variable

@@ -36,7 +36,7 @@ function [cyProgs,cyCodes,currs,tStamps]=ParseDCTFiles(paths2Files)
             cyCodes(nCountsTot+1:nCountsTot+nCounts)=string(C{:,2});
             currs(nCountsTot+1:nCountsTot+nCounts,1)=C{:,3};
             currs(nCountsTot+1:nCountsTot+nCounts,2)=C{:,4};
-            fprintf("...acquired %d entries in file %s...\n",nCounts,files(iSet).name);
+            fprintf("...acquired %d entries in file %s (%d/%d)...\n",nCounts,files(iSet).name,iSet,nDataSets);
             nCountsTot=nCountsTot+nCounts;
             nReadFiles=nReadFiles+1;
         end
