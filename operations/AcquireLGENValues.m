@@ -29,8 +29,12 @@ function [cyCodes,ranges,Eks,Brhos,currents,fields,kicks,psNames,FileNameCurrent
                                     & ~strcmp(machine,"LINEU") & ~strcmp(machine,"SALA2H") ...
                                     & ~strcmp(machine,"LINEV") & ~strcmp(machine,"SALA2V") ...
                                     & ~strcmp(machine,"LINEZ") & ~strcmp(machine,"SALA1") ...
+                                    & ~strcmp(machine,"XPRX1") & ~strcmp(machine,"ISO1") ...
+                                    & ~strcmp(machine,"XPRX2") & ~strcmp(machine,"ISO2") ...
+                                    & ~strcmp(machine,"XPRX3") & ~strcmp(machine,"ISO3") ...
+                                    & ~strcmp(machine,"XPRX4") & ~strcmp(machine,"ISO4") ...
                                     )
-        error("unrecognised machine: %s - available only SYNCHRO, LINEZ/SALA1, LINEV/SALA2V, LINEU/SALA2H and LINET/SALA3!",machine);
+        error("unrecognised machine: %s - available only SYNCHRO, LINEZ/SALA1, LINEV/SALA2V, LINEU/SALA2H, LINET/SALA3, XPRX1/ISO1, XPRX2/ISO2, XPRX3/ISO3 and XPRX4/ISO4!",machine);
     end
     fprintf("...for: machine=%s; beamPart=%s; config=%s;\n",machine,beamPart,config);
 
@@ -41,14 +45,14 @@ function [cyCodes,ranges,Eks,Brhos,currents,fields,kicks,psNames,FileNameCurrent
                 case "PROTON"
                     % BUILD TABLE WITH CyCo, Range, Energy and Brho
                     % - get CyCo (col 1 []), range (col 2 [mm]) and Energy (col 4 [MeV/n]) - columns in cell array
-                    FileName="S:\Accelerating-System\Accelerator-data\Area dati MD\00Rampe\MatlabRampGen2.8\INPUT\CSV-TRATTAMENTI\Protoni.csv";
+                    FileName="P:\Accelerating-System\Accelerator-data\Area dati MD\00Rampe\MatlabRampGen2.8\INPUT\CSV-TRATTAMENTI\Protoni.csv";
                     CyCoData = GetOPDataFromTables(FileName);
                     % - build array of values of Brho (as in RampGen)
                     mp = 938.255; An = 1; Zn = 1;
                     % PARSE FILE WITH CURRENTS AT FT - columns in final cell array:
                     % - nRows: number of power supplies + a header
                     % - nColumns: number of cycle codes + 2 (PS name + property)
-                    FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\Sincro\CorrentiFlatTop\ProtoniSincro_2021-02-13.xlsx"; % AMereghetti, 2021-11-19: no longer there!
+                    FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\Sincro\CorrentiFlatTop\ProtoniSincro_2021-02-13.xlsx"; % AMereghetti, 2021-11-19: no longer there!
                     currentData = GetOPDataFromTables(FileNameCurrents,"Foglio1");
                 case "CARBON"
                     if ( strcmp(config,"RFKO") )
@@ -56,14 +60,14 @@ function [cyCodes,ranges,Eks,Brhos,currents,fields,kicks,psNames,FileNameCurrent
                     end
                     % BUILD TABLE WITH CyCo, Range, Energy and Brho
                     % - get CyCo (col 1 []), range (col 2 [mm]) and Energy (col 4 [MeV/n]) - columns in cell array
-                    FileName="S:\Accelerating-System\Accelerator-data\Area dati MD\00Rampe\MatlabRampGen2.8\INPUT\CSV-TRATTAMENTI\Carbonio.csv";
+                    FileName="P:\Accelerating-System\Accelerator-data\Area dati MD\00Rampe\MatlabRampGen2.8\INPUT\CSV-TRATTAMENTI\Carbonio.csv";
                     CyCoData = GetOPDataFromTables(FileName);
                     % - build array of values of Brho (as in RampGen)
                     mp = 931.2225; An = 12; Zn = 6;
                     % PARSE FILE WITH CURRENTS AT FT - columns in final cell array:
                     % - nRows: number of power supplies + a header
                     % - nColumns: number of cycle codes + 2 (PS name + property)
-                    FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\Sincro\CorrentiFlatTop\CarbonioSincro_2021-02-05.xlsx"; % AMereghetti, 2021-11-19: no longer there!
+                    FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\Sincro\CorrentiFlatTop\CarbonioSincro_2021-02-05.xlsx"; % AMereghetti, 2021-11-19: no longer there!
                     currentData = GetOPDataFromTables(FileNameCurrents,"Foglio1");
                 otherwise
                     error("no source of data available for %s %s %s",machine,beamPart,config);
@@ -77,49 +81,74 @@ function [cyCodes,ranges,Eks,Brhos,currents,fields,kicks,psNames,FileNameCurrent
             CyCoData={CyCoData{:,1} ; CyCoData{:,2} ; CyCoData{:,4} ; temp{:,1} }';
             buffer = vertcat( CyCoData{:,1} ) ;      % extract only first four digits of cyco
             CyCoData(:,1) = cellstr(buffer(:,1:4)) ; % 
-        case {"LINEZ","SALA1","LINEV","SALA2V","LINEU","SALA2H","LINET","SALA3"}
+        case {"LINEZ","SALA1","LINEV","SALA2V","LINEU","SALA2H","LINET","SALA3",...
+                "XPRX1","ISO1","XPRX2","ISO2","XPRX3","ISO3","XPRX4","ISO4"}
             switch beamPart
                 case "PROTON"
                     % BUILD TABLEs WITH CyCo, Range, Energy and Brho
-                    FileName="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\MeVvsCyCo_P.xlsx";
+                    FileName="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\MeVvsCyCo_P.xlsx";
                     CyCoData = GetOPDataFromTables(FileName,"Sheet1");
-                    FileName="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\EvsBro_P.xlsx";
+                    FileName="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\EvsBro_P.xlsx";
                     BrhoData = GetOPDataFromTables(FileName,"Sheet1");
                     % PARSE FILE WITH CURRENTS AT FT - columns in final cell array:
                     switch machine
                         case {"LINEZ","SALA1"}
-                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala1\Protoni_Sala1_2021-02-13.xlsx";
-                            currentData = GetOPDataFromTables(FileNameCurrents,"15.02.2021 - 09.31");
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala1\Protoni_Sala1_2022-03-09.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents,"09.03.2022 - 10.27");
                         case {"LINEV","SALA2V"}
-                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala2V\Protoni_Sala2V_2021-02-13.xlsx";
-                            currentData = GetOPDataFromTables(FileNameCurrents,"15.02.2021 - 09.32");
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala2V\Protoni_Sala2V_2021-02-13.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents,"27.01.2022 - 09.08");
                         case {"LINEU","SALA2H"}
-                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala2H\Protoni_Sala2H_2021-02-13.xlsx";
-                            currentData = GetOPDataFromTables(FileNameCurrents,"15.02.2021 - 09.31");
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala2H\Protoni_Sala2H_2021-08-09.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents,"09.08.2021 - 14.51");
                         case {"LINET","SALA3"}
-                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala3\Protoni_Sala3_2021-02-13.xlsx";
-                            currentData = GetOPDataFromTables(FileNameCurrents,"15.02.2021 - 09.32");
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Protoni\ProtoniSala3\Protoni_Sala3_2021-08-11.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents,"11.08.2021 - 08.59");
+                        case {"XPRX1","ISO1"}
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\XPR\XPR1\Protoni\FuocoGrande\LGEN_X1_P_FG_10Luglio2019.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents);
+                        case {"XPRX2","ISO2"}
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\XPR\XPR2\Protoni\FuocoGrande\LGEN_X2_P_FG_10Luglio2019.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents);
+                        case {"XPRX3","ISO3"}
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\XPR\XPR3\Protoni\FuocoGrande\LGEN_X3_P_FG_10Luglio2019.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents);
+                        case {"XPRX4","ISO4"}
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\XPR\XPR4\Protoni\FuocoGrande\LGEN_X4_P_FG_10Luglio2019.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents);
                     end
                 case "CARBON"
                     % BUILD TABLEs WITH CyCo, Range, Energy and Brho
-                    FileName="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\MeVvsCyCo_C.xlsx";
+                    FileName="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\MeVvsCyCo_C.xlsx";
                     CyCoData = GetOPDataFromTables(FileName,"Sheet1");
-                    FileName="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\EvsBro_C.xlsx";
+                    FileName="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\EvsBro_C.xlsx";
                     BrhoData = GetOPDataFromTables(FileName,"Sheet1");
                     % PARSE FILE WITH CURRENTS AT FT - columns in final cell array:
                     switch machine
                         case {"LINEZ","SALA1"}
-                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Carbonio\lineaZ\fuocopiccolo\Carbonio_Sala1_FromRepoNovembre2020.xlsx";
-                            currentData = GetOPDataFromTables(FileNameCurrents,"09.11.2020 - 10.11");
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Carbonio\lineaZ\fuocopiccolo\Carbonio_Sala1_FromRepoNovembre2020.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents,"09.11.2020 - 10.10");
                         case {"LINEV","SALA2V"}
-                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Carbonio\lineaV\FuocoPiccolo\Carbonio_Sala2V_FromRepo.xlsx";
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Carbonio\lineaV\FuocoPiccolo\Carbonio_Sala2V_FromRepo.xlsx";
                             currentData = GetOPDataFromTables(FileNameCurrents,"21.08.2019 - 12.11");
                         case {"LINEU","SALA2H"}
-                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Carbonio\lineaU\FuocoPiccolo\Carbonio_Sala2H_FromRepo.xlsx";
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Carbonio\lineaU\FuocoPiccolo\Carbonio_Sala2H_FromRepo.xlsx";
                             currentData = GetOPDataFromTables(FileNameCurrents,"21.08.2019 - 12.04");
                         case {"LINET","SALA3"}
-                            FileNameCurrents="S:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Carbonio\lineaT\fuocopiccolo\Carbonio_Sala3_FromRepoNovembre2020.xlsx";
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\HEBT\Carbonio\lineaT\fuocopiccolo\Carbonio_Sala3_FromRepoNovembre2020.xlsx";
                             currentData = GetOPDataFromTables(FileNameCurrents,"09.11.2020 - 10.11");
+                        case {"XPRX1","ISO1"}
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\XPR\XPR1\Carbonio\FuocoPiccolo\LGEN_X1_C_FP.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents);
+                        case {"XPRX2","ISO2"}
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\XPR\XPR2\Carbonio\FuocoPiccolo\LGEN_X2_C_FP.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents);
+                        case {"XPRX3","ISO3"}
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\XPR\XPR3\Carbonio\FuocoPiccolo\LGEN_X3_C_FP_X2fit.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents);
+                        case {"XPRX4","ISO4"}
+                            FileNameCurrents="P:\Accelerating-System\Accelerator-data\Area dati MD\00Setting\XPR\XPR4\Carbonio\FuocoPiccolo\LGEN_X4_C_FP.xlsx";
+                            currentData = GetOPDataFromTables(FileNameCurrents);
                     end
                 otherwise
                     error("no source of data available for %s %s %s",machine,beamPart,config);

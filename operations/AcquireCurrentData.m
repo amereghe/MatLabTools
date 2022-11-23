@@ -12,7 +12,13 @@ function [Is,LGENnames,nData]=AcquireCurrentData(fileName,sheetName)
 % - LGENnames [string(nLGENs)]: name of LGEN parsed in file;
 % - nData [scalar]: number of current values;
 
-    if ( ~exist('sheetName','var') ), sheetName="Foglio1"; end
+    if ( ~exist('sheetName','var') )
+        sheetName="Foglio1";
+        sheetNames=sheetnames(fileName);
+        if ( sum(strcmpi(sheetNames,"Sheet1"))>0 )
+            sheetName="Sheet1";
+        end
+    end
     
     % parsing file
     fprintf("parsing current file %s, sheet %s ...\n",fileName,sheetName);

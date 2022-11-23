@@ -21,11 +21,7 @@ function ShowScanAligned(Is,FWHMs,BARs,indices,scanDescription,titleSeries,actPl
 %    .png file is saved;
 %    
     fprintf("plotting scan data: FWxMs and BARs vs Iscan...\n");
-    if ( exist('actPlotName','var') )
-        ff = figure('visible','off');
-    else
-        figure();
-    end
+    figure();
     if ( ~exist('titleSeries','var') || sum(ismissing(titleSeries)) )
         titleSeries=compose("Series %02i",(1:size(FWHMs,3))');
     end
@@ -42,8 +38,10 @@ function ShowScanAligned(Is,FWHMs,BARs,indices,scanDescription,titleSeries,actPl
             ax(iPlot)=subplot(nSeries,2,iPlot);
             yyaxis left;
             plot(Is(indices(1,1):indices(1,2)),whatToShow(indices(jj+1,1):indices(jj+1,2),1,jj),"*-"); ylabel(sprintf("HOR %s",labelY));
+            if ( strcmpi(whatName,"FWHM") ), PlotMonsBinWidth(Is(indices(1,1):indices(1,2)),titleSeries(jj),"b"); end
             yyaxis right;
             plot(Is(indices(1,1):indices(1,2)),whatToShow(indices(jj+1,1):indices(jj+1,2),2,jj),"*-"); ylabel(sprintf("VER %s",labelY));
+            if ( strcmpi(whatName,"FWHM") ), PlotMonsBinWidth(Is(indices(1,1):indices(1,2)),titleSeries(jj)); end
             yyaxis left;
             grid on; xlabel("I [A]");
             title(sprintf("%s - %s",whatName,titleSeries(jj))); % legend("HOR","VER","Location","best");
@@ -53,9 +51,9 @@ function ShowScanAligned(Is,FWHMs,BARs,indices,scanDescription,titleSeries,actPl
     sgtitle(scanDescription);
     linkaxes(ax,"x");
     if ( exist('actPlotName','var') )
-        MapFileOut=sprintf("%s_scans.png",actPlotName);
+        MapFileOut=sprintf("%s_scans.fig",actPlotName);
+        savefig(MapFileOut);
         fprintf("...saving to file %s ...\n",MapFileOut);
-        exportgraphics(ff,MapFileOut,'Resolution',300); % resolution=DPI
     end
     fprintf("...done.\n");
 end
