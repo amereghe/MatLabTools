@@ -126,6 +126,23 @@ else
     ShowMe(mpEnLoss_C,mmEquiv,"\DeltaE [MeV]","z_{H_2O} [mm]",sprintf("Most probable energy loss vs water equivalent thickness for %g MeV/u CARBON IONs",EkSel_C)); set(gca, 'YScale', 'log'); % set(gca, 'XScale', 'log');
 end
 
+%% compare Bethe-Bloch and Landau-Vavilov
+if (length(mmEquiv)==1)
+    ShowMyContent=NaN(2,size(dEodx_p,2)); ShowMyContent(1,:)=dEodx_p; ShowMyContent(2,:)=mpEnLoss_p/(mmEquiv/10*rho_H2O); myLegend=["<dE/dx> (Bethe-Bloch)" "most probable \DeltaE/x (Landau-Vavilov)"];
+%     ShowMe(ShowMyContent,betagamma_p,"\DeltaE [MeV/g cm^2]","\beta\gamma []",sprintf("Bethe-Bloch vs Landau-Vavilov for PROTONs in %g mm of WATER",mmEquiv),myLegend); set(gca, 'YScale', 'log'); set(gca, 'XScale', 'log');
+    ShowMe(ShowMyContent,Ek_p,"\DeltaE [MeV/g cm^2]","E_k [MeV]",sprintf("Bethe-Bloch vs Landau-Vavilov for PROTONs in %g mm of WATER",mmEquiv),myLegend); set(gca, 'YScale', 'log'); set(gca, 'XScale', 'log');
+    ShowMyContent=NaN(2,size(dEodx_C,2)); ShowMyContent(1,:)=dEodx_C; ShowMyContent(2,:)=mpEnLoss_C/(mmEquiv/10*rho_H2O); myLegend=["<dE/dx> (Bethe-Bloch)" "most probable \DeltaE/x (Landau-Vavilov)"];
+%     ShowMe(ShowMyContent,betagamma_C,"\DeltaE [MeV/g cm^2]","\beta\gamma []",sprintf("Bethe-Bloch vs Landau-Vavilov for CARBON ions in %g mm of WATER",mmEquiv),myLegend); set(gca, 'YScale', 'log'); set(gca, 'XScale', 'log');
+    ShowMe(ShowMyContent,Ek_C,"\DeltaE [MeV/g cm^2]","E_k [MeV/u]",sprintf("Bethe-Bloch vs Landau-Vavilov for CARBON ions in %g mm of WATER",mmEquiv),myLegend); set(gca, 'YScale', 'log'); set(gca, 'XScale', 'log');
+else
+    dE_p=EkSel_p-interp1(range_p,Ek_p,rangeSel_p-mmEquiv);
+    ShowMyContent=NaN(2,size(dE_p,2)); ShowMyContent(1,:)=dE_p; ShowMyContent(2,:)=mpEnLoss_p; myLegend=["<dE> (Bethe-Bloch)" "most probable \DeltaE (Landau-Vavilov)"];
+    ShowMe(ShowMyContent,mmEquiv,"\DeltaE [MeV]","z_{H_2O} [mm]",sprintf("Bethe-Bloch vs Landau-Vavilov for %g MeV PROTONs in WATER",EkSel_p),myLegend); set(gca, 'YScale', 'log'); % set(gca, 'XScale', 'log');
+    dE_C=EkSel_C-interp1(range_C,Ek_C,rangeSel_C-mmEquiv); dE_C=dE_C*AC;
+    ShowMyContent=NaN(2,size(dE_C,2)); ShowMyContent(1,:)=dE_C; ShowMyContent(2,:)=mpEnLoss_C; myLegend=["<dE> (Bethe-Bloch)" "most probable \DeltaE (Landau-Vavilov)"];
+    ShowMe(ShowMyContent,mmEquiv,"\DeltaE [MeV]","z_{H_2O} [mm]",sprintf("Bethe-Bloch vs Landau-Vavilov for %g MeV/u CARBON ions in WATER",EkSel_C),myLegend); set(gca, 'YScale', 'log'); % set(gca, 'XScale', 'log');
+end
+
 %% local functions
 
 function Wmax=ComputeWmax(betagamma,gamma,M)
@@ -171,9 +188,13 @@ function range=ComputeRange(Ek,dEodx)
     range=cumtrapz(Ek,1./(dEodx));
 end
 
-function ShowMe(yData,xData,yLab,xLab,myTitle)
+function ShowMe(yData,xData,yLab,xLab,myTitle,myLegend)
     figure();
-    plot(xData,yData,".-");
+    for ii=1:size(yData,1)
+        if (ii>1), hold on; end
+        plot(xData,yData(ii,:),".-");
+    end
     xlabel(xLab); ylabel(yLab);
     grid(); title(myTitle);
+    if (exist("myLegend","var")), legend(myLegend,"Location","best"); end
 end
