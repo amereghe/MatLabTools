@@ -15,9 +15,9 @@ addpath(genpath(pathToLibrary));
 
 %% settings
 % - proton energies
-EkMin_p=1; EkMax_p=230; EkStep_p=1; Ek_p=EkMin_p:EkStep_p:EkMax_p; % [MeV]
+Ek_p=1:1:230; % [MeV]
 % - carbon energies
-EkMin_C=1; EkMax_C=400; EkStep_C=1; Ek_C=EkMin_C:EkStep_C:EkMax_C; % [MeV/A]
+Ek_C=1:1:400; % [MeV/A]
 % - water material parameters
 ZoA_H2O=0.555087; % []
 I_H2O=79.7; % [eV]
@@ -30,7 +30,7 @@ densEff_a_H2O=0.09116; % []
 densEff_m_H2O=3.4773; % []
 densEff_d0_H2O=0.0; % []
 
-%% compute Bethe-Bloch tables
+%% preparatory calculations
 
 % - load particle data
 run(".\particleData.m");
@@ -50,7 +50,7 @@ Wmax_C=ComputeWmax(betagamma_C,gamma_C,mC); % [MeV]
 densCorr_p_H2O=ComputeDensityCorrection(betagamma_p,densEff_x0_H2O,densEff_x1_H2O,densEff_a_H2O,densEff_m_H2O,densEff_C_H2O,densEff_d0_H2O); % []
 densCorr_C_H2O=ComputeDensityCorrection(betagamma_C,densEff_x0_H2O,densEff_x1_H2O,densEff_a_H2O,densEff_m_H2O,densEff_C_H2O,densEff_d0_H2O); % []
 
-% - Bethe-Bloch
+%% Bethe-Bloch
 dEodx_p=ComputeBetheBloch(Zp,beta_p,betagamma_p,Wmax_p,ZoA_H2O,I_H2O,densCorr_p_H2O); % [MeV/g cm2]
 dEodx_C=ComputeBetheBloch(ZC,beta_C,betagamma_C,Wmax_C,ZoA_H2O,I_H2O,densCorr_C_H2O); % [MeV/g cm2]
 % - show Bethe-Bloch
@@ -74,6 +74,16 @@ dPoP_C=interp1(range_C,betagamma_C,range_C-mmEquiv)./betagamma_C-1;
 ShowMe(dPoP_p,Ek_p,"\delta []","E_k [MeV]",sprintf("PROTON momentum variation after traversing %g mm of water equivalent",mmEquiv));
 ShowMe(dPoP_C,Ek_C,"\delta []","E_k [MeV/u]",sprintf("CARBON ion momentum variation after traversing %g mm of water equivalent",mmEquiv));
 
+%% Landau-Vavilov for n-mm of water-equivalent material
+% - range traversed
+mmEquiv=1; % [mm]
+% - actual calculation
+mpEnLoss_p=ComputeLandauVavilov(Zp,beta_p,betagamma_p,mmEquiv/10*rho_H2O,ZoA_H2O,I_H2O,densCorr_p_H2O); % [MeV]
+mpEnLoss_C=ComputeLandauVavilov(ZC,beta_C,betagamma_C,mmEquiv/10*rho_H2O,ZoA_H2O,I_H2O,densCorr_C_H2O); % [MeV]
+% - show Landau-Vavilov
+ShowMe(mpEnLoss_p/(mmEquiv/10*rho_H2O),betagamma_p,"\DeltaE [MeV/g cm^2]","\beta\gamma []",sprintf("Most probable energy loss of PROTONs after traversing %g mm of water equivalent",mmEquiv)); set(gca, 'YScale', 'log'); set(gca, 'XScale', 'log');
+ShowMe(mpEnLoss_C/(mmEquiv/10*rho_H2O),betagamma_C,"\DeltaE [MeV/g cm^2]","\beta\gamma []",sprintf("Most probable energy loss of CARBON IONs after traversing %g mm of water equivalent",mmEquiv)); set(gca, 'YScale', 'log'); set(gca, 'XScale', 'log');
+
 %% local functions
 
 function Wmax=ComputeWmax(betagamma,gamma,M)
@@ -90,6 +100,18 @@ function meanSpower=ComputeBetheBloch(z,beta,betagamma,Wmax,ZoA,I,densCorr)
     elMass=0.5109989461; % [MeV/c2]
     if (~exist("densCorr","var")), densCorr=0.0; end
     meanSpower=K*z^2*ZoA./beta.^2.*(0.5*log(2*elMass*betagamma.^2.*Wmax*1E12/I^2)-beta.^2-densCorr/2);
+end
+
+function mpEnLoss=ComputeLandauVavilov(z,beta,betagamma,x,ZoA,I,densCorr)
+    % most probable energy loss according to Landau-Vavilov theory in MeV
+    % - I in [eV];
+    % - x in [g cm-2];
+    K=0.307075; % [MeV cm2 /mol]
+    elMass=0.5109989461; % [MeV/c2]
+    csi=(K/2)*ZoA*z^2*(x./beta.^2);
+    jj=0.20; % []
+    if (~exist("densCorr","var")), densCorr=0.0; end
+    mpEnLoss=csi.*(log(2*elMass*betagamma.^2.*1E6/I)+log(csi*1E6/I)+jj-beta.^2-densCorr);
 end
 
 function densCorr=ComputeDensityCorrection(betagamma,x0,x1,a,m,C,d0)
