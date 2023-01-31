@@ -10,4 +10,4 @@ mp=938.27208816; % [MeV/c2]
 % carbon data
 AC=12;
 ZC=6;
-mC=931.49410242*AC; % [MeV/c2]
+mC=931.2386834*AC; % [MeV/c2]
