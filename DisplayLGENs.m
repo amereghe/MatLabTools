@@ -14,11 +14,13 @@ addpath(genpath(pathToLibrary));
 
 % -------------------------------------------------------------------------
 % USER's input data
-machine=["ISO1" "ISO2" "ISO3" "ISO4" "ISO1" "ISO2" "ISO3" "ISO4"];
-beamPart=["PROTON" "PROTON" "PROTON" "PROTON" "CARBON" "CARBON" "CARBON" "CARBON" ];
+machine=["ISO1" "ISO2" "ISO3" "ISO4" ]; % "ISO1" "ISO2" "ISO3" "ISO4"];
+% beamPart=["PROTON" "PROTON" "PROTON" "PROTON" ]; %"CARBON" "CARBON" "CARBON" "CARBON" ];
+beamPart=["CARBON" "CARBON" "CARBON" "CARBON" ];
 % machine="ISO2";
 % beamPart=["PROTON" "CARBON" ];
 config="TM"; % select configuration: TM, RFKO
+myTitle="LGEN values as downloaded on 2023-01-30";
 % -------------------------------------------------------------------------
 
 % -------------------------------------------------------------------------
@@ -68,12 +70,12 @@ for iSet=1:nSets
 end
 
 %% visual checks
-LGENvisualCheck(psNames,Eks   ,"Ek [MeV/u]",currents,"I [A]",magNames,"",myLeg);
-LGENvisualCheck(psNames,Eks   ,"Ek [MeV/u]",normCurrents,"I/B\rho [A/Tm]",magNames,"",myLeg);
-LGENvisualCheck(psNames,ranges,"range [mm]",currents,"I [A]",magNames,"",myLeg);
-LGENvisualCheck(psNames,ranges,"range [mm]",normCurrents,"I/B\rho [A/Tm]",magNames,"",myLeg);
-LGENvisualCheck(psNames,Brhos ,"B\rho [Tm]",currents,"I [A]",magNames,"",myLeg);
-LGENvisualCheck(psNames,Brhos ,"B\rho [Tm]",normCurrents,"I/B\rho [A/Tm]",magNames,"",myLeg);
+LGENvisualCheck(psNames,Eks   ,"Ek [MeV/u]",currents,"I [A]",magNames,myTitle,myLeg);
+LGENvisualCheck(psNames,Eks   ,"Ek [MeV/u]",normCurrents,"I/B\rho [A/Tm]",magNames,myTitle,myLeg);
+LGENvisualCheck(psNames,ranges,"range [mm]",currents,"I [A]",magNames,myTitle,myLeg);
+LGENvisualCheck(psNames,ranges,"range [mm]",normCurrents,"I/B\rho [A/Tm]",magNames,myTitle,myLeg);
+LGENvisualCheck(psNames,Brhos ,"B\rho [Tm]",currents,"I [A]",magNames,myTitle,myLeg);
+LGENvisualCheck(psNames,Brhos ,"B\rho [Tm]",normCurrents,"I/B\rho [A/Tm]",magNames,myTitle,myLeg);
 
 %% local functions
 function OutVar=MyCheck(InVar,nSets,myName)
