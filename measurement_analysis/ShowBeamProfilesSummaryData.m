@@ -49,6 +49,7 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,xVals,xLab,labels,what
     end
     
     % actually generate figure
+    cm=colormap(turbo(nSets));
     if (~ismissing(myTitle))
         figure("Name",LabelMe(myTitle));
     else
@@ -77,7 +78,7 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,xVals,xLab,labels,what
             end
             for iSet=1:nSets
                 if ( iSet>1 ), hold on; end
-                plot(xVals(:,iSet),what(:,iRow,iSet),"-","Marker",markers(iSet));
+                plot(xVals(:,iSet),what(:,iRow,iSet),"-","Marker",markers(iSet),"Color",cm(iSet,:));
             end
             if (lLog), set(gca,'YScale','log'); end
             xlabel(xLab); ylabel(myYLab); grid on; title(sprintf("%s - %s",planes(iRow),whatNames(iCol)));
