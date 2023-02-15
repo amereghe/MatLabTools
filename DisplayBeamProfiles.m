@@ -136,12 +136,12 @@ for iDataAcq=1:nDataSets
 end
 
 %% show data
-% addIndex=mmsProf;
-% addLabel="Range [mm]";
+addIndex=mmsProf;
+addLabel="Range [mm]";
 % addIndex=EksSumm;
 % addLabel="E_k [MeV/u]";
-addIndex=repmat((1:(size(profiles,2)-1))',[1 size(profiles,4)]);
-addLabel="ID";
+% addIndex=repmat((1:(size(profiles,2)-1))',[1 size(profiles,4)]);
+% addLabel="ID";
 % - 3D plot of profiles
 ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels);
 % - statistics on profiles
