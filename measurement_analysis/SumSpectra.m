@@ -22,7 +22,7 @@ function sumData=SumSpectra(data)
     sumData(:,1,:)=data(:,1,:,1); % copy positions of fibers on both planes from first data set
     for iSet=1:nDataSets
         % get total distribution for each data set
-        sumData(:,iSet+1,:)=sum(data(:,2:end,:,iSet),2);
+        sumData(:,iSet+1,:)=sum(data(:,2:end,:,iSet),2,'omitnan');
     end
 end
 

@@ -42,11 +42,11 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
         case "QBM"
             Nx=34;  Ny=45;
             maxColumns=59;
+        case {"QPP","SFP"}
+            Nx=128; Ny=128;
+            maxColumns=59;
         case {"SFH","SFM"}
             Nx=64;  Ny=64;
-            maxColumns=59;
-        case "SFP"
-            Nx=128; Ny=128;
             maxColumns=59;
         otherwise
             error("wrong indication of format of file: %s. Can only be GIM, PMM/PIB, QBM and SFH/SFM/SFP",fFormat);
@@ -85,7 +85,7 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
                 [filepath,name,ext]=fileparts(paths2Files(iPath));
                 if (strlength(name)==0), name="XY_*"; end
                 if (strlength(ext)==0), ext=".txt"; end
-            case {"SFH","SFM","SFP"}
+            case {"QPP","SFH","SFM","SFP"}
                 [filepath,name,ext]=fileparts(paths2Files(iPath));
                 if (strlength(name)==0), name="Data-*"; end
                 if (strlength(ext)==0), ext=".csv"; end
@@ -186,7 +186,7 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
                     measData(1:Nx,1:maxColumns,1,actualDataSets)=tmp(1:Nx,1:maxColumns); % values
                     % y-axis values
                     measData(1:Ny,1:maxColumns,2,actualDataSets)=tmp(1:Ny,1+2:2+maxColumns); % values
-                case {"QBM","SFH","SFM","SFP"}
+                case {"QBM","QPP","SFH","SFM","SFP"}
                     nAcq=nAcq+1;
                     fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
                     % check cycle prog, to guarantee continuity
@@ -206,7 +206,7 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
                     % y-axis values
                     measData(1:Ny,1:nColumns,2,actualDataSets)=tmp(Nx+2:Nx+1+Ny,1:nColumns); % values
                     % check cycle code
-                    if ( strcmpi(fFormat,"SFP") || strcmpi(fFormat,"SFM") || strcmpi(fFormat,"QBM") )
+                    if ( strcmpi(fFormat,"QPP") || strcmpi(fFormat,"SFP") || strcmpi(fFormat,"SFM") || strcmpi(fFormat,"QBM") )
                         tmpCyCode=extractBetween(tmpCyCode,5,strlength(tmpCyCode));
                     end
             end

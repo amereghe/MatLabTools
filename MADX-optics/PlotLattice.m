@@ -28,15 +28,15 @@ function PlotLattice(geometry)
     colKey=mapping(find(strcmp(colNames,'KEYWORD')));
     
     % kickers are treated separately
-    keywords      =[ "COLLIMATOR" "INSTRUMENT" "MONITOR" "QUADRUPOLE" "RFCAVITY" "SBEND" "SEXTUPOLE" ];
-    lShowName     =[  1            1            0         1            1          1       0          ];
-    yPosNames     =[  1            1            1         1            1.5        1       1          ];
-    angleNames    =[  90           90           90        90           90         90      90         ];
-    iColK         =[  0            0            0         colK1L       0          colAng  colK2L     ];
-    yPosBoxes     ={ -0.5         -0.5         -0.5       [0 -1]      -0.5       -1       [0 -1]     };
-    dyPosBoxes    =[  1            1            1         1            1          2       1          ];
-    faceColorBoxes={ "k"          "w"          "c"        [0 .5 .5]   "y"        "b"      [0.9290 0.6940 0.1250] };
-    edgeColorBoxes=[ "k"          "k"          "k"       "k"          "k"        "k"     "k"         ];
+    keywords      =[ "COLLIMATOR" "INSTRUMENT" "MONITOR" "QUADRUPOLE" "RFCAVITY" "SBEND" "RBEND"  "SEXTUPOLE" ];
+    lShowName     =[  1            1            0         1            1          1       1        0          ];
+    yPosNames     =[  1            1            1         1            1.5        1       1        1          ];
+    angleNames    =[  90           90           90        90           90         90      90       90         ];
+    iColK         =[  0            0            0         colK1L       0          colAng  colAng   colK2L     ];
+    yPosBoxes     ={ -0.5         -0.5         -0.5       [0 -1]      -0.5       -1       -1       [0 -1]     };
+    dyPosBoxes    =[  1            1            1         1            1          2       2        1          ];
+    faceColorBoxes={ "k"          "w"          "c"        [0 .5 .5]   "y"        "b"     [0 0.5 1] [0.9290 0.6940 0.1250] };
+    edgeColorBoxes=[ "k"          "k"          "k"       "k"          "k"        "k"     "k"      "k"         ];
     
     maxS=max(geometry{colS})+geometry{colL}(end);
     minS=min(geometry{colS});
