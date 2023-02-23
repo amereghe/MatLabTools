@@ -39,7 +39,7 @@ function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel,myLabels)
                 jPlot=iPlot;
             else
                 % show planes on consecutive rows
-                jPlot=(iPlane-1)*nCols+(nCols*nPlanes)*(ceil(iPlot/(nCols*nPlanes))-1)+iDataSet;
+                jPlot=(iPlane-1)*nCols+(nCols*nPlanes)*(ceil(iPlot/(nCols*nPlanes))-1)+mod(iDataSet-1,nCols)+1;
             end
             subplot(nRows,nCols,jPlot);
             if ( ~exist('addIndex','var') & ~exist('addLabel','var') )

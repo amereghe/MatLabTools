@@ -3,7 +3,7 @@
 %% description
 % this is a script which parses beam profiles files and plots them
 % - the script crunches as many data sets as desired, provided the fullpaths;
-% - for the time being, only CAMeretta/DDS/GIM/SFH/SFM/SFP monitors;
+% - for the time being, only CAMeretta/DDS/GIM/QPP/SFH/SFM/SFP monitors;
 %   QBM/PMM/PIB are NOT supported but the implementation should be
 %   straightforward;
 % - for CAMeretta/DDS/GIM: both summary files and actual profiles in the same
@@ -12,8 +12,9 @@
 %   shown;
 % - the script visualises in 3D the spill-per-spill profiles, horizontal and
 %   vertical planes separately;
-% - the script shows summary data; for CAMeretta/DDS/GIM only, the script also
-%   compares summary data against statistics data computed on profiles;
+% - the script also shows statistics data computed on profiles;
+%   for CAMeretta/DDS/GIM only, the script also compares summary data
+%   against statistics data computed on profiles;
 
 %% manual run
 if (~exist("MonPaths","var")) 
@@ -32,13 +33,19 @@ if (~exist("MonPaths","var"))
     % USER's input data
     % -------------------------------------------------------------------------
     kPath="P:\Accelerating-System\Accelerator-data";
-    myTit="Steering ISO2 - Carbonio - DDS";
-    monTypes="DDS"; % CAM, DDS, GIM, SFH/SFM/SFP - QBM/PMM/PIB to come
+    myTit="Check fibre - Protoni, 320mm";
+    monTypes=[ "QPP" "QPP" "SFP" "SFP" ]; % CAM, DDS, GIM, QPP/SFH/SFM/SFP - QBM/PMM/PIB to come
     MonPaths=[...
-        strcat(kPath,"\Area dati MD\00Steering\SteeringPazienti\carbonio\XPR2\2022.10.26\PRC-544-*-DDSF\") 
+        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_010B_QPP\HOR\PRC-544-230205-0646\") 
+        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_010B_QPP\HOR\PRC-544-230205-0729\") 
+        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_012B_SFP\HOR\PRC-544-230205-0742\") 
+        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_012B_SFP\HOR\PRC-544-230205-0747\") 
         ];
     myLabels=[...
-        "2022-10-26 - pre-steering"
+        "HE-010B-QPP - prima di invertire i cavi"
+        "HE-010B-QPP - dopo aver invertito i cavi"
+        "HE-012B-SFP - prima di invertire i cavi"
+        "HE-012B-SFP - dopo aver invertito i cavi"
         ];
     lSkip=false; % DDS summary file: skip first 2 lines (in addition to header line)
 end
@@ -74,7 +81,7 @@ for iDataAcq=1:nDataSets
     if ( strcmpi(monTypes(iDataAcq),"CAM") | strcmpi(monTypes(iDataAcq),"DDS") )
         [tmpProfiles,tmpCyCodesProf,tmpCyProgsProf]=ParseBeamProfiles(MonPaths(iDataAcq),monTypes(iDataAcq));
         if (length(tmpCyProgsProf)<=1), error("...no profiles aquired!"); end
-    else % GIM,SFH,SFM,SFP
+    else % GIM,QPP,SFH,SFM,SFP
         [tmpDiffProfiles,tmpCyCodesProf,tmpCyProgsProf]=ParseBeamProfiles(MonPaths(iDataAcq),monTypes(iDataAcq));
         if (length(tmpCyProgsProf)<=1), error("...no profiles aquired!"); end
         % - get integral profiles
@@ -84,7 +91,7 @@ for iDataAcq=1:nDataSets
     switch upper(monTypes(iDataAcq))
         case "CAM"
             [tmpBARsProf,tmpFWHMsProf,tmpINTsProf]=StatDistributionsCAMProcedure(tmpProfiles);
-        case "SFP"
+        case {"QPP","SFP"}
             noiseLevel=0.025;
             INTlevel=5;
             lDebug=true;
@@ -129,10 +136,16 @@ for iDataAcq=1:nDataSets
 end
 
 %% show data
+addIndex=mmsProf;
+addLabel="Range [mm]";
+% addIndex=EksSumm;
+% addLabel="E_k [MeV/u]";
+% addIndex=repmat((1:(size(profiles,2)-1))',[1 size(profiles,4)]);
+% addLabel="ID";
 % - 3D plot of profiles
-ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),mmsProf,"Range [mm]",myLabels);
+ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels);
 % - statistics on profiles
-ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),mmsProf,"Range [mm]",myLabels,missing(),myTit);
+ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit);
 % - statistics on profiles vs summary files
 for iDataAcq=1:nDataSets
     switch upper(monTypes(iDataAcq))
@@ -141,8 +154,8 @@ for iDataAcq=1:nDataSets
             CompBars=BARsSumm(:,:,iDataAcq); CompBars(:,:,2)=BARsProf(:,:,iDataAcq);
             CompFwhms=FWHMsSumm(:,:,iDataAcq); CompFwhms(:,:,2)=FWHMsProf(:,:,iDataAcq);
             CompInts=INTsSumm(:,:,iDataAcq); CompInts(:,:,2)=INTsProf(:,:,iDataAcq);
-            CompXs=mmsSumm(:,iDataAcq); CompXs(:,2)=mmsProf(:,iDataAcq);
-            ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),CompXs,"Range [mm]",...
+            CompXs=mmsSumm(:,iDataAcq); CompXs(:,2)=addIndex(:,iDataAcq);
+            ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),CompXs,addLabel,...
                 ["summary data" "stat on profiles"],missing(),sprintf("%s - %s - summary vs profile stats",myTit,myLabels(iDataAcq)));
     end
 end
