@@ -1,4 +1,4 @@
-function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel,myLabels)
+function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel,myLabels,myFigSave)
 % ShowSpectra     shows distributions recorded by SFM, QBM and GIM;
 %                 it shows a 1x2 3D figure, with the distributions on the
 %                   horizontal plane on the left and those on the vertical
@@ -19,10 +19,13 @@ function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel,myLabels)
 % - addIndex [float(nColumns-1), optional]: list of IDs to be shown;
 %   it can be used to separate distribution by cyProg or cyCode;
 % - addLabel [string, optional]: name of the y-axis;
+% - myLabels [strings(nSets), optional]: a label for each scan;
+% - myFigSave (string, optional): file name where to save the plot;
 %
 % see also ParseSFMData, PlotSpectra and SumSpectra.
 
     fprintf("plotting data...\n");
+    if (~exist("myFigSave","var")), myFigSave=missing(); end
     ff=figure('Name',LabelMe(tmpTitleFig),'NumberTitle','off');
     BaW=false; % always use colored plots
     nDataSets=size(dataSets,4);
@@ -59,6 +62,10 @@ function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel,myLabels)
     
     % global
     sgtitle(LabelMe(tmpTitleFig));
+    if (~ismissing(myFigSave))
+        fprintf("...saving to file %s ...\n",myFigSave);
+        savefig(myFigSave);
+    end
 end
 
 
