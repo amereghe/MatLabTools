@@ -136,16 +136,21 @@ for iDataAcq=1:nDataSets
 end
 
 %% show data
-addIndex=mmsProf;
-addLabel="Range [mm]";
-% addIndex=EksSumm;
+% addIndex=mmsProf;
+% addLabel="Range [mm]";
+% addIndex=EksProf;
 % addLabel="E_k [MeV/u]";
-% addIndex=repmat((1:(size(profiles,2)-1))',[1 size(profiles,4)]);
-% addLabel="ID";
+addIndex=repmat((1:(size(profiles,2)-1))',[1 size(profiles,4)]);
+addLabel="ID";
+if (exist("shifts","var"))
+    for iDataAcq=1:nDataSets
+        addIndex(:,iDataAcq)=addIndex(:,iDataAcq)+shifts(iDataAcq);
+    end
+end
 % - 3D plot of profiles
-ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels);
+ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels,strcat(myFigPath,"\3Dprofiles_",myFigName,".fig"));
 % - statistics on profiles
-ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit);
+ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit,strcat(myFigPath,"\Stats_",myFigName,".fig"));
 % - statistics on profiles vs summary files
 for iDataAcq=1:nDataSets
     switch upper(monTypes(iDataAcq))
@@ -154,7 +159,9 @@ for iDataAcq=1:nDataSets
             CompBars=BARsSumm(:,:,iDataAcq); CompBars(:,:,2)=BARsProf(:,:,iDataAcq);
             CompFwhms=FWHMsSumm(:,:,iDataAcq); CompFwhms(:,:,2)=FWHMsProf(:,:,iDataAcq);
             CompInts=INTsSumm(:,:,iDataAcq); CompInts(:,:,2)=INTsProf(:,:,iDataAcq);
-            CompXs=mmsSumm(:,iDataAcq); CompXs(:,2)=addIndex(:,iDataAcq);
+            % CompXs=mmsSumm(:,iDataAcq);
+            CompXs=(1:size(BARsSumm,1))';
+            CompXs(:,2)=addIndex(:,iDataAcq);
             ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),CompXs,addLabel,...
                 ["summary data" "stat on profiles"],missing(),sprintf("%s - %s - summary vs profile stats",myTit,myLabels(iDataAcq)));
     end
