@@ -12,6 +12,7 @@ function [measData,cyProgs,cyCodes,actualDataSets]=FastForwardProfileAcquisition
             measData(:,nColumns+1:nColumns+nToInsert,:)=NaN(nRows,nToInsert,nDims);
             cyProgs(nColumns-1+1:nColumns-1+nToInsert)=lastCyProg+1:currCyProg-1;
             cyCodes(nColumns-1+1:nColumns-1+nToInsert)=missing();
+            actualDataSets=actualDataSets+nToInsert;
         case {"GIM","PIB","PMM","QBM","SFH","SFM","SFP"}
             % profile monitors along beam lines have time-resolved
             %    distributions
