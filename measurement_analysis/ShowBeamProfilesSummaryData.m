@@ -1,4 +1,4 @@
-function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,xVals,xLab,labels,whatNames,myTitle)
+function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,xVals,xLab,labels,whatNames,myTitle,myFigSave)
 % ShowBeamProfilesSummaryData      to create a figure showing Baricentres, SIGmas/FWHMs,
 %                                   INTegrals and ASYMmetries of beam profiles;
 % 
@@ -19,6 +19,7 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,xVals,xLab,labels,what
 % - labels (strings(nSets)): a label for each scan;
 % - whatNames (strings(nCols)): a label for each quantity;
 % - myTitle (string): figure title;
+% - myFigSave (string): file name where to save the plot;
 % 
 
     if ( ~exist("xVals","var") ), xVals=missing(); end
@@ -26,6 +27,7 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,xVals,xLab,labels,what
     if ( ~exist('labels','var') ), labels=missing(); end
     if ( ~exist('whatNames','var') ), whatNames=missing(); end
     if ( ~exist('myTitle','var') ), myTitle=missing(); end
+    if ( ~exist("myFigSave","var") ), myFigSave=missing(); end
     
     nCols=3; % SIGs, BARs, INTs
     if ( ~ismissing(ASYMs) ), nCols=4; end
@@ -51,9 +53,9 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,xVals,xLab,labels,what
     % actually generate figure
     cm=colormap(turbo(nSets));
     if (~ismissing(myTitle))
-        figure("Name",LabelMe(myTitle));
+        ff=figure("Name",LabelMe(myTitle));
     else
-        figure();
+        ff=figure();
     end
     iPlot=0;
     if ( nSets==2 )
@@ -88,6 +90,10 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,xVals,xLab,labels,what
     
     if (~ismissing(myTitle))
         sgtitle(LabelMe(myTitle));
+    end
+    if (~ismissing(myFigSave))
+        fprintf("...saving to file %s ...\n",myFigSave);
+        savefig(myFigSave);
     end
     
 end
