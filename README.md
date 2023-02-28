@@ -29,4 +29,3 @@ No particularly strict rules, apart from:
 
 ## Startup
 * MatLab automatically runs the file named [startup.m](https://it.mathworks.com/help/matlab/ref/startup.html)  if it is saved in a known folder in the path, e.g. C:/Users/enrico.felcini/Documents/MATLAB. This file can be used to set physical constants (e.g. speed of light), standard plot parameters and run specific scripts (e.g. pathdef.m that contains the path definition of the user's folders).
-
