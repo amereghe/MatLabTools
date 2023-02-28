@@ -1,6 +1,6 @@
 function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
 % ParseBeamProfiles     parses distributions recorded by CAM, DDS, GIM, PIB/PMM,
-%                          QBM and SFH/SFM/SFP;
+%                          QBM and QPP/SFH/SFM/SFP;
 %                       for the time being, the function does not parse QIM data
 %
 % input:
@@ -36,7 +36,7 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
         case "GIM"
             Nx=127; Ny=127;
             maxColumns=300;
-        case {"PMM","PIB"}
+        case {"PIB","PMM"}
             Nx=32;  Ny=32;
             maxColumns=2;
         case "QBM"
@@ -49,7 +49,7 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
             Nx=64;  Ny=64;
             maxColumns=59;
         otherwise
-            error("wrong indication of format of file: %s. Can only be GIM, PMM/PIB, QBM and SFH/SFM/SFP",fFormat);
+            error("wrong indication of format of file: %s. Can only be CAM, DDS, GIM, PIB/PMM, QBM and QPP/SFH/SFM/SFP",fFormat);
     end
     
     %% data storage
