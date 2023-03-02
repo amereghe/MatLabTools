@@ -6,7 +6,7 @@ function PlotOptics(tfsTables,what,emig,sigdpp,avedpp,refTfsTable,whatRef)
     
     nTables=size(tfsTables,1);
     if ( nTables>1 )
-        colormap(parula(nTables));
+        colormap(jet(nTables));
     end
     for jj=1:nTables
         if ( exist('refTfsTable','var') )
