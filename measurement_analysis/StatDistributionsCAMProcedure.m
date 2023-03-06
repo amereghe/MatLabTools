@@ -77,7 +77,7 @@ function [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles,FWHMval,noiseL
             tmpIndices=tmpYs(:,iPlane)>0;
             FWHMleft=min(tmpXs(tmpIndices,iPlane));
             FWHMright=max(tmpXs(tmpIndices,iPlane));
-            FWHMs(iSet,iPlane)=FWHMright-FWHMleft;
+            FWHMs(iSet,iPlane)=0.0;
             myXs=tmpXs(:,iPlane); myYs=0.0*myXs; repYs=0.0*myXs; 
             if ( nPoints==sum(tmpYs(:,iPlane)>0) & INTs(iSet,iPlane)<INTlevel)
                 warning("...cannot actually identify a bell-shaped profile!");

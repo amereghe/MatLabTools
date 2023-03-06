@@ -2,99 +2,171 @@
 
 %% description
 % this is a script which parses beam profiles files and plots them
-% - the script crunches as many files as desired, provided the fullpaths;
-% - for the time being, only CAMeretta/DDS/SFH/SFM monitors;
-%   QBM/GIM/PMM/PIB/SFP are NOT supported but the implementation should be
+% - the script crunches as many data sets as desired, provided the fullpaths;
+% - for the time being, only CAMeretta/DDS/GIM/QPP/SFH/SFM/SFP monitors;
+%   QBM/PMM/PIB are NOT supported but the implementation should be
 %   straightforward;
-% - for CAMeretta/DDS: both summary files and actual profiles in the same
+% - for CAMeretta/DDS/GIM: both summary files and actual profiles in the same
 %   path are aquired;
-% - for SFH/SFM: profiles are acquired, but only the integral ones are
+% - for GIM/SFH/SFM/SFP: profiles are acquired, but only the integral ones are
 %   shown;
 % - the script visualises in 3D the spill-per-spill profiles, horizontal and
 %   vertical planes separately;
-% - the script shows summary data; for CAMeretta/DDS only, the script also
-%   compares summary data against statistics data computed on profiles;
+% - the script also shows statistics data computed on profiles;
+%   for CAMeretta/DDS/GIM only, the script also compares summary data
+%   against statistics data computed on profiles;
 
-%% include libraries
-% - include Matlab libraries
-pathToLibrary=".\";
-addpath(genpath(pathToLibrary));
+%% manual run
+if (~exist("MonPaths","var")) 
+    % script manually run by user
 
-%% settings
-clear kPath MonPathMain MonPaths SummFiles ProfFiles
+    % -------------------------------------------------------------------------
+    % default stuff
+    % -------------------------------------------------------------------------
+    % - include Matlab libraries
+    pathToLibrary=".\";
+    addpath(genpath(pathToLibrary));
+    % - clear settings
+    clear kPath myTit monTypes MonPaths myLabels
 
-% -------------------------------------------------------------------------
-% USER's input data
-kPath="D:\GuessOptics\data\PROTON\090mm\HEBT";
-% kPath="K:";
-MonPathMain="\alone_H5-009A-QUE";
-MonPaths=[...
-    strcat(kPath,MonPathMain,"\PRC-544-220109-0259_U1-021B-SFM") 
-    ];
-monType="SFM"; % DDS, CAM, SFH/SFM - QBM/GIM/PMM/PIB/SFP to come
-myTit=sprintf("%s profiles in %s",monType,MonPathMain);
-% -------------------------------------------------------------------------
+    % -------------------------------------------------------------------------
+    % USER's input data
+    % -------------------------------------------------------------------------
+    kPath="P:\Accelerating-System\Accelerator-data";
+    myTit="Check fibre - Protoni, 320mm";
+    monTypes=[ "QPP" "QPP" "SFP" "SFP" ]; % CAM, DDS, GIM, QPP/SFH/SFM/SFP - QBM/PMM/PIB to come
+    MonPaths=[...
+        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_010B_QPP\HOR\PRC-544-230205-0646\") 
+        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_010B_QPP\HOR\PRC-544-230205-0729\") 
+        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_012B_SFP\HOR\PRC-544-230205-0742\") 
+        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_012B_SFP\HOR\PRC-544-230205-0747\") 
+        ];
+    myLabels=[...
+        "HE-010B-QPP - prima di invertire i cavi"
+        "HE-010B-QPP - dopo aver invertito i cavi"
+        "HE-012B-SFP - prima di invertire i cavi"
+        "HE-012B-SFP - dopo aver invertito i cavi"
+        ];
+    lSkip=false; % DDS summary file: skip first 2 lines (in addition to header line)
+end
+
+%% check of user input data
+if ( length(MonPaths)~=length(myLabels) )
+    error("number of paths different from number of labels: %d~=%d",length(MonPaths),length(myLabels));
+else
+    nDataSets=length(MonPaths);
+end
+if (length(monTypes)~=nDataSets)
+    if ( length(monTypes)==1 )
+        myStrings=strings(nDataSets,1);
+        myStrings(:,1)=monTypes;
+        monTypes=myStrings;
+    else
+        error("please specify a label for each data set");
+    end
+end
+
+%% clear storage
+% - clear summary data
+[cyProgsSumm,cyCodesSumm,BARsSumm,FWHMsSumm,ASYMsSumm,INTsSumm,EksSumm,mmsSumm]=...
+    deal(missing(),missing(),missing(),missing(),missing(),missing(),missing(),missing());
+% - clear profiles
+[profiles,cyCodesProf,cyProgsProf,BARsProf,FWHMsProf,INTsProf,EksProf,mmsProf]=...
+    deal(missing(),missing(),missing(),missing(),missing(),missing(),missing(),missing());
 
 %% parse files
-% - files to crunch:
-switch upper(monType)
-    case "CAM"
-        SummFiles=MonPaths+"\*summary.txt";
-        ProfFiles=MonPaths+"\profiles\*_profiles.txt";
-    case "DDS"
-        SummFiles=MonPaths+"\Data-*.csv";
-        ProfFiles=MonPaths+"\Profiles\Data-*.csv";
-    case {"SFH","SFM"}
-        ProfFiles=MonPaths+"\Data-*.csv";
-    otherwise
-        error("Mon type NOT recognised: %s! - presently only CAM/DDS/SFM/SFH are available",monType);
-end
-
-% - clear summary data
-clear cyProgsSumm cyCodesSumm BarsSumm FwhmsSumm AsymsSumm IntsSumm
-% - clear profiles
-clear profiles cyCodes cyProgs
-
-% - parse files
-switch upper(monType)
-    case {"CAM","DDS"}
-        % - parse summary files
-        [cyProgsSumm,cyCodesSumm,BarsSumm,FwhmsSumm,AsymsSumm,IntsSumm]=ParseCAMSummaryFiles(SummFiles,monType,0);
-        if (length(cyProgsSumm)<=1), error("...no summary data aquired!"); end
-        % - parse profiles
-        [profiles,cyCodes,cyProgs]=ParseDDSProfiles(ProfFiles,monType);
-        if (length(cyProgs)<=1), error("...no profiles aquired!"); end
-        % - quick check of consistency of parsed data
-        if ( length(cyProgsSumm)~=length(cyProgs) ), error("...inconsistent data set between summary data and actual profiles"); end
-    
-    otherwise % SFH,SFM
-        % - parse profiles
-        [diffProfiles,cyCodes,cyProgs]=ParseSFMData(ProfFiles,monType);
-        if (length(cyProgs)<=1), error("...no profiles aquired!"); end
+for iDataAcq=1:nDataSets
+    % - parse profiles
+    clear tmpCyProgsProf tmpCyCodesProf tmpBARsProf tmpFWHMsProf tmpINTsProf tmpProfiles tmpDiffProfiles tmpEksProf tmpMmsProf;
+    if ( strcmpi(monTypes(iDataAcq),"CAM") | strcmpi(monTypes(iDataAcq),"DDS") )
+        [tmpProfiles,tmpCyCodesProf,tmpCyProgsProf]=ParseBeamProfiles(MonPaths(iDataAcq),monTypes(iDataAcq));
+        if (length(tmpCyProgsProf)<=1), error("...no profiles aquired!"); end
+    else % GIM,QPP,SFH,SFM,SFP
+        [tmpDiffProfiles,tmpCyCodesProf,tmpCyProgsProf]=ParseBeamProfiles(MonPaths(iDataAcq),monTypes(iDataAcq));
+        if (length(tmpCyProgsProf)<=1), error("...no profiles aquired!"); end
         % - get integral profiles
-        profiles=SumSpectra(diffProfiles); 
-end
+        tmpProfiles=SumSpectra(tmpDiffProfiles); 
+    end
+    % - get statistics out of profiles
+    switch upper(monTypes(iDataAcq))
+        case "CAM"
+            [tmpBARsProf,tmpFWHMsProf,tmpINTsProf]=StatDistributionsCAMProcedure(tmpProfiles);
+        case {"QPP","SFP"}
+            noiseLevel=0.025;
+            INTlevel=5;
+            lDebug=true;
+            [tmpBARsProf,tmpFWHMsProf,tmpINTsProf]=StatDistributionsBDProcedure(tmpProfiles,noiseLevel,INTlevel,lDebug);
+        otherwise % BD: DDS,GIM,SFH,SFM
+            [tmpBARsProf,tmpFWHMsProf,tmpINTsProf]=StatDistributionsBDProcedure(tmpProfiles);
+    end
+    % - Eks,mms
+    tmpEksProf=ConvertCyCodes(tmpCyCodesProf,"Ek","MeVvsCyCo_P.xlsx");
+    tmpMmsProf=ConvertCyCodes(tmpCyCodesProf,"mm","MeVvsCyCo_P.xlsx");
+    % - store data
+    cyProgsProf=ExpandMat(cyProgsProf,tmpCyProgsProf);
+    cyCodesProf=ExpandMat(cyCodesProf,tmpCyCodesProf);
+    profiles=ExpandMat(profiles,tmpProfiles);
+    BARsProf=ExpandMat(BARsProf,tmpBARsProf);
+    FWHMsProf=ExpandMat(FWHMsProf,tmpFWHMsProf);
+    INTsProf=ExpandMat(INTsProf,tmpINTsProf);
+    EksProf=ExpandMat(EksProf,tmpEksProf);
+    mmsProf=ExpandMat(mmsProf,tmpMmsProf);
 
-% - get statistics out of profiles
-if ( strcmpi(monType,"CAM") )
-    [BARs,FWHMs,INTs]=StatDistributionsCAMProcedure(profiles);
-else
-    [BARs,FWHMs,INTs]=StatDistributionsBDProcedure(profiles);
+    % - parse summary files
+    if ( strcmpi(monTypes(iDataAcq),"CAM") | strcmpi(monTypes(iDataAcq),"DDS") | strcmpi(monTypes(iDataAcq),"GIM") )
+        clear tmpCyProgsSumm tmpCyCodesSumm tmpBARsSumm tmpFWHMsSumm tmpASYMsSumm tmpINTsSumm tmpEksSumm tmpMmsSumm;
+        [tmpCyProgsSumm,tmpCyCodesSumm,tmpBARsSumm,tmpFWHMsSumm,tmpASYMsSumm,tmpINTsSumm]=ParseBeamProfileSummaryFiles(MonPaths(iDataAcq),monTypes(iDataAcq),lSkip);
+        if (length(tmpCyProgsSumm)<=1), error("...no summary data aquired!"); end
+        % - quick check of consistency of parsed data
+        if (length(tmpCyProgsSumm)~=length(tmpCyProgsProf)), error("...inconsistent data set between summary data and actual profiles"); end
+        % - Eks,mms
+        tmpEksSumm=ConvertCyCodes(tmpCyCodesSumm,"Ek","MeVvsCyCo_P.xlsx");
+        tmpMmsSumm=ConvertCyCodes(tmpCyCodesSumm,"mm","MeVvsCyCo_P.xlsx");
+        % - store data
+        cyProgsSumm=ExpandMat(cyProgsSumm,tmpCyProgsSumm);
+        cyCodesSumm=ExpandMat(cyCodesSumm,tmpCyCodesSumm);
+        BARsSumm=ExpandMat(BARsSumm,tmpBARsSumm);
+        FWHMsSumm=ExpandMat(FWHMsSumm,tmpFWHMsSumm);
+        ASYMsSumm=ExpandMat(ASYMsSumm,tmpASYMsSumm);
+        INTsSumm=ExpandMat(INTsSumm,tmpINTsSumm);
+        EksSumm=ExpandMat(EksProf,tmpEksSumm);
+        mmsSumm=ExpandMat(mmsProf,tmpMmsSumm);
+    end
+    
 end
 
 %% show data
-% - 3D plot
-ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit));
-% - other plots
-if ( strcmpi(monType,"CAM") || strcmpi(monType,"DDS") )
-    % - series
-    ShowBeamProfilesSummaryData(BarsSumm,FwhmsSumm,IntsSumm,AsymsSumm,missing(),"summary data",missing(),myTit);
-    % - compare summary data and statistics on profiles
-    CompBars=BarsSumm; CompBars(:,:,2)=BARs;
-    CompFwhms=FwhmsSumm; CompFwhms(:,:,2)=FWHMs;
-    CompInts=IntsSumm; CompInts(:,:,2)=INTs;
-    ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),missing(),["stat on profiles" "summary data"],missing(),sprintf("%s - summary vs profile stats",myTit));
-else
-    % - series
-    ShowBeamProfilesSummaryData(BARs,FWHMs,INTs,missing(),missing(),"integral profiles",missing(),myTit);
+% addIndex=mmsProf;
+% addLabel="Range [mm]";
+% addIndex=EksProf;
+% addLabel="E_k [MeV/u]";
+addIndex=repmat((1:(size(profiles,2)-1))',[1 size(profiles,4)]);
+addLabel="ID";
+if (exist("shifts","var"))
+    for iDataAcq=1:nDataSets
+        addIndex(:,iDataAcq)=addIndex(:,iDataAcq)+shifts(iDataAcq);
+    end
 end
+% - 3D plot of profiles
+ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels,strcat(myFigPath,"\3Dprofiles_",myFigName,".fig"));
+% - statistics on profiles
+ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit,strcat(myFigPath,"\Stats_",myFigName,".fig"));
+% - statistics on profiles vs summary files
+for iDataAcq=1:nDataSets
+    switch upper(monTypes(iDataAcq))
+        case {"CAM","DDS","GIM"}
+            % - compare summary data and statistics on profiles
+            CompBars=BARsSumm(:,:,iDataAcq); CompBars(:,:,2)=BARsProf(:,:,iDataAcq);
+            CompFwhms=FWHMsSumm(:,:,iDataAcq); CompFwhms(:,:,2)=FWHMsProf(:,:,iDataAcq);
+            CompInts=INTsSumm(:,:,iDataAcq); CompInts(:,:,2)=INTsProf(:,:,iDataAcq);
+            % CompXs=mmsSumm(:,iDataAcq);
+            CompXs=(1:size(BARsSumm,1))';
+            CompXs(:,2)=addIndex(:,iDataAcq);
+            ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),CompXs,addLabel,...
+                ["summary data" "stat on profiles"],missing(),sprintf("%s - %s - summary vs profile stats",myTit,myLabels(iDataAcq)));
+    end
+end
+
+%% save summary data
+% oFileName=strcat(kPath,"\scambio\Alessio\Carbonio_preSteering_summary-from-profiles.csv");
+% SaveBeamProfileSummaryFile(oFileName,tmpBARsProf,tmpFWHMsProf,tmpINTsProf,tmpCyCodesProf,tmpCyProgsProf,"DDS");

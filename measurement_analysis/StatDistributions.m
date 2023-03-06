@@ -149,19 +149,19 @@ function [BARs,FWxMs,INTs,FWxMls,FWxMrs]=StatDistributions(profiles,FWxMval,nois
                 % [myXs,myYs]=GetSymmetricBell(XsPreFilter(indices),YsPreFilter(indices),asymThresh,nPointsMin,lDebug);
                 myXs=XsPreFilter(indices); myYs=YsPreFilter(indices); % points used to fit
                 pp=polyfit(myXs,myYs,nOrder);
-                newIndices=CleanProfiles(tmpYs(:,iPlane),noiseLevelFWxM);
+                newIndices=CleanProfiles(YsPreFilter,noiseLevelFWxM);
                 % [repXs,repYs]=GetSymmetricBell(tmpXs(newIndices,iPlane),tmpYs(newIndices,iPlane),asymThresh,nPointsMin,lDebug);
                 % - evaluate smooth curve on a much finer x-grid
-                newIndices=ExtendRange(newIndices,tmpYs(:,iPlane));
-                tmpMax=max(tmpXs(newIndices,iPlane));
-                tmpMin=min(tmpXs(newIndices,iPlane));
-                tmpDelta=min(diff(tmpXs(newIndices,iPlane)));
+                newIndices=ExtendRange(newIndices,YsPreFilter);
+                tmpMax=max(XsPreFilter(newIndices));
+                tmpMin=min(XsPreFilter(newIndices));
+                tmpDelta=min(diff(XsPreFilter(newIndices)));
                 nSteps=ceil((tmpMax-tmpMin)/tmpDelta);
                 repXs=linspace(tmpMin,tmpMax,nSteps*10);
                 repYs=polyval(pp,repXs);
                 [tmpMax,idMax]=max(repYs);
-                while ( ( idMax==1 && repXs(idMax)>min(tmpXs(~isnan(tmpXs(:,iPlane)),iPlane)) ) || ...
-                        ( idMax==length(repYs) && repXs(idMax)<max(tmpXs(~isnan(tmpXs(:,iPlane)),iPlane)) ) )
+                while ( ( idMax==1 & repXs(idMax)>min(tmpXs(~isnan(tmpXs(:,iPlane)),iPlane)) ) | ...
+                        ( idMax==length(repYs) & repXs(idMax)<max(tmpXs(~isnan(tmpXs(:,iPlane)),iPlane)) ) )
                     if ( idMax==1 )
                         repXs=repXs(2:end);
                         repYs=repYs(2:end);

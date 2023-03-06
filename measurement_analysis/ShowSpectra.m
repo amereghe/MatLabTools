@@ -1,4 +1,4 @@
-function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel)
+function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel,myLabels,myFigSave)
 % ShowSpectra     shows distributions recorded by SFM, QBM and GIM;
 %                 it shows a 1x2 3D figure, with the distributions on the
 %                   horizontal plane on the left and those on the vertical
@@ -19,38 +19,53 @@ function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel)
 % - addIndex [float(nColumns-1), optional]: list of IDs to be shown;
 %   it can be used to separate distribution by cyProg or cyCode;
 % - addLabel [string, optional]: name of the y-axis;
+% - myLabels [strings(nSets), optional]: a label for each scan;
+% - myFigSave (string, optional): file name where to save the plot;
 %
 % see also ParseSFMData, PlotSpectra and SumSpectra.
 
     fprintf("plotting data...\n");
+    if (~exist("myFigSave","var")), myFigSave=missing(); end
     ff=figure('Name',LabelMe(tmpTitleFig),'NumberTitle','off');
     BaW=false; % always use colored plots
+    nDataSets=size(dataSets,4);
+    planes=["horizontal plane" "vertical plane"];
+    nPlanes=length(planes);
+    [nRows,nCols,lDispHor]=GetNrowsNcols(nPlanes*nDataSets,nPlanes);
     
-    % hor distribution
-    subplot(1,2,1);
-    if ( ~exist('addIndex','var') & ~exist('addLabel','var') )
-        PlotSpectra(dataSets(:,:,1),BaW);
-    else
-        PlotSpectra(dataSets(:,:,1),BaW,addIndex,addLabel);
+    iPlot=0;
+    for iDataSet=1:nDataSets
+        for iPlane=1:nPlanes
+            iPlot=iPlot+1;
+            if (lDispHor)
+                % show planes side by side
+                jPlot=iPlot;
+            else
+                % show planes on consecutive rows
+                jPlot=(iPlane-1)*nCols+(nCols*nPlanes)*(ceil(iPlot/(nCols*nPlanes))-1)+mod(iDataSet-1,nCols)+1;
+            end
+            subplot(nRows,nCols,jPlot);
+            if ( ~exist('addIndex','var') & ~exist('addLabel','var') )
+                PlotSpectra(dataSets(:,:,iPlane,iDataSet),BaW);
+            else
+                PlotSpectra(dataSets(:,:,iPlane,iDataSet),BaW,addIndex(:,iDataSet),addLabel);
+            end
+            if (exist('myLabels','var'))
+                title(sprintf("%s - %s",myLabels(iDataSet),planes(iPlane)));
+            else
+                title(planes(iPlane));
+            end
+            xlabel("position [mm]");
+            zlabel("Counts []");
+        end
     end
-    title("horizontal plane");
-    xlabel("position [mm]");
-    zlabel("Counts []");
-
-    % ver distribution
-    subplot(1,2,2);
-    tmpTitle="vertical plane";
-    if ( ~exist('addIndex','var') & ~exist('addLabel','var') )
-        PlotSpectra(dataSets(:,:,2),BaW);
-    else
-        PlotSpectra(dataSets(:,:,2),BaW,addIndex,addLabel);
-    end
-    title("vertical plane");
-    xlabel("position [mm]");
-    zlabel("Counts []");
     
     % global
     sgtitle(LabelMe(tmpTitleFig));
+    if (~ismissing(myFigSave))
+        fprintf("...saving to file %s ...\n",myFigSave);
+        savefig(myFigSave);
+    end
 end
 
 
