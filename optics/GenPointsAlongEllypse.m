@@ -3,12 +3,13 @@ function MyEllypse=GenPointsAlongEllypse(alpha,beta,emiG,dAng)
 %                                                    optics ellypse
 %
 % By default, the function generates 361 points (one per degree, included 0
-%    and 360 degs), equispaced along the ellypse descriibed by the given optics
+%    and 360 degs), equispaced along the ellypse described by the given optics
 %    functions.
 % If emiG is an array and beta/alpha are scalars, then as many ellypses as
 %    length(emiG) are generated, all with the same optics functions.
 % If beta/alpha are arrays like emiG, then the ellypses will all be different
 %    from each other.
+% The generated ellypses are centered in [0,0].
 %
     %% input data
     if (~exist("dAng","var")), dAng=1; end

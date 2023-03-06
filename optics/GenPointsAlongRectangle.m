@@ -31,4 +31,3 @@ function MyRect=GenPointsAlongRectangle(bb,hh,nX,nY)
         MyRect(end,:,ii)=MyRect(1,:,ii);
     end
 end
-
