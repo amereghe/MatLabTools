@@ -11,11 +11,11 @@ function TransfPoints=AdvanceMyPoints(OrigPoints,RM,lNorm,lDebug,alpha,beta,emiG
     if ( lDebug )
         % - physical ellypse
         clear MyContours; MyContours=missing();
-        MyContours=ExpandMat(MyContours,SampleEllypse(alpha,beta,emiG));
+        MyContours=ExpandMat(MyContours,GenPointsAlongEllypse(alpha,beta,emiG));
         if ( lNorm )
             % - normalised ellypse (aka circumference)
             clear MyContoursNorm; MyContoursNorm=missing();
-            MyContoursNorm=ExpandMat(MyContoursNorm,SampleEllypse(0,1,1));
+            MyContoursNorm=ExpandMat(MyContoursNorm,GenPointsAlongEllypse(0,1,1));
         end
     end
     
@@ -47,7 +47,7 @@ function TransfPoints=AdvanceMyPoints(OrigPoints,RM,lNorm,lDebug,alpha,beta,emiG
         % - show rotated physical coordinates
         [alphaRot,betaRot,emiGrot,sigMrot]=GetOpticsFromSigmaMatrix(TransfPoints);   % ellypse orientation
         emiGrot=max(GetSinglePartEmittance(TransfPoints,alphaRot,betaRot));  % max 
-        MyContours=ExpandMat(MyContours,SampleEllypse(alphaRot,betaRot,emiGrot));
+        MyContours=ExpandMat(MyContours,GenPointsAlongEllypse(alphaRot,betaRot,emiGrot));
         ShowCoords(TransfPoints,["z [m]" "zp [rad]"],MyContours,"physical phase space (modified coordinates)");
     end
 end
