@@ -1,4 +1,19 @@
 function TransfPoints=AdvanceMyPoints(OrigPoints,RM,lNorm,lDebug,alpha,beta,emiG)
+% AdvanceMyPoints(OrigPoints,RM,lNorm,lDebug,alpha,beta,emiG)
+%      to tansport beam particles along a beam line described by the
+%          transport matrix RM;
+% - input:
+%   . OrigPoints (float(nPoints,2)): original beam population (physical units: [m,rad]);
+%   . RM  (float(2,2)): 2D transport matrix;
+%   . lNorm (boolean, optional): particle transport should be performed by
+%      using normalised coordinates and not physical coordinates;
+%   . ldebug (boolean, optional): to show some plots for cross check;
+%   . alpha,beta,emiG (float, optional): optics functions used to compute
+%     normalised coordinates. If not given (and necessary), they are
+%     estimated with the statistical analysis of the beam population;
+% - ouput:
+%   . TransfPoints (float(nPoints,2)): transported beam population (physical units: [m,rad]);
+
     if (~exist("lNorm","var")), lNorm=true; end
     if (~exist("lDebug","var")), lDebug=true; end
 
@@ -28,10 +43,10 @@ function TransfPoints=AdvanceMyPoints(OrigPoints,RM,lNorm,lDebug,alpha,beta,emiG
         % rotate in normalised phase space
         % - get normalise coordinates
         [OrigPointsNorm]=Phys2Norm(OrigPoints,beta,alpha,emiG);
-        sigMnorm=cov(OrigPointsNorm);
+        if ( lDebug ), sigMnorm=cov(OrigPointsNorm); end
         % - rotate coordinates
         [OrigPointsNormTransported(:,1),OrigPointsNormTransported(:,2)]=TransportOrbit(RM,OrigPointsNorm(:,1),OrigPointsNorm(:,2));
-        sigMnormRot=cov(OrigPointsNormTransported);
+        if ( lDebug ), sigMnormRot=cov(OrigPointsNormTransported); end
         % - phyisical coordinates
         [TransfPoints]=Norm2Phys(OrigPointsNormTransported,beta,alpha,emiG);
         if ( lDebug )
