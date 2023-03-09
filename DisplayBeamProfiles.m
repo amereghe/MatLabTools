@@ -33,21 +33,31 @@ if (~exist("MonPaths","var"))
     % USER's input data
     % -------------------------------------------------------------------------
     kPath="P:\Accelerating-System\Accelerator-data";
-    myTit="Check fibre - Protoni, 320mm";
-    monTypes=[ "QPP" "QPP" "SFP" "SFP" ]; % CAM, DDS, GIM, QPP/SFH/SFM/SFP - QBM/PMM/PIB to come
+%     myTit="Check fibre - Protoni, 320mm";
+%     monTypes=[ "QPP" "QPP" "SFP" "SFP" ]; % CAM, DDS, GIM, QPP/SFH/SFM/SFP - QBM/PMM/PIB to come
+%     MonPaths=[...
+%         strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_010B_QPP\HOR\PRC-544-230205-0646\") 
+%         strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_010B_QPP\HOR\PRC-544-230205-0729\") 
+%         strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_012B_SFP\HOR\PRC-544-230205-0742\") 
+%         strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_012B_SFP\HOR\PRC-544-230205-0747\") 
+%         ];
+%     myLabels=[...
+%         "HE-010B-QPP - prima di invertire i cavi"
+%         "HE-010B-QPP - dopo aver invertito i cavi"
+%         "HE-012B-SFP - prima di invertire i cavi"
+%         "HE-012B-SFP - dopo aver invertito i cavi"
+%         ];
+    myTit="Pre-steering 2023-03-09";
+    monTypes=[ "SFP" "DDS" "CAM" ]; % CAM, DDS, GIM, QPP/SFH/SFM/SFP - QBM/PMM/PIB to come
     MonPaths=[...
-        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_010B_QPP\HOR\PRC-544-230205-0646\") 
-        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_010B_QPP\HOR\PRC-544-230205-0729\") 
-        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_012B_SFP\HOR\PRC-544-230205-0742\") 
-        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_012B_SFP\HOR\PRC-544-230205-0747\") 
+        "P:\Accelerating-System\Accelerator-data\scambio\MGP\steering XPR-3-Carbonio-9Mar2023\PRC-544-230309-0344\"
+        "P:\Accelerating-System\Accelerator-data\scambio\MGP\steering XPR-3-Carbonio-9Mar2023\PRC-544-230309-0354\"
+        "P:\Accelerating-System\Accelerator-data\scambio\MGP\steering XPR-3-Carbonio-9Mar2023\CarbSO2_LineX3_Size6_09-03-2023_0355\"
         ];
-    myLabels=[...
-        "HE-010B-QPP - prima di invertire i cavi"
-        "HE-010B-QPP - dopo aver invertito i cavi"
-        "HE-012B-SFP - prima di invertire i cavi"
-        "HE-012B-SFP - dopo aver invertito i cavi"
-        ];
+    myLabels=monTypes;
     lSkip=false; % DDS summary file: skip first 2 lines (in addition to header line)
+    myFigPath="./";
+    myFigName="pippo";
 end
 
 %% check of user input data
@@ -136,12 +146,12 @@ for iDataAcq=1:nDataSets
 end
 
 %% show data
-% addIndex=mmsProf;
-% addLabel="Range [mm]";
+addIndex=mmsProf;
+addLabel="Range [mm]";
 % addIndex=EksProf;
 % addLabel="E_k [MeV/u]";
-addIndex=repmat((1:(size(profiles,2)-1))',[1 size(profiles,4)]);
-addLabel="ID";
+% addIndex=repmat((1:(size(profiles,2)-1))',[1 size(profiles,4)]);
+% addLabel="ID";
 if (exist("shifts","var"))
     for iDataAcq=1:nDataSets
         addIndex(:,iDataAcq)=addIndex(:,iDataAcq)+shifts(iDataAcq);
@@ -159,8 +169,8 @@ for iDataAcq=1:nDataSets
             CompBars=BARsSumm(:,:,iDataAcq); CompBars(:,:,2)=BARsProf(:,:,iDataAcq);
             CompFwhms=FWHMsSumm(:,:,iDataAcq); CompFwhms(:,:,2)=FWHMsProf(:,:,iDataAcq);
             CompInts=INTsSumm(:,:,iDataAcq); CompInts(:,:,2)=INTsProf(:,:,iDataAcq);
-            % CompXs=mmsSumm(:,iDataAcq);
-            CompXs=(1:size(BARsSumm,1))';
+            CompXs=mmsSumm(:,iDataAcq);
+            % CompXs=(1:size(BARsSumm,1))';
             CompXs(:,2)=addIndex(:,iDataAcq);
             ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),CompXs,addLabel,...
                 ["summary data" "stat on profiles"],missing(),sprintf("%s - %s - summary vs profile stats",myTit,myLabels(iDataAcq)));
