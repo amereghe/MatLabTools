@@ -162,14 +162,16 @@ ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabel
 % - statistics on profiles
 ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit,strcat(myFigPath,"\Stats_",myFigName,".fig"));
 % - statistics on profiles vs summary files
+iDataSumm=0;
 for iDataAcq=1:nDataSets
     switch upper(monTypes(iDataAcq))
         case {"CAM","DDS","GIM"}
+            iDataSumm=iDataSumm+1;
             % - compare summary data and statistics on profiles
-            CompBars=BARsSumm(:,:,iDataAcq); CompBars(:,:,2)=BARsProf(:,:,iDataAcq);
-            CompFwhms=FWHMsSumm(:,:,iDataAcq); CompFwhms(:,:,2)=FWHMsProf(:,:,iDataAcq);
-            CompInts=INTsSumm(:,:,iDataAcq); CompInts(:,:,2)=INTsProf(:,:,iDataAcq);
-            CompXs=mmsSumm(:,iDataAcq);
+            CompBars=BARsSumm(:,:,iDataSumm); CompBars(:,:,2)=BARsProf(:,:,iDataAcq);
+            CompFwhms=FWHMsSumm(:,:,iDataSumm); CompFwhms(:,:,2)=FWHMsProf(:,:,iDataAcq);
+            CompInts=INTsSumm(:,:,iDataSumm); CompInts(:,:,2)=INTsProf(:,:,iDataAcq);
+            CompXs=mmsSumm(:,iDataSumm);
             % CompXs=(1:size(BARsSumm,1))';
             CompXs(:,2)=addIndex(:,iDataAcq);
             ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),CompXs,addLabel,...
