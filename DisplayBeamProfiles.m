@@ -148,9 +148,11 @@ if (exist("shifts","var"))
     end
 end
 % - 3D plot of profiles
-ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels,strcat(myFigPath,"\3Dprofiles_",myFigName,".fig"));
+if (exist("myFigPath","var")), myFigSave=strcat(myFigPath,"\3Dprofiles_",myFigName,".fig"); else myFigSave=missing(); end
+ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels,myFigSave);
 % - statistics on profiles
-ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit,strcat(myFigPath,"\Stats_",myFigName,".fig"));
+if (exist("myFigPath","var")), myFigSave=strcat(myFigPath,"\Stats_",myFigName,".fig"); else myFigSave=missing(); end
+ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit,myFigSave);
 % - statistics on profiles vs summary files
 for iDataAcq=1:nDataSets
     switch upper(monTypes(iDataAcq))
