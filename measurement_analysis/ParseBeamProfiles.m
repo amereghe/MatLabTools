@@ -150,6 +150,7 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
                     tmp=split(files(iSet).name,"_");
                     tmpCyProg=str2num(tmp{2});
                     tmpCyCode=string(tmp{3});
+                    tmpCyCode=strrep(tmpCyCode,".TXT",""); % remove file extension, which comes right after cyCode (command works also with <missing>)
                     if ( actualDataSets>1 && tmpCyProg>cyProgs(actualDataSets-1)+1 && nAcq>0 )
                         % fast forward with NaNs
                         [measData,cyProgs,cyCodes,actualDataSets]=FastForwardProfileAcquisitions(measData,cyProgs,cyCodes,actualDataSets,tmpCyProg,cyProgs(actualDataSets-1),fFormat);
