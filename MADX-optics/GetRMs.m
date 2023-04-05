@@ -45,11 +45,11 @@ function [RMs,unNomParVals,Brhos]=GetRMs(data,header,lShow,xName,yName,nominalPa
         if (lShow)
             sgtitle(sprintf("%s=%g",header(iColNomPar),unNomParVals(ii)));
             shg();
-            pause(0.1);
+            % pause(0.1);
         end
     end
     
     %% actual response matrix: mm/A*Tm
-    RMs=RMs*1E3.*repmat(Brhos,1,3);
+    RMs=RMs*1E3.*repmat(Brhos,1,nMons);
     
 end
