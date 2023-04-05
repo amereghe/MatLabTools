@@ -1,6 +1,6 @@
 function NewMat=ExpandMat(ExistMat,AppMat,lForce)
     if (~exist("lForce","var")), lForce=false; end
-    if ( ismissing(ExistMat) )
+    if ( length(ExistMat)==1 && ismissing(ExistMat) )
         % first time we append data
         NewMat=AppMat;
     else
