@@ -11,8 +11,10 @@ function Plot2DHistograms(showMe,showMe1DX,showMe1DY,xShow,yShow,xShowLabel,ySho
         plot(showMe(:,1),showMe(:,2),"k.");
     end
     if ( exist("contours","var") )
-        for ii=1:size(contours,3)
-            hold on; plot(contours(:,1,ii),contours(:,2,ii),".-");
+        if ( ~ismissing(contours) )
+            for ii=1:size(contours,3)
+                hold on; plot(contours(:,1,ii),contours(:,2,ii),".-");
+            end
         end
     end
     % additionals
@@ -24,8 +26,10 @@ function Plot2DHistograms(showMe,showMe1DX,showMe1DY,xShow,yShow,xShowLabel,ySho
     if ( lSquared )
         myMin=min(min(xShow),min(yShow)); myMax=max(max(xShow),max(yShow));
         if ( exist("contours","var") )
-            myMin=min(myMin,min(contours,[],"all"));
-            myMax=max(myMax,max(contours,[],"all"));
+            if ( ~ismissing(contours) )
+                myMin=min(myMin,min(contours,[],"all"));
+                myMax=max(myMax,max(contours,[],"all"));
+            end
         end
         xlim([myMin myMax]); ylim([myMin myMax]);
     end
