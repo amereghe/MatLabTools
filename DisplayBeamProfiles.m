@@ -33,31 +33,26 @@ if (~exist("MonPaths","var"))
     % USER's input data
     % -------------------------------------------------------------------------
     kPath="P:\Accelerating-System\Accelerator-data";
-%     myTit="Check fibre - Protoni, 320mm";
-%     monTypes=[ "QPP" "QPP" "SFP" "SFP" ]; % CAM, DDS, GIM, QPP/SFH/SFM/SFP - QBM/PMM/PIB to come
-%     MonPaths=[...
-%         strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_010B_QPP\HOR\PRC-544-230205-0646\") 
-%         strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_010B_QPP\HOR\PRC-544-230205-0729\") 
-%         strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_012B_SFP\HOR\PRC-544-230205-0742\") 
-%         strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_012B_SFP\HOR\PRC-544-230205-0747\") 
-%         ];
-%     myLabels=[...
-%         "HE-010B-QPP - prima di invertire i cavi"
-%         "HE-010B-QPP - dopo aver invertito i cavi"
-%         "HE-012B-SFP - prima di invertire i cavi"
-%         "HE-012B-SFP - dopo aver invertito i cavi"
-%         ];
-    myTit="Pre-steering 2023-03-09";
-    monTypes=[ "SFP" "DDS" "CAM" ]; % CAM, DDS, GIM, QPP/SFH/SFM/SFP - QBM/PMM/PIB to come
-    MonPaths=[...
-        "P:\Accelerating-System\Accelerator-data\scambio\MGP\steering XPR-3-Carbonio-9Mar2023\PRC-544-230309-0344\"
-        "P:\Accelerating-System\Accelerator-data\scambio\MGP\steering XPR-3-Carbonio-9Mar2023\PRC-544-230309-0354\"
-        "P:\Accelerating-System\Accelerator-data\scambio\MGP\steering XPR-3-Carbonio-9Mar2023\CarbSO2_LineX3_Size6_09-03-2023_0355\"
+    monTypes=[ "GIM" ]; % CAM, DDS, GIM, QPP/SFH/SFM/SFP - QBM/PMM/PIB to come
+    myLabels=[...
+        "H2-009B-GIM"
         ];
     myLabels=monTypes;
     lSkip=false; % DDS summary file: skip first 2 lines (in addition to header line)
-    myFigPath="./";
-    myFigName="pippo";
+    myFigPath=".";
+    % part-dependent stuff
+    % - protoni
+%     myFigName="summary_protoni_GIM_2023-05-09.10";
+%     myTit="summary 2023-05-09.10 - Protoni";
+%     MonPaths=[...
+%         strcat(kPath,"\Area dati MD\00Summary\Protoni\2023\Maggio\2023.05.09-10\Steering ridotti\GIM\PRC-544-230511-0147_H2-009B-GIM_AllTrig\") 
+%         ];
+    % - carbonio
+    myFigName="summary_carbonio_GIM_2023-05-09.10";
+    myTit="summary 2023-05-09.10 - Carbonio";
+    MonPaths=[...
+        strcat(kPath,"\Area dati MD\00Summary\Carbonio\2023\Maggio\2023.05.09-10\Steering ridotti\GIM\PRC-544-230511-0028_H2-009B-GIM_AllTrig\") 
+        ];
 end
 
 %% check of user input data
@@ -173,9 +168,8 @@ for iDataAcq=1:nDataSets
             CompBars=BARsSumm(:,:,iDataSumm); CompBars(:,:,2)=BARsProf(:,:,iDataAcq);
             CompFwhms=FWHMsSumm(:,:,iDataSumm); CompFwhms(:,:,2)=FWHMsProf(:,:,iDataAcq);
             CompInts=INTsSumm(:,:,iDataSumm); CompInts(:,:,2)=INTsProf(:,:,iDataAcq);
-            CompXs=mmsSumm(:,iDataSumm);
-            % CompXs=(1:size(BARsSumm,1))';
-            CompXs(:,2)=addIndex(:,iDataAcq);
+%             CompXs=mmsSumm(:,iDataAcq); CompXs(:,2)=mmsProf(:,iDataAcq);
+            CompXs=(1:size(BARsSumm,1))'; CompXs(:,2)=addIndex(:,iDataAcq);
             ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),CompXs,addLabel,...
                 ["summary data" "stat on profiles"],missing(),sprintf("%s - %s - summary vs profile stats",myTit,myLabels(iDataAcq)));
     end

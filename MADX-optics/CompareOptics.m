@@ -73,12 +73,12 @@ function CompareOptics(optics,labels,geometry,whats,myTitle,emig,sigdpp)
         % - H plane
         axs{2,1}=subplot(3,nCols,2);
         PlotOptics(optics(:,:),usrWhats(1),emigUsr,sigdppUsr);
-        legend(labels,"Location","best");
+        legend(labels,"Location","best","NumColumns",ceil(nOpts/10.));
         grid on;
         % - V plane
         axs{3,1}=subplot(3,nCols,3);
         PlotOptics(optics(:,:),usrWhats(2),emigUsr,sigdppUsr);
-        legend(labels,"Location","best");
+        legend(labels,"Location","best","NumColumns",ceil(nOpts/10.));
         grid on;
         % - miscellanea
         linkaxes([axs{:,1}],'x');
