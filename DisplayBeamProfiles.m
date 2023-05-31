@@ -33,21 +33,25 @@ if (~exist("MonPaths","var"))
     % USER's input data
     % -------------------------------------------------------------------------
     kPath="P:\Accelerating-System\Accelerator-data";
-    myTit="Check fibre - Protoni, 320mm";
-    monTypes=[ "QPP" "QPP" "SFP" "SFP" ]; % CAM, DDS, GIM, QPP/SFH/SFM/SFP - QBM/PMM/PIB to come
-    MonPaths=[...
-        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_010B_QPP\HOR\PRC-544-230205-0646\") 
-        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_010B_QPP\HOR\PRC-544-230205-0729\") 
-        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_012B_SFP\HOR\PRC-544-230205-0742\") 
-        strcat(kPath,"\scambio\Alessio\2023-02-05_check_cablaggi_SFP\HE-007A-CEB\HE_012B_SFP\HOR\PRC-544-230205-0747\") 
-        ];
+    monTypes=[ "GIM" ]; % CAM, DDS, GIM, QPP/SFH/SFM/SFP - QBM/PMM/PIB to come
     myLabels=[...
-        "HE-010B-QPP - prima di invertire i cavi"
-        "HE-010B-QPP - dopo aver invertito i cavi"
-        "HE-012B-SFP - prima di invertire i cavi"
-        "HE-012B-SFP - dopo aver invertito i cavi"
+        "H2-009B-GIM"
         ];
     lSkip=false; % DDS summary file: skip first 2 lines (in addition to header line)
+    myFigPath=".";
+    % part-dependent stuff
+    % - protoni
+%     myFigName="summary_protoni_GIM_2023-05-09.10";
+%     myTit="summary 2023-05-09.10 - Protoni";
+%     MonPaths=[...
+%         strcat(kPath,"\Area dati MD\00Summary\Protoni\2023\Maggio\2023.05.09-10\Steering ridotti\GIM\PRC-544-230511-0147_H2-009B-GIM_AllTrig\") 
+%         ];
+    % - carbonio
+    myFigName="summary_carbonio_GIM_2023-05-09.10";
+    myTit="summary 2023-05-09.10 - Carbonio";
+    MonPaths=[...
+        strcat(kPath,"\Area dati MD\00Summary\Carbonio\2023\Maggio\2023.05.09-10\Steering ridotti\GIM\PRC-544-230511-0028_H2-009B-GIM_AllTrig\") 
+        ];
 end
 
 %% check of user input data
@@ -148,9 +152,17 @@ if (exist("shifts","var"))
     end
 end
 % - 3D plot of profiles
-ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels,strcat(myFigPath,"\3Dprofiles_",myFigName,".fig"));
+if (exist("myFigName","var") & ~ismissing(myFigName))
+    ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels,strcat(myFigPath,"\3Dprofiles_",myFigName,".fig"));
+else
+    ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels);
+end
 % - statistics on profiles
-ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit,strcat(myFigPath,"\Stats_",myFigName,".fig"));
+if (exist("myFigName","var") & ~ismissing(myFigName))
+    ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit,strcat(myFigPath,"\Stats_",myFigName,".fig"));
+else
+    ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit);
+end
 % - statistics on profiles vs summary files
 for iDataAcq=1:nDataSets
     switch upper(monTypes(iDataAcq))
@@ -159,9 +171,8 @@ for iDataAcq=1:nDataSets
             CompBars=BARsSumm(:,:,iDataAcq); CompBars(:,:,2)=BARsProf(:,:,iDataAcq);
             CompFwhms=FWHMsSumm(:,:,iDataAcq); CompFwhms(:,:,2)=FWHMsProf(:,:,iDataAcq);
             CompInts=INTsSumm(:,:,iDataAcq); CompInts(:,:,2)=INTsProf(:,:,iDataAcq);
-            % CompXs=mmsSumm(:,iDataAcq);
-            CompXs=(1:size(BARsSumm,1))';
-            CompXs(:,2)=addIndex(:,iDataAcq);
+%             CompXs=mmsSumm(:,iDataAcq); CompXs(:,2)=mmsProf(:,iDataAcq);
+            CompXs=(1:size(BARsSumm,1))'; CompXs(:,2)=addIndex(:,iDataAcq);
             ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),CompXs,addLabel,...
                 ["summary data" "stat on profiles"],missing(),sprintf("%s - %s - summary vs profile stats",myTit,myLabels(iDataAcq)));
     end
