@@ -37,6 +37,7 @@ if (~exist("MonPaths","var"))
     myLabels=[...
         "H2-009B-GIM"
         ];
+    myLabels=monTypes;
     lSkip=false; % DDS summary file: skip first 2 lines (in addition to header line)
     myFigPath=".";
     % part-dependent stuff
@@ -140,37 +141,33 @@ for iDataAcq=1:nDataSets
 end
 
 %% show data
-% addIndex=mmsProf;
-% addLabel="Range [mm]";
+addIndex=mmsProf;
+addLabel="Range [mm]";
 % addIndex=EksProf;
 % addLabel="E_k [MeV/u]";
-addIndex=repmat((1:(size(profiles,2)-1))',[1 size(profiles,4)]);
-addLabel="ID";
+% addIndex=repmat((1:(size(profiles,2)-1))',[1 size(profiles,4)]);
+% addLabel="ID";
 if (exist("shifts","var"))
     for iDataAcq=1:nDataSets
         addIndex(:,iDataAcq)=addIndex(:,iDataAcq)+shifts(iDataAcq);
     end
 end
 % - 3D plot of profiles
-if (exist("myFigName","var") & ~ismissing(myFigName))
-    ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels,strcat(myFigPath,"\3Dprofiles_",myFigName,".fig"));
-else
-    ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels);
-end
+if (exist("myFigPath","var")), myFigSave=strcat(myFigPath,"\3Dprofiles_",myFigName,".fig"); else myFigSave=missing(); end
+ShowSpectra(profiles,sprintf("%s - 3D profiles",myTit),addIndex,addLabel,myLabels,myFigSave);
 % - statistics on profiles
-if (exist("myFigName","var") & ~ismissing(myFigName))
-    ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit,strcat(myFigPath,"\Stats_",myFigName,".fig"));
-else
-    ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit);
-end
+if (exist("myFigPath","var")), myFigSave=strcat(myFigPath,"\Stats_",myFigName,".fig"); else myFigSave=missing(); end
+ShowBeamProfilesSummaryData(BARsProf,FWHMsProf,INTsProf,missing(),addIndex,addLabel,myLabels,missing(),myTit,myFigSave);
 % - statistics on profiles vs summary files
+iDataSumm=0;
 for iDataAcq=1:nDataSets
     switch upper(monTypes(iDataAcq))
         case {"CAM","DDS","GIM"}
+            iDataSumm=iDataSumm+1;
             % - compare summary data and statistics on profiles
-            CompBars=BARsSumm(:,:,iDataAcq); CompBars(:,:,2)=BARsProf(:,:,iDataAcq);
-            CompFwhms=FWHMsSumm(:,:,iDataAcq); CompFwhms(:,:,2)=FWHMsProf(:,:,iDataAcq);
-            CompInts=INTsSumm(:,:,iDataAcq); CompInts(:,:,2)=INTsProf(:,:,iDataAcq);
+            CompBars=BARsSumm(:,:,iDataSumm); CompBars(:,:,2)=BARsProf(:,:,iDataAcq);
+            CompFwhms=FWHMsSumm(:,:,iDataSumm); CompFwhms(:,:,2)=FWHMsProf(:,:,iDataAcq);
+            CompInts=INTsSumm(:,:,iDataSumm); CompInts(:,:,2)=INTsProf(:,:,iDataAcq);
 %             CompXs=mmsSumm(:,iDataAcq); CompXs(:,2)=mmsProf(:,iDataAcq);
             CompXs=(1:size(BARsSumm,1))'; CompXs(:,2)=addIndex(:,iDataAcq);
             ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),CompXs,addLabel,...

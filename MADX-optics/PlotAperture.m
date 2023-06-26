@@ -19,18 +19,12 @@ function PlotAperture(aper,aperOff,aperS,apeMin,apeMax)
     hold on;
     
     % plot grey areas
-    apeMaxUsr=max(ylim);
-    if ( exist('apeMax','var') )
-        apeMaxUsr=apeMax;
-    end
-    apeMinUsr=min(ylim);
-    if ( exist('apeMin','var') )
-        apeMinUsr=apeMin;
-    end
-    patch([aperS fliplr(aperS)], [( aper+aperOff) apeMaxUsr*ones(size(aper))],'r', 'FaceColor','#DCDCDC');
-    patch([aperS fliplr(aperS)], [(-aper+aperOff) apeMinUsr*ones(size(aper))],'r', 'FaceColor','#DCDCDC');
+    if ( ~exist('apeMax','var') ), apeMax=max( aper+aperOff)*1.1; end
+    if ( ~exist('apeMin','var') ), apeMin=min(-aper+aperOff)*1.1; end
+    patch([aperS fliplr(aperS)], [( aper+aperOff) apeMax*ones(size(aper))],'r', 'FaceColor','#DCDCDC');
+    patch([aperS fliplr(aperS)], [(-aper+aperOff) apeMin*ones(size(aper))],'r', 'FaceColor','#DCDCDC');
 
     % additionals
-    ylim([apeMinUsr apeMaxUsr]);
+    ylim([apeMin apeMax]);
 
 end

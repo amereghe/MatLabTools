@@ -26,6 +26,7 @@ function PlotLattice(geometry)
     colK1L=mapping(find(strcmp(colNames,'K1L')));
     colK2L=mapping(find(strcmp(colNames,'K2L')));
     colKey=mapping(find(strcmp(colNames,'KEYWORD')));
+    colName=mapping(find(strcmp(colNames,'NAME')));
     
     % kickers are treated separately
     keywords      =[ "COLLIMATOR" "INSTRUMENT" "MONITOR" "QUADRUPOLE" "RFCAVITY" "SBEND" "RBEND"  "SEXTUPOLE" ];
@@ -69,24 +70,28 @@ function PlotLattice(geometry)
             
             % show name
             if (lShowName(jj))
-                showName(s,ds,geometry{1}(indices(ii)),yPosNames(jj),angleNames(jj));
+                showName(s,ds,geometry{colName}(indices(ii)),yPosNames(jj),angleNames(jj));
             end
             
         end
     end
     
     % KICKERs: special treatement
-    indices=find(contains(geometry{2},'KICKER'));
+    indices=find(contains(geometry{colKey},'KICKER'));
     for ii = 1:length(indices)
         [s,ds]=getSdS(geometry{colS}(indices(ii)),geometry{colL}(indices(ii)));
-        if contains(geometry{1}(indices(ii)),'SP')
+        if contains(geometry{colName}(indices(ii)),'SP')
             % septum
             setBox(s,ds,-0.5,1,'m','k');
-            showName(s,ds,geometry{1}(indices(ii)),1,90);
-        elseif contains(geometry{1}(indices(ii)),'BD')
+            showName(s,ds,geometry{colName}(indices(ii)),1,90);
+        elseif contains(geometry{colName}(indices(ii)),'BD')
             % septum
             setBox(s,ds,-0.5,1,[0.5 0.0 0.5],'k');
-            showName(s,ds,geometry{1}(indices(ii)),1,90);
+            showName(s,ds,geometry{colName}(indices(ii)),1,90);
+        elseif contains(geometry{colName}(indices(ii)),'CHD')
+            % chopper HEBT
+            setBox(s,ds,-0.5,1,'m','k');
+            showName(s,ds,geometry{colName}(indices(ii)),1,90);
         else
             % regular corrector magnet
             setBox(s,ds,-0.5,1,'r','k');
