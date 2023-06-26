@@ -57,15 +57,14 @@ function X=SolveOrbSystem(B,BARs,lDebug)
 end
 
 function X=SolveOrbSystemActual(A,BARsM,lDebug)
-    opts.RECT=true;
-    [X,r]=linsolve(A,BARsM,opts);
-    if ( size(A,2)==3 && r==2 && sum(A(:,3))>0 )
-        if ( lDebug )
-            fprintf("==> new ORB fit %gD, %g points\n",size(A,2),size(A,1));
-        end
-        X=linsolve(A,BARsM,opts); % let MatLab raise the warning
-        if ( lDebug )
-            fprintf("==> done.\n");
-        end
+    if ( lDebug )
+        fprintf("==> new ORB fit %gD, %g points\n",size(A,2),size(A,1));
+    end
+    % solves the linear equation AX = B and minimizes the value of norm(A*X-B).
+    % If several solutions exist to this problem, then lsqminnorm returns the 
+    %   solution that minimizes norm(X)
+    X=lsqminnorm(A,BARsM); 
+    if ( lDebug )
+        fprintf("==> done.\n");
     end
 end
