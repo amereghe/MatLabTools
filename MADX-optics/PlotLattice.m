@@ -41,7 +41,13 @@ function PlotLattice(geometry)
     
     maxS=max(geometry{colS})+geometry{colL}(end);
     minS=min(geometry{colS});
-
+    
+    % auto-detect if S-coordinate is given at the end or at centre of
+    %    element
+    iL=find(geometry{colL}>0);
+    iL=iL(1);
+    lEnd=(geometry{colS}(iL)==geometry{colS}(iL-1)+geometry{colL}(iL));
+    
     % horizontal line, above which elements are displayed
     plot([minS maxS],[0 0],'k');
     
@@ -52,7 +58,7 @@ function PlotLattice(geometry)
         for ii = 1:length(indices)
             
             % get position along line and extension
-            [s,ds]=getSdS(geometry{colS}(indices(ii)),geometry{colL}(indices(ii)));
+            [s,ds]=getSdS(geometry{colS}(indices(ii)),geometry{colL}(indices(ii)),lEnd);
             
             % position of the box
             if ( length(yPosBoxes{jj}) == 2 )
@@ -79,7 +85,7 @@ function PlotLattice(geometry)
     % KICKERs: special treatement
     indices=find(contains(geometry{colKey},'KICKER'));
     for ii = 1:length(indices)
-        [s,ds]=getSdS(geometry{colS}(indices(ii)),geometry{colL}(indices(ii)));
+        [s,ds]=getSdS(geometry{colS}(indices(ii)),geometry{colL}(indices(ii)),lEnd);
         if contains(geometry{colName}(indices(ii)),'SP')
             % septum
             setBox(s,ds,-0.5,1,'m','k');
@@ -106,8 +112,13 @@ function PlotLattice(geometry)
     
 end
 
-function [z,dz]=getSdS(S,L)
-    z=S-L;
+function [z,dz]=getSdS(S,L,lEnd)
+    if (~exist("lEnd","var")), lEnd=true; end % S-coord given at end
+    if (lEnd)
+        z=S-L;
+    else
+        z=S-L/2.;
+    end
     dz=L;
 end
 
