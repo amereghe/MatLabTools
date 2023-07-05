@@ -1,10 +1,8 @@
-function [ losses, nLosses ] = ReadLosses(path2Files,nInitial,delays,nExpected)
-% READLOSSES  Read losses from MAD-X tracking.
+function [ losses, nTotLosses ] = ReadLosses(path2Files,nInitial,delays,nExpected)
+% READLOSSES  Read losses from MAD-X/PTC tracking.
 %
 % example format of line of parsed files:
 %                 NUMBER, TURN, X, PX, Y, PY, T, PT, S, E, ELEMENT
-%
-% [ losses, nLosses ] = ReadLosses(path2Files,nInitial,delays)
 %
 % input arguments:
 %   path2Files: path to files to parse;
@@ -20,53 +18,56 @@ function [ losses, nLosses ] = ReadLosses(path2Files,nInitial,delays,nExpected)
 %
 % output arguments:
 %   losses: cell array of particle coordinates;
-%   nLosses: total number of particles read
+%   nTotLosses: total number of particles read
 
-    losses=[];
-    nLosses=0;
-    if ( exist('delays','var') )
-        kMax=length(delays);
+    if (~exist('nInitial','var')), nInitial=missing(); end
+    if (~exist('delays','var')), delays=missing(); end
+    if (~exist('nExpected','var')), nExpected=missing(); end
+    
+    if (ismissing(nInitial)), cumInitial=0; else cumInitial=cumsum(nInitial); end
+    if (ismissing(delays))
+        kMax=length(path2Files);
     else
-        kMax=1;
-    end
-    if ( exist('nInitial','var') )
-        cumInitial=cumsum(nInitial);
-    end
-    for kk=1:kMax
-        if ( exist('delays','var') )
-            files=dir(sprintf(path2Files,delays(kk)));
-        else
-            files=dir(path2Files);
+        kMax=length(delays);
+        if (length(path2Files)~=kMax)
+            error("Inconsistent number of delays (%d) and paths where to find files (%d)!", ...
+                kMax,length(path2Files));
         end
+    end
+    
+    [ colNames, colUnits, colFacts, mapping, readFormat ] = ...
+        GetColumnsAndMappingTFS("losses");
+    
+    losses=[];
+    nTotLosses=0;
+    for kk=1:kMax
+        files=dir(path2Files(kk));
         for ii=1:length(files)
             lossesFileName=sprintf("%s\\%s",files(ii).folder,files(ii).name);
             fprintf("reading file %s ...\n",lossesFileName);
             fileID = fopen(lossesFileName,'r');
-            tmpLosses = textscan(fileID,'%f %f %f %f %f %f %f %f %f %f %s','HeaderLines',8);
+            tmpLosses = textscan(fileID,readFormat,'HeaderLines',8);
             fclose(fileID);
-            if ( exist('delays','var') )
-                tmpLosses{2}=tmpLosses{2}+delays(kk);
+            if (~ismissing(delays))
+                iCol=mapping(strcmpi(colNames,"TURN"));
+                tmpLosses{iCol}=tmpLosses{iCol}+delays(kk);
             end
-            if ( exist('nInitial','var') )
-                if ( ii>1 )
-                    tmpLosses{1}=tmpLosses{1}+cumInitial(ii-1);
-                end
+            if (~ismissing(nInitial) && ii>1)
+                iCol=mapping(strcmpi(colNames,"NUMBER"));
+                tmpLosses{iCol}=tmpLosses{iCol}+cumInitial(ii-1);
             end
-            nLosses=nLosses+length(tmpLosses{1});
+            nLosses=length(tmpLosses{1});
             if (length(losses)==0)
                 losses=tmpLosses;
             else
-                for jj=1:length(losses)
-                    losses{jj}=[ losses{jj} ; tmpLosses{jj} ];
-                end
+                losses{nTotLosses+1:nTotLosses+nLosses}=tmpLosses;
             end
+            nTotLosses=nTotLosses+nLosses;
         end
     end
-    fprintf("...acquired %u particle losses; \n",nLosses);
+    fprintf("...acquired %u particle losses; \n",nTotLosses);
     
-    if ( exist('nExpected','var') )
-        if ( nLosses > nExpected )
-            warning('...something wrong: I was expecting at most %u points whereas I have parsed %u',nExpected,nLosses);
-        end
+    if ( ~ismissing(nExpected) && nTotLosses>nExpected )
+        warning('...something wrong: I was expecting at most %u points whereas I have parsed %u',nExpected,nTotLosses);
     end
 end

@@ -7,6 +7,7 @@ function [axM,axX,axY]=Plot2DHistograms(showMe,showMe1DX,showMe1DY,xShow,yShow,x
     if ( lHist )
         hh=histogram2('XBinEdges',xShow,'YBinEdges',yShow,...
                       'BinCounts',showMe,'DisplayStyle','tile','ShowEmptyBins','on');
+        view(2); % starts appearing as a 2D plot
     else
         plot(showMe(:,1),showMe(:,2),"k.");
     end
