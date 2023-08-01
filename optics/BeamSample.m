@@ -1,6 +1,6 @@
 function [beamParts]=BeamSample(dType,nParticles,alfa,beta,emiGeo,iNorm,bb,hh)
 %
-% beamParts=float(nParticles,2,nPlanes);
+% beamParts=float(nParticles,2*nPlanes);
 % particle coordinates expressed in physical units, i.e. [m] and [rad]!
 % NB: iNorm,bb,hh only for bar-of-charge (optional arguments)
 %
@@ -34,19 +34,19 @@ function [beamParts]=BeamSample(dType,nParticles,alfa,beta,emiGeo,iNorm,bb,hh)
     end
     
     %% actually sample
-    beamParts=missing(); iBar=0;
+    beamParts=NaN(nParticles,2*nPlanes); iBar=0;
     for iPlane=1:nPlanes
         switch upper(dType(iPlane))
             case {"B","BAR","BAR-OF-CHARGE"}
                 iBar=iBar+1;
-                beamParts=ExpandMat(beamParts,BeamSampleRect(nParticles,bb(iBar),hh(iBar)));
+                beamParts(:,2*iPlane-1:2*iPlane)=BeamSampleRect(nParticles,bb(iBar),hh(iBar));
                 if (iNorm(iBar))
-                    beamParts(:,:,iPlane)=Norm2Phys(beamParts(:,:,iPlane),beta(iPlane),alfa(iPlane),emiGeo(iPlane));
+                    beamParts(:,2*iPlane-1:2*iPlane)=Norm2Phys(beamParts(:,2*iPlane-1:2*iPlane),beta(iPlane),alfa(iPlane),emiGeo(iPlane));
                 end
             case {"D","DELTA","P","POINT"}
-                beamParts=ExpandMat(beamParts,zeros(nParticles,2));
+                beamParts(:,2*iPlane-1:2*iPlane)=zeros(nParticles,2);
             case {"G","GAUSS","GAUSSIAN"}
-                beamParts=ExpandMat(beamParts,BeamSampleGauss(nParticles,alfa(iPlane),beta(iPlane),emiGeo(iPlane)));
+                beamParts(:,2*iPlane-1:2*iPlane)=BeamSampleGauss(nParticles,alfa(iPlane),beta(iPlane),emiGeo(iPlane));
             otherwise
                 error("Unknown distribution type %s!",dType(iPlane));
         end

@@ -1,4 +1,7 @@
 function BeamStatsShow(Counts2D,CountsX,CountsY,xb,yb,what2Analise,lHist,myTitle,contours,contourLabels,units,declared)
+% 
+% Counts2D is either a 2D histogram or a float(nParticles,2*nPlanes) array
+% 
     fprintf("Showing beam statistics...\n");
     
     %% set up
@@ -11,17 +14,6 @@ function BeamStatsShow(Counts2D,CountsX,CountsY,xb,yb,what2Analise,lHist,myTitle
     
     if (ismissing(units)), units=["m" "" "m" "" "m" ""]; end
     if (ismissing(declared)), declared=["X" "PX" "Y" "PY" "T" "PT"]; end
-    if (lHist)
-        % 2D histogram and 1D histograms
-        ShowMe=Counts2D;
-    else
-        % scatter plot and 1D histograms
-        if (ndims(Counts2D)==3)
-            ShowMe=reshape(Counts2D,[size(Counts2D,1) size(Counts2D,2)*size(Counts2D,3)]);
-        else
-            ShowMe=Counts2D;
-        end
-    end
     
     nAnal=size(what2Analise,1);
 
@@ -42,10 +34,10 @@ function BeamStatsShow(Counts2D,CountsX,CountsY,xb,yb,what2Analise,lHist,myTitle
         yLab=sprintf("%s [%s]",what2Analise(iAnal,2),units(iColY));
         if (lHist)
             % 2D histogram and 1D histograms
-            [axM,axX,axY]=Plot2DHistograms(ShowMe(:,:,iAnal),CountsX(:,iAnal),CountsY(:,iAnal),xb(:,iAnal),yb(:,iAnal),xLab,yLab,myConts,lHist,lSquared,lBinEdges);
+            [axM,axX,axY]=Plot2DHistograms(Counts2D(:,:,iAnal),CountsX(:,iAnal),CountsY(:,iAnal),xb(:,iAnal),yb(:,iAnal),xLab,yLab,myConts,lHist,lSquared,lBinEdges);
         else
             % scatter plot and 1D histograms
-            [axM,axX,axY]=Plot2DHistograms(ShowMe(:,[find(iColX) find(iColY)]),CountsX(:,iAnal),CountsY(:,iAnal),xb(:,iAnal),yb(:,iAnal),xLab,yLab,myConts,lHist,lSquared,lBinEdges);
+            [axM,axX,axY]=Plot2DHistograms(Counts2D(:,[find(iColX) find(iColY)]),CountsX(:,iAnal),CountsY(:,iAnal),xb(:,iAnal),yb(:,iAnal),xLab,yLab,myConts,lHist,lSquared,lBinEdges);
         end
         if (~ismissing(contourLabels))
             legend(axM,["Beam" contourLabels],"Location","best");

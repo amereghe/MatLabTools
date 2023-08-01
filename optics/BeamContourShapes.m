@@ -1,4 +1,6 @@
-function [Contours]=BeamContour(dType,alfa,beta,emiGeo,iNorm,bb,hh)
+function [Contours]=BeamContourShapes(dType,alfa,beta,emiGeo,iNorm,bb,hh)
+% BeamContourShapes     defines points along defined shapes, for contouring
+%                           beam samples;
 %
 % Contours=float(nPoints,2,nPlanes);
 % NB: iNorm,bb,hh only for bar-of-charge (optional arguments)
