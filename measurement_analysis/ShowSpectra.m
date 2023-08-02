@@ -33,18 +33,24 @@ function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel,myLabels,myFigSave)
     nPlanes=length(planes);
     [nRows,nCols,lDispHor]=GetNrowsNcols(nPlanes*nDataSets,nPlanes);
     
-    iPlot=0;
+    if (lDispHor)
+        % show planes side by side
+        tiledlayout(nRows,nCols,'TileSpacing','Compact','Padding','Compact'); % minimise whitespace around plots
+    else
+        % show planes on consecutive rows
+        iPlot=0;
+    end
     for iDataSet=1:nDataSets
         for iPlane=1:nPlanes
-            iPlot=iPlot+1;
             if (lDispHor)
                 % show planes side by side
-                jPlot=iPlot;
+                nexttile;
             else
                 % show planes on consecutive rows
+                iPlot=iPlot+1;
                 jPlot=(iPlane-1)*nCols+(nCols*nPlanes)*(ceil(iPlot/(nCols*nPlanes))-1)+mod(iDataSet-1,nCols)+1;
+                subplot(nRows,nCols,jPlot);
             end
-            subplot(nRows,nCols,jPlot);
             if ( ~exist('addIndex','var') & ~exist('addLabel','var') )
                 PlotSpectra(dataSets(:,:,iPlane,iDataSet),BaW);
             else
