@@ -21,7 +21,7 @@ function [axM,axX,axY]=Plot2DHistograms(showMe,showMe1DX,showMe1DY,xINs,yINs,xSh
     axM=subplot('Position', [0.10, 0.10, 0.6, 0.6]);
     if ( lHist )
         hh=histogram2('XBinEdges',xShow,'YBinEdges',yShow,...
-                      'BinCounts',showMe,'DisplayStyle','tile','ShowEmptyBins','on');
+                      'BinCounts',showMe,'FaceColor','flat','ShowEmptyBins','on');
         view(2); % starts appearing as a 2D plot
     else
         plot(showMe(:,1),showMe(:,2),"k.");
@@ -31,7 +31,11 @@ function [axM,axX,axY]=Plot2DHistograms(showMe,showMe1DX,showMe1DY,xINs,yINs,xSh
             for ii=1:size(contours,3)
                 hold on; contourFmt=".-";
                 if (ii<=length(contourFmts)), contourFmt=contourFmts(ii); end
-                plot(contours(:,1,ii),contours(:,2,ii),strcat(contourFmt,"-"));
+                if (lHist)
+                    plot3(contours(:,1,ii),contours(:,2,ii),ones(size(contours(:,1,ii)))*max(hh.Values,[],"all")/2,strcat(contourFmt,"-"));
+                else
+                    plot(contours(:,1,ii),contours(:,2,ii),strcat(contourFmt,"-"));
+                end
             end
         end
     end
