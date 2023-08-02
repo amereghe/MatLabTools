@@ -39,14 +39,14 @@ function [beamParts]=BeamSample(dType,nParticles,alfa,beta,emiGeo,iNorm,bb,hh)
         switch upper(dType(iPlane))
             case {"B","BAR","BAR-OF-CHARGE"}
                 iBar=iBar+1;
-                beamParts(:,2*iPlane-1:2*iPlane)=BeamSampleRect(nParticles,bb(iBar),hh(iBar));
+                beamParts(:,(1:2)+2*(iPlane-1))=BeamSampleRect(nParticles,bb(iBar),hh(iBar));
                 if (iNorm(iBar))
-                    beamParts(:,2*iPlane-1:2*iPlane)=Norm2Phys(beamParts(:,2*iPlane-1:2*iPlane),beta(iPlane),alfa(iPlane),emiGeo(iPlane));
+                    beamParts(:,(1:2)+2*(iPlane-1))=Norm2Phys(beamParts(:,(1:2)+2*(iPlane-1)),beta(iPlane),alfa(iPlane),emiGeo(iPlane));
                 end
             case {"D","DELTA","P","POINT"}
-                beamParts(:,2*iPlane-1:2*iPlane)=zeros(nParticles,2);
+                beamParts(:,(1:2)+2*(iPlane-1))=zeros(nParticles,2);
             case {"G","GAUSS","GAUSSIAN"}
-                beamParts(:,2*iPlane-1:2*iPlane)=BeamSampleGauss(nParticles,alfa(iPlane),beta(iPlane),emiGeo(iPlane));
+                beamParts(:,(1:2)+2*(iPlane-1))=BeamSampleGauss(nParticles,alfa(iPlane),beta(iPlane),emiGeo(iPlane));
             otherwise
                 error("Unknown distribution type %s!",dType(iPlane));
         end
