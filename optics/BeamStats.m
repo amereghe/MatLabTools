@@ -1,4 +1,4 @@
-function [Counts2D,CountsX,CountsY,xb,yb]=BeamStats(particles,what2Analise,declared,xbQuery,ybQuery,contours,contourLabels,myTitle)
+function [Counts2D,CountsX,CountsY,xb,yb,contours,contourLabels]=BeamStats(particles,what2Analise,declared,xbQuery,ybQuery,contours,contourLabels,myTitle)
 % 
 % particles=float(nParticles,2*nPlanes);
 % particle coordinates expressed in physical units, i.e. [m] and [rad]!
@@ -13,10 +13,19 @@ function [Counts2D,CountsX,CountsY,xb,yb]=BeamStats(particles,what2Analise,decla
     if (~exist("myTitle","var") | ismissing(myTitle)), myTitle=missing(); end
     
     %% contours
-    contours=ExpandMat(contours,BeamContourStats(particles,false,declared)); % stat ellypses, RMS
-    contours=ExpandMat(contours,BeamContourStats(particles,true,declared));  % stat ellypses, max single-particle emittance
-    contours=permute(contours,[1 2 4 3]);
-    contourLabels=ExpandMat(contourLabels,["RMS" "Max(\epsilon)"],true); % expand array of labels without increasing number of dimensions
+    % stat ellypses, RMS
+    tmpContour=BeamContourStats(particles,false,declared);
+    if (any(~ismissing(tmpContour)))
+        contours=ExpandMat(contours,tmpContour);
+        contourLabels=ExpandMat(contourLabels,"RMS",true); % expand array of labels without increasing number of dimensions
+    end
+    % stat ellypses, max single-part emittance
+    tmpContour=BeamContourStats(particles,true,declared);
+    if (any(~ismissing(tmpContour)))
+        contours=ExpandMat(contours,tmpContour);
+        contourLabels=ExpandMat(contourLabels,"Max(\epsilon)",true); % expand array of labels without increasing number of dimensions
+    end
+    if (any(~ismissing(contours),"all")), contours=permute(contours,[1 2 4 3]); end
 
     %% actual statistics
     [Counts2D,CountsX,CountsY,xb,yb]=BeamStatsCalc(particles,what2Analise,declared,xbQuery,ybQuery);
