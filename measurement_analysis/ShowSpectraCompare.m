@@ -1,4 +1,4 @@
-function ShowSpectraCompare(profiles,manipulate,xLab,yLab,myLeg)
+function ShowSpectraCompare(profiles,manipulate,xLab,yLab,myLeg,myProfLabels)
 % profiles=float(nBinCentres,1+nProfiles,nSeries)
 
     %% interface vars
@@ -6,6 +6,7 @@ function ShowSpectraCompare(profiles,manipulate,xLab,yLab,myLeg)
     if ( ~exist("yLab","var") | ismissing(yLab) ), yLab=missing(); end
     if ( ~exist("xLab","var") | ismissing(xLab) ), xLab=missing(); end
     if ( ~exist("myLeg","var") | ismissing(myLeg) ), myLeg=missing(); end
+    if ( ~exist("myProfLabels","var") | all(ismissing(myProfLabels)) ), myProfLabels=missing(); end
     if (~ismissing(manipulate))
         for iMan=1:length(manipulate)
             switch upper(manipulate(iMan))
@@ -26,7 +27,7 @@ function ShowSpectraCompare(profiles,manipulate,xLab,yLab,myLeg)
     %% set up
     nProfiles=size(profiles,2)-1;
     nDataSets=size(profiles,3);
-    if (~ismissing(myLeg))
+    if (nProfiles>6)
         [nRows,nCols]=GetNrowsNcols(nProfiles+1);
     else
         [nRows,nCols]=GetNrowsNcols(nProfiles);
@@ -42,6 +43,7 @@ function ShowSpectraCompare(profiles,manipulate,xLab,yLab,myLeg)
     % - profiles
     for iProfile=1:nProfiles
         nexttile;
+        myRange=NaN(nDataSets,2);
         for iDataSet=1:nDataSets
             if (iDataSet>1), hold on; end
             showX=profiles(:,1,iDataSet);
@@ -58,12 +60,21 @@ function ShowSpectraCompare(profiles,manipulate,xLab,yLab,myLeg)
                     end
                 end
             end
-            bar(showX,showY,1,"FaceColor","none","EdgeColor",cm(iDataSet,:));
+            bar(showX,showY,1,"FaceColor","none","EdgeColor",cm(iDataSet,:),"LineWidth",1/iDataSet);
+            myRange(iDataSet,1)=showX(find(showY>0,1,"first")); % min xVal with a non-zero yVal
+            myRange(iDataSet,2)=showX(find(showY>0,1,"last"));  % max xVal with a non-zero yVal
         end
-        xlabel(xLab); ylabel(yLab); grid on; title(sprintf("profile %d",iProfile));
+        xlabel(xLab); ylabel(yLab); grid on;
+        if (any(~ismissing(myProfLabels)))
+            title(myProfLabels(iProfile));
+        else
+            title(sprintf("profile %d",iProfile));
+        end
+        xlim([min(myRange(:,1)) max(myRange(:,2))]);
+        if (nProfiles<=6), legend(myLeg,"Location","best"); end
     end
     % - legend plot
-    if (~ismissing(myLeg))
+    if (nProfiles>6)
         nexttile;
         for iDataSet=1:nDataSets
             if (iDataSet>1), hold on; end
