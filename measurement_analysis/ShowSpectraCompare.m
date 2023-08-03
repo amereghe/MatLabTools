@@ -26,8 +26,8 @@ function ShowSpectraCompare(profiles,manipulate,xLab,yLab,myLeg,myProfLabels)
 
     %% set up
     nProfiles=size(profiles,2)-1;
-    nDataSets=size(profiles,3);
-    if (nProfiles>6)
+    nDataSets=size(profiles,3)-1; % first profile taken as "reference"
+    if (nDataSets>3)
         [nRows,nCols]=GetNrowsNcols(nProfiles+1);
     else
         [nRows,nCols]=GetNrowsNcols(nProfiles);
@@ -60,9 +60,15 @@ function ShowSpectraCompare(profiles,manipulate,xLab,yLab,myLeg,myProfLabels)
                     end
                 end
             end
-            bar(showX,showY,1,"FaceColor","none","EdgeColor",cm(iDataSet,:),"LineWidth",1/iDataSet);
-            myRange(iDataSet,1)=showX(find(showY>0,1,"first")); % min xVal with a non-zero yVal
-            myRange(iDataSet,2)=showX(find(showY>0,1,"last"));  % max xVal with a non-zero yVal
+            if (iDataSet==1)
+                bar(showX,showY,1,"FaceColor","black","EdgeColor","black");
+            else
+                bar(showX,showY,1,"FaceColor","none","EdgeColor",cm(iDataSet-1,:),"LineWidth",1/iDataSet);
+            end
+            myMin=find(showY>0,1,"first"); % min xVal with a non-zero yVal
+            if (isempty(myMin)), myRange(iDataSet,1)=min(showX); else, myRange(iDataSet,1)=showX(myMin); end
+            myMax=find(showY>0,1,"last"); % max xVal with a non-zero yVal
+            if (isempty(myMax)), myRange(iDataSet,2)=max(showX); else, myRange(iDataSet,2)=showX(myMax); end
         end
         xlabel(xLab); ylabel(yLab); grid on;
         if (any(~ismissing(myProfLabels)))
@@ -71,14 +77,14 @@ function ShowSpectraCompare(profiles,manipulate,xLab,yLab,myLeg,myProfLabels)
             title(sprintf("profile %d",iProfile));
         end
         xlim([min(myRange(:,1)) max(myRange(:,2))]);
-        if (nProfiles<=6), legend(myLeg,"Location","best"); end
+        if (nDataSets<=3 & ~ismissing(myLeg) & iProfile==1), legend(myLeg,"Location","best"); end
     end
     % - legend plot
-    if (nProfiles>6)
+    if (nDataSets>3 & ~ismissing(myLeg))
         nexttile;
+        bar(NaN(),NaN(),1,"FaceColor","black");
         for iDataSet=1:nDataSets
-            if (iDataSet>1), hold on; end
-            plot(NaN(),NaN(),".-","Color",cm(iDataSet,:)); hold on;
+            hold on; bar(NaN(),NaN(),1,"FaceColor","none","EdgeColor",cm(iDataSet,:));
         end
         legend(myLeg,"Location","best");
     end
