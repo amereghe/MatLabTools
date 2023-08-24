@@ -39,6 +39,8 @@ function ShowSpectraCompare(profiles,manipulate,xLab,yLab,myLeg,myProfLabels)
     cm=colormap(jet(nDataSets));
     tiledlayout(nRows,nCols,'TileSpacing','Compact','Padding','Compact'); % minimise whitespace around plots
     
+    fprintf("Comparing %d profiles from %d datasets...\n",nProfiles,nDataSets);
+
     %% actually plot
     % - profiles
     for iProfile=1:nProfiles
@@ -88,4 +90,6 @@ function ShowSpectraCompare(profiles,manipulate,xLab,yLab,myLeg,myProfLabels)
         end
         legend(myLeg,"Location","best");
     end
+    
+    fprintf("...done;\n");
 end
