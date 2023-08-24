@@ -1,4 +1,4 @@
-function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel,myLabels,myFigSave,iMod)
+function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel,myLabels,myFigSave,iMod,iNotShow)
 % ShowSpectra     shows distributions recorded by SFM, QBM and GIM;
 %                 it shows a 1x2 3D figure, with the distributions on the
 %                   horizontal plane on the left and those on the vertical
@@ -25,24 +25,29 @@ function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel,myLabels,myFigSave,i
 %   . 1: colored histograms in a 3D view;
 %   . 2: sinogram-like view;
 %   . 3: 3D sinogram-like;
+% - iNotShow: do not show specific rows or columns:
+%   . (array of booleans): length(iNotShow)=length(xs);
+%   . (array of integers): length(iNotShow)<=length(xs);
 %
 % see also ParseSFMData, PlotSpectra and SumSpectra.
 
     fprintf("plotting data...\n");
 
     %% pre-processing
+    nDataSets=size(dataSets,4);
+    planes=["horizontal plane" "vertical plane"];
+    nPlanes=length(planes);
+    
     if (~exist("addIndex","var") | all(ismissing(addIndex))), addIndex=missing(); end
     if (~exist("addLabel","var") | all(ismissing(addLabel))), addLabel=missing(); end
     if (~exist("myLabels","var") | all(ismissing(addLabel))), myLabels=missing(); end
     if (~exist("myFigSave","var")), myFigSave=missing(); end
     if (~exist('iMod','var') | ismissing(iMod)), iMod=1; end
+    if (~exist("iNotShow","var")), iNotShow=NaN(1,nPlanes); end
     
     %% actually plotting
     ff=figure('Name',LabelMe(tmpTitleFig),'NumberTitle','off');
     BaW=false; % always use colored plots
-    nDataSets=size(dataSets,4);
-    planes=["horizontal plane" "vertical plane"];
-    nPlanes=length(planes);
     [nRows,nCols,lDispHor]=GetNrowsNcols(nPlanes*nDataSets,nPlanes);
     
     if (lDispHor)
@@ -64,9 +69,9 @@ function ShowSpectra(dataSets,tmpTitleFig,addIndex,addLabel,myLabels,myFigSave,i
                 subplot(nRows,nCols,jPlot);
             end
             if ( ismissing(addIndex) & ismissing(addLabel) )
-                PlotSpectra(dataSets(:,:,iPlane,iDataSet),BaW,missing(),missing(),iMod);
+                PlotSpectra(dataSets(:,:,iPlane,iDataSet),BaW,missing(),missing(),iMod,iNotShow(:,iPlane));
             else
-                PlotSpectra(dataSets(:,:,iPlane,iDataSet),BaW,addIndex(:,iDataSet),addLabel,iMod);
+                PlotSpectra(dataSets(:,:,iPlane,iDataSet),BaW,addIndex(:,iDataSet),addLabel,iMod,iNotShow(:,iPlane));
             end
             if (ismissing(myLabels))
                 title(planes(iPlane));
