@@ -41,7 +41,9 @@ function tfsTable = ParseTfsTable(fileNames,whichTFS,genBy)
     else
         switch upper(genBy)
             case "TWISS"
-                nHeader=48;
+                nHeader=48; % 52; % 48;
+            case "PTC_TWISS"
+                nHeader=90;
             case "SCAN"
                 nHeader=1;
             otherwise
