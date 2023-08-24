@@ -1,8 +1,9 @@
-function [Contours]=BeamContourShapes(dType,alfa,beta,emiGeo,iNorm,bb,hh)
+function [Contours]=BeamContourShapes(dType,alfa,beta,emiGeo,CO,iNorm,bb,hh)
 % BeamContourShapes     defines points along defined shapes, for contouring
 %                           beam samples;
 %
 % Contours=float(nPoints,2,nPlanes);
+% CO added only if provided
 % NB: iNorm,bb,hh only for bar-of-charge (optional arguments)
 %
     fprintf("Contouring beam...\n");
@@ -18,6 +19,15 @@ function [Contours]=BeamContourShapes(dType,alfa,beta,emiGeo,iNorm,bb,hh)
     end
     if (nPlanes~=length(emiGeo))
         error("Incosistent number of types (%d) and geometric emittances (%d) (including NaNs)!",nPlanes,length(emiGeo));
+    end
+    if (~exist("CO","var") | all(ismissing(CO)))
+        CO=zeros(2*nPlanes,1);
+    else
+        if (length(CO)~=2*nPlanes)
+            error("Incosistent number of dimensions (%d) and CO specifications (%d)!",2*nPlanes,length(CO));
+        end
+        % avoid NaNs
+        CO(ismissing(CO))=0.0;
     end
     % - specific to BAR-of-charge
     nBars=sum(strcmpi(dType,"BAR"));
@@ -35,10 +45,11 @@ function [Contours]=BeamContourShapes(dType,alfa,beta,emiGeo,iNorm,bb,hh)
     end
     
     %% actually contour
-    Contours=missing();
+    Contours=missing(); iBar=0;
     for iPlane=1:nPlanes
         switch upper(dType(iPlane))
             case {"B","BAR","BAR-OF-CHARGE"}
+                iBar=iBar+1;
                 Contours=ExpandMat(Contours,GenPointsAlongRectangle(bb(iBar),hh(iBar)));
                 if (iNorm(iBar))
                     Contours(:,:,iPlane)=Norm2Phys(Contours(:,:,iPlane),beta(iPlane),alfa(iPlane),emiGeo(iPlane));
@@ -49,6 +60,14 @@ function [Contours]=BeamContourShapes(dType,alfa,beta,emiGeo,iNorm,bb,hh)
                 Contours=ExpandMat(Contours,GenPointsAlongEllypse(alfa(iPlane),beta(iPlane),emiGeo(iPlane)));
             otherwise
                 error("Unknown distribution type %s!",dType(iPlane));
+        end
+    end
+    
+    %% add closed orbit
+    if (any(CO~=0.0))
+        fprintf("...adding closed orbit...;\n");
+        for iPlane=1:nPlanes
+            Contours(:,:,iPlane)=Contours(:,:,iPlane)+CO((1:2)+2*(iPlane-1));
         end
     end
     

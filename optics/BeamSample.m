@@ -1,7 +1,8 @@
-function [beamParts]=BeamSample(dType,nParticles,alfa,beta,emiGeo,iNorm,bb,hh)
+function [beamParts]=BeamSample(dType,nParticles,alfa,beta,emiGeo,CO,iNorm,bb,hh)
 %
 % beamParts=float(nParticles,2*nPlanes);
 % particle coordinates expressed in physical units, i.e. [m] and [rad]!
+% CO added only if provided
 % NB: iNorm,bb,hh only for bar-of-charge (optional arguments)
 %
     fprintf("Generating beam of %d particles...\n",nParticles);
@@ -17,6 +18,15 @@ function [beamParts]=BeamSample(dType,nParticles,alfa,beta,emiGeo,iNorm,bb,hh)
     end
     if (nPlanes~=length(emiGeo))
         error("Incosistent number of types (%d) and geometric emittances (%d) (including NaNs)!",nPlanes,length(emiGeo));
+    end
+    if (~exist("CO","var") | all(ismissing(CO)))
+        CO=zeros(2*nPlanes,1);
+    else
+        if (length(CO)~=2*nPlanes)
+            error("Incosistent number of dimensions (%d) and CO specifications (%d)!",2*nPlanes,length(CO));
+        end
+        % avoid NaNs
+        CO(ismissing(CO))=0.0;
     end
     % - specific to BAR-of-charge
     nBars=sum(strcmpi(dType,"BAR"));
@@ -50,6 +60,12 @@ function [beamParts]=BeamSample(dType,nParticles,alfa,beta,emiGeo,iNorm,bb,hh)
             otherwise
                 error("Unknown distribution type %s!",dType(iPlane));
         end
+    end
+    
+    %% add closed orbit
+    if (any(CO~=0.0))
+        fprintf("...adding closed orbit...;\n");
+        beamParts=beamParts+CO;
     end
     
     %% done

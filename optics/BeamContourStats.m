@@ -28,9 +28,9 @@ function [Contours]=BeamContourStats(particles,emiMax,declared,what2Analise)
         if ( any(contains(["X" "Y"],what2Analise(iPlane,1),"IgnoreCase",true)) && any(contains(what2Analise(iPlane,2),"P","IgnoreCase",true)) && ...
              (all(contains(what2Analise(iPlane,:),"X","IgnoreCase",true)) || all(contains(what2Analise(iPlane,:),"Y","IgnoreCase",true))) )
             % be sure that we are dealing with hor/ver phase space
-            [alpha,beta,emiG]=GetOpticsFromSigmaMatrix(particles(:,[iColX iColY])); % ellypse orientation and RMS emittance
-            if (emiMax), emiG=max(GetSinglePartEmittance(particles(:,[iColX iColY]),alpha,beta));  end % max single-part emittance
-            Contours=ExpandMat(Contours,GenPointsAlongEllypse(alpha,beta,emiG));
+            [alpha,beta,emiG,~,bars]=GetOpticsFromSigmaMatrix(particles(:,[iColX iColY])); % ellypse orientation and RMS emittance
+            if (emiMax), emiG=max(GetSinglePartEmittance(particles(:,[iColX iColY])-bars,alpha,beta));  end % max single-part emittance
+            Contours=ExpandMat(Contours,GenPointsAlongEllypse(alpha,beta,emiG)+bars);
         else
             warning("Cannot find an optics ellypse on plane (%s,%s);",what2Analise(iPlane,1),what2Analise(iPlane,2));
         end
