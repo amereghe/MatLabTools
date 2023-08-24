@@ -53,6 +53,7 @@ if (~exist("MonPaths","var"))
     MonPaths=[...
         strcat(kPath,"\Area dati MD\00Summary\Carbonio\2023\Maggio\2023.05.09-10\Steering ridotti\GIM\PRC-544-230511-0028_H2-009B-GIM_AllTrig\") 
         ];
+    vsX="EK"; % ["Ek"/"En"/"Energy","mm"/"r"/"range","ID"/"IDs"]
 end
 
 %% check of user input data
@@ -70,6 +71,7 @@ if (length(monTypes)~=nDataSets)
         error("please specify a label for each data set");
     end
 end
+if (~exist("vsX","var")), vsX="mm"; end
 
 %% clear storage
 % - clear summary data
@@ -141,12 +143,19 @@ for iDataAcq=1:nDataSets
 end
 
 %% show data
-addIndex=mmsProf;
-addLabel="Range [mm]";
-% addIndex=EksProf;
-% addLabel="E_k [MeV/u]";
-% addIndex=repmat((1:(size(profiles,2)-1))',[1 size(profiles,4)]);
-% addLabel="ID";
+switch upper(vsX)
+    case {"EK","EN","ENERGY"}
+        addIndex=EksProf;
+        addLabel="E_k [MeV/u]";
+    case {"ID","IDS"}
+        addIndex=repmat((1:(size(profiles,2)-1))',[1 size(profiles,4)]);
+        addLabel="ID";
+    case {"MM","R","RANGE"}
+        addIndex=mmsProf;
+        addLabel="Range [mm]";
+    otherwise
+        error("Cannot recognise what you want as X-axis in summary overviews: %s!",vsX);
+end
 if (exist("shifts","var"))
     for iDataAcq=1:nDataSets
         addIndex(:,iDataAcq)=addIndex(:,iDataAcq)+shifts(iDataAcq);
@@ -168,8 +177,16 @@ for iDataAcq=1:nDataSets
             CompBars=BARsSumm(:,:,iDataSumm); CompBars(:,:,2)=BARsProf(:,:,iDataAcq);
             CompFwhms=FWHMsSumm(:,:,iDataSumm); CompFwhms(:,:,2)=FWHMsProf(:,:,iDataAcq);
             CompInts=INTsSumm(:,:,iDataSumm); CompInts(:,:,2)=INTsProf(:,:,iDataAcq);
-%             CompXs=mmsSumm(:,iDataAcq); CompXs(:,2)=mmsProf(:,iDataAcq);
-            CompXs=(1:size(BARsSumm,1))'; CompXs(:,2)=addIndex(:,iDataAcq);
+            switch upper(vsX)
+                case {"EK","EN","ENERGY"}
+                    CompXs=EksSumm(:,iDataAcq); CompXs(:,2)=EksProf(:,iDataAcq);
+                case {"ID","IDS"}
+                    CompXs=(1:size(BARsSumm,1))'; CompXs(:,2)=addIndex(:,iDataAcq);
+                case {"MM","R","RANGE"}
+                    CompXs=mmsSumm(:,iDataAcq); CompXs(:,2)=mmsProf(:,iDataAcq);
+                otherwise
+                    error("Cannot recognise what you want as X-axis in summary overviews: %s!",vsX);
+            end
             ShowBeamProfilesSummaryData(CompBars,CompFwhms,CompInts,missing(),CompXs,addLabel,...
                 ["summary data" "stat on profiles"],missing(),sprintf("%s - %s - summary vs profile stats",myTit,myLabels(iDataAcq)));
     end

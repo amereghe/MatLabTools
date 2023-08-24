@@ -1,4 +1,4 @@
-function MyPoints=BeamSample_Rect(nPoints,bb,hh)
+function MyPoints=BeamSampleRect(nPoints,bb,hh)
 % BeamSample_Rect(nPoints,bb,hh)     generates points inside an optics
 %                                        rectangle (e.g. bar of charge),
 %                                        uniformly distributed;

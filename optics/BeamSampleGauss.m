@@ -1,4 +1,4 @@
-function MyPoints=BeamSample_Gauss(nPoints,alpha,beta,emiG)
+function MyPoints=BeamSampleGauss(nPoints,alpha,beta,emiG)
 % BeamSample_Gauss(nPoints,alpha,beta,emiG)     generates points with a 2D 
 %                                          Gaussian distribution filling the
 %                                          ellypse described by the given optics

@@ -1,4 +1,4 @@
-function PlotSpectra(dataSets,BaW,addIndex,addLabel)
+function PlotSpectra(dataSets,BaW,addIndex,addLabel,iMod)
 % PlotSpectra     plots distributions/histograms in a 3D space with a free parameter;
 %                 this plotting function can be useful to explore eg
 %                   spectra taken during scans;
@@ -15,29 +15,48 @@ function PlotSpectra(dataSets,BaW,addIndex,addLabel)
 % - addIndex [float(nColumns-1), optional]: list of IDs to be shown;
 %   it can be used to separate distribution by cyProg or cyCode;
 % - addLabel [string, optional]: name of the y-axis;
+% - iMod [integer, optional]: type of plot:
+%   . 1: colored histograms in a 3D view;
+%   . 2: sinogram-like view;
+%   . 3: 3D sinogram-like;
 %
 % see also ParseSFMData, ShowSpectra and SumSpectra.
 %
+
+    %% pre-processing
     nDataSets=size(dataSets,2)-1;
-    if ( ~exist('BaW','var') )
-        BaW=false;
+    if ( ~exist('BaW','var') ), BaW=false; end
+    if ( ~exist('addIndex','var') | all(ismissing(addIndex)) ), addIndex=1:nDataSets; end
+    if ( ~exist('addLabel','var') | all(ismissing(addLabel)) ), addLabel="ID"; end
+    if ( ~exist('iMod','var') | ismissing(iMod) ), iMod=1; end
+
+    %% actually plot
+    switch iMod
+        case 1
+            % colored histograms in a 3D view
+            if ( BaW )
+                cm=gray(nDataSets);
+            else
+                cm=colormap(parula(nDataSets));
+            end
+            for iSet=1:nDataSets
+                if (iSet>1), hold on; end
+                PlotSpectrum(dataSets(:,1),dataSets(:,1+iSet),addIndex(iSet),cm(iSet,:));
+            end
+            ylabel(LabelMe(addLabel));
+        case 2
+            % sinogram-like view
+            l3D=false;
+            PlotSinogram(addIndex,dataSets(:,1),dataSets(:,2:end),l3D);
+            xlabel(LabelMe(addLabel));
+        case 3
+            % 3D sinogram-like
+            l3D=true;
+            PlotSinogram(addIndex,dataSets(:,1),dataSets(:,2:end),l3D);
+            xlabel(LabelMe(addLabel));
+        otherwise
+            error("Wrong mode! %d",iMod);
     end
-    if ( BaW )
-        cm=gray(nDataSets);
-    else
-        cm=colormap(parula(nDataSets));
-    end
-    if ( ~exist('addIndex','var') )
-        addIndex=1:nDataSets;
-    end
-    if ( ~exist('addLabel','var') )
-        addLabel="ID";
-    end
-    for iSet=1:nDataSets
-        PlotSpectrum(dataSets(:,1),dataSets(:,1+iSet),addIndex(iSet),cm(iSet,:));
-        hold on;
-    end
-    ylabel(LabelMe(addLabel));
     grid on;
 end
 
