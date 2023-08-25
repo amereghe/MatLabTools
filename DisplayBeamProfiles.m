@@ -24,8 +24,8 @@ if (~exist("MonPaths","var"))
     % default stuff
     % -------------------------------------------------------------------------
     % - include Matlab libraries
-%     pathToLibrary=".\";
-%     addpath(genpath(pathToLibrary));
+    pathToLibrary=".\";
+    addpath(genpath(pathToLibrary));
     % - clear settings
     clear kPath myTit monTypes MonPaths myLabels
 
@@ -68,8 +68,8 @@ if (~exist("MonPaths","var"))
 %         strcat(kPath,"\Area dati MD\00Summary\Carbonio\2023\Maggio\2023.05.09-10\Steering ridotti\GIM\PRC-544-230511-0028_H2-009B-GIM_AllTrig\") 
 %         ];
     vsX="ID"; % ["Ek"/"En"/"Energy","mm"/"r"/"range","ID"/"IDs"]
-    iNotShow=false(127,2);
-    iNotShow(1:2,1)=true; % do not show left-most fibers on hor plane (broken)
+    iNotShow=false(127,2); 
+    iNotShow(1:2,1)=true;  % do not show left-most fibers on hor plane (broken)
 end
 
 %% check of user input data
