@@ -19,6 +19,8 @@
 % - include Matlab libraries
 % pathToLibrary=".\";
 % addpath(genpath(pathToLibrary));
+clear all;
+close all;
 
 %% USER's input data
 % -------------------------------------------------------------------------
@@ -34,9 +36,17 @@ monTypes="CAMdumps";
 % skip fibers/channels?
 iNotCons=false(127,2); 
 iNotCons(1:2,1)=true;  % do not consider left-most fibers on hor plane (broken)
+lConcatenate=true;
+
+%% check USER's input data
+% -------------------------------------------------------------------------
+if (~exist("lConcatenate","var")), lConcatenate=false; end
+if (~exist("iNotCons","var")), iNotCons=NaN(1,2); end
 
 %% acquire profiles
 [tmpDiffProfiles,tmpCyCodesProf,tmpCyProgsProf,tmpTimes]=ParseBeamProfiles(MonPaths,monTypes);
+% tmpTimes=BeamProfilesAlignTimes(tmpTimes); % align time frames
+[tmpDiffProfiles,tmpTimes]=BeamProfilesConcatenateTimes(tmpDiffProfiles,tmpTimes); % concatenate profiles
 
 %% set to 0.0 channels to be ignored and get integrals
 profsToCrunch=tmpDiffProfiles;
