@@ -159,6 +159,7 @@ function [measData,cyCodes,cyProgs,times]=ParseBeamProfiles(paths2Files,fFormat)
                     measData(1:Ny,2:nRows+1,2,actualDataSets)=tmp(:,Nx+2:Nx+1+Ny)'; % values
                     % t-stamps
                     times(1:nRows,actualDataSets)=tmp(:,1)';
+                    times(nRows+1:end,actualDataSets)=NaN();
                 case "DDS"
                     nAcq=nAcq+1;
                     fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
@@ -207,6 +208,7 @@ function [measData,cyCodes,cyProgs,times]=ParseBeamProfiles(paths2Files,fFormat)
                     tmpCyCode=extractBetween(tmpCyCode,5,strlength(tmpCyCode));
                     % t-stamps
                     times(1:nCols-1,actualDataSets)=(0:10:(nCols-2)*10)';
+                    times(nCols:end,actualDataSets)=NaN();
                 case {"PMM","PIB"}
                     if (strfind(files(iSet).name,"Norm"))
                         fprintf("   ...skipping Norm file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
@@ -231,6 +233,7 @@ function [measData,cyCodes,cyProgs,times]=ParseBeamProfiles(paths2Files,fFormat)
                     measData(1:Ny,1:nMaxCols,2,actualDataSets)=tmp(1:Ny,1+2:2+nMaxCols); % values
                     % t-stamps
                     times(1:nCols-1,actualDataSets)=(0:10:(nCols-2)*10)';
+                    times(nCols:end,actualDataSets)=NaN();
                 case {"QBM","QPP","SFH","SFM","SFP"}
                     nAcq=nAcq+1;
                     fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
@@ -257,6 +260,7 @@ function [measData,cyCodes,cyProgs,times]=ParseBeamProfiles(paths2Files,fFormat)
                     end
                     % t-stamps
                     times(1:nCols-1,actualDataSets)=(0:10:(nCols-2)*10)';
+                    times(nCols:end,actualDataSets)=NaN();
             end
             % store cycle prog and cycle code
             cyProgs(actualDataSets)=tmpCyProg;
