@@ -24,8 +24,10 @@ if (~exist("MonPaths","var"))
     % default stuff
     % -------------------------------------------------------------------------
     % - include Matlab libraries
-    pathToLibrary=".\";
-    addpath(genpath(pathToLibrary));
+    if (~exist("pathToLibrary","var"))
+        pathToLibrary=".\";
+        addpath(genpath(pathToLibrary));
+    end
     % - clear settings
     clear kPath myTit monTypes MonPaths myLabels
 
