@@ -1,4 +1,4 @@
-function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
+function [measData,cyCodes,cyProgs,times]=ParseBeamProfiles(paths2Files,fFormat)
 % ParseBeamProfiles     parses distributions recorded by CAM, CAMdumps, DDS,
 %                          GIM, PIB/PMM, QBM and QPP/SFH/SFM/SFP;
 %                       for the time being, the function does not parse QIM data
@@ -10,14 +10,18 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
 %   parameter sets formats for reading data; default: SFM
 %
 % output:
-% - measData [float(max(Nx,Ny),maxColumns,2,nDataSets)]: array of data;
+% - measData [float(max(Nx,Ny),nMaxCols,2,nDataSets)]: array of data;
 %   . Nx,Ny: number of hor/ver fibers;
-%   . maxColumns: number of time acquisitions + values of X (first column);
+%   . nMaxCols: number of time acquisitions + values of X (first column [mm]);
 %     in case of CAM/DDS, there is only an acquisition per plane;
 %   . 2: planes: 1: hor; 2: ver;
 %   . nDataSets: number of files;
 % - cyCodes [string(nDataSets,1)]: array of cycle codes;
 % - cyProgs [float(nDataSets,1)]: array of cycle progs;
+% - times [float(nTimeFrames,nDataSets)]: array of time stamps of frames [ms];
+%                                         useful only for those monitors
+%                                         with a time resolution, i.e. all
+%                                         but DDS and CAMeretta
 %
 % cyCodes and cyProgs are taken from the file name. Therefore, in case of
 %   PIB/PMM data, only the latter will be available
@@ -26,41 +30,42 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
     %% format
     if ( ~exist('fFormat','var') ), fFormat="SFM"; end % default: SFM
     % data structure (please check function docstring)
+    nMaxColsActual=0; % to downsize output matrix
     switch upper(fFormat)
         case "CAM"
             Nx=127; Ny=127;
-            maxColumns=2;
+            nMaxCols=2;
         case "CAMDUMPS"
             Nx=127; Ny=127;
-            maxColumns=1000;    % actually a tentative number
-            maxColumnsActual=0; % to downsize output matrix
+            nMaxCols=1000;    % actually a tentative number
         case "DDS"
             Nx=128; Ny=128;
-            maxColumns=2;
+            nMaxCols=2;
         case "GIM"
             Nx=127; Ny=127;
-            maxColumns=300;
+            nMaxCols=1000;    % actually a tentative number
         case {"PIB","PMM"}
             Nx=32;  Ny=32;
-            maxColumns=2;
+            nMaxCols=2;
         case "QBM"
             Nx=34;  Ny=45;
-            maxColumns=59;
+            nMaxCols=1000;    % actually a tentative number
         case {"QPP","SFP"}
             Nx=128; Ny=128;
-            maxColumns=59;
+            nMaxCols=1000;    % actually a tentative number
         case {"SFH","SFM"}
             Nx=64;  Ny=64;
-            maxColumns=59;
+            nMaxCols=1000;    % actually a tentative number
         otherwise
             error("wrong indication of format of file: %s. Can only be CAM, DDS, GIM, PIB/PMM, QBM and QPP/SFH/SFM/SFP",fFormat);
     end
     
     %% data storage
     actualDataSets=1;
-    measData=NaN(max(Nx,Ny),maxColumns,2,actualDataSets);
+    measData=NaN(max(Nx,Ny),nMaxCols,2,actualDataSets);
     cyProgs=NaN(actualDataSets,1);
     cyCodes=strings(actualDataSets,1);
+    times=NaN(nMaxCols,actualDataSets);
 
     %% actually parse
     for iPath=1:length(paths2Files)
@@ -145,13 +150,15 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
                     tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'HeaderLines',2,'MultipleDelimsAsOne',true));
                     % actual number of rows in file (ie frames+1)
                     nRows=size(tmp,1);
-                    if (nRows>maxColumnsActual), maxColumnsActual=nRows; end
+                    if (nRows>nMaxColsActual), nMaxColsActual=nRows; end
                     % x-axis values
                     measData(1:Nx,1,1,actualDataSets)=(-63:63)';              % fiber positions
                     measData(1:Nx,2:nRows+1,1,actualDataSets)=tmp(:,2:Nx+1)'; % values
                     % y-axis values
                     measData(1:Ny,1,2,actualDataSets)=(-63:63)';                    % fiber positions
                     measData(1:Ny,2:nRows+1,2,actualDataSets)=tmp(:,Nx+2:Nx+1+Ny)'; % values
+                    % t-stamps
+                    times(1:nRows,actualDataSets)=tmp(:,1)';
                 case "DDS"
                     nAcq=nAcq+1;
                     fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
@@ -190,13 +197,16 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
                     %
                     tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'HeaderLines',1,'MultipleDelimsAsOne',true));
                     % actual number of columns in file (ie frames+1)
-                    nColumns=size(tmp,2);
+                    nCols=size(tmp,2);
+                    if (nCols>nMaxColsActual), nMaxColsActual=nCols; end
                     % x-axis values
-                    measData(1:Nx,1:nColumns,1,actualDataSets)=tmp(1:Nx,1:nColumns); % values
+                    measData(1:Nx,1:nCols,1,actualDataSets)=tmp(1:Nx,1:nCols); % values
                     % y-axis values
-                    measData(1:Ny,1:nColumns,2,actualDataSets)=tmp(Nx+2:Nx+1+Ny,1:nColumns); % values
+                    measData(1:Ny,1:nCols,2,actualDataSets)=tmp(Nx+2:Nx+1+Ny,1:nCols); % values
                     % check cycle code
                     tmpCyCode=extractBetween(tmpCyCode,5,strlength(tmpCyCode));
+                    % t-stamps
+                    times(1:nCols-1,actualDataSets)=(0:10:(nCols-2)*10)';
                 case {"PMM","PIB"}
                     if (strfind(files(iSet).name,"Norm"))
                         fprintf("   ...skipping Norm file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
@@ -216,9 +226,11 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
                     %
                     tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'MultipleDelimsAsOne',true));
                     % x-axis values
-                    measData(1:Nx,1:maxColumns,1,actualDataSets)=tmp(1:Nx,1:maxColumns); % values
+                    measData(1:Nx,1:nMaxCols,1,actualDataSets)=tmp(1:Nx,1:nMaxCols); % values
                     % y-axis values
-                    measData(1:Ny,1:maxColumns,2,actualDataSets)=tmp(1:Ny,1+2:2+maxColumns); % values
+                    measData(1:Ny,1:nMaxCols,2,actualDataSets)=tmp(1:Ny,1+2:2+nMaxCols); % values
+                    % t-stamps
+                    times(1:nCols-1,actualDataSets)=(0:10:(nCols-2)*10)';
                 case {"QBM","QPP","SFH","SFM","SFP"}
                     nAcq=nAcq+1;
                     fprintf("...parsing file %d/%d: %s ...\n",iSet,nDataSets,files(iSet).name);
@@ -233,15 +245,18 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
                     %
                     tmp=table2array(readtable(sprintf("%s\\%s",files(iSet).folder,files(iSet).name),'HeaderLines',10,'MultipleDelimsAsOne',true));
                     % actual number of columns in file (ie frames+1)
-                    nColumns=size(tmp,2);
+                    nCols=size(tmp,2);
+                    if (nCols>nMaxColsActual), nMaxColsActual=nCols; end
                     % x-axis values
-                    measData(1:Nx,1:nColumns,1,actualDataSets)=tmp(1:Nx,1:nColumns); % values
+                    measData(1:Nx,1:nCols,1,actualDataSets)=tmp(1:Nx,1:nCols); % values
                     % y-axis values
-                    measData(1:Ny,1:nColumns,2,actualDataSets)=tmp(Nx+2:Nx+1+Ny,1:nColumns); % values
+                    measData(1:Ny,1:nCols,2,actualDataSets)=tmp(Nx+2:Nx+1+Ny,1:nCols); % values
                     % check cycle code
                     if ( strcmpi(fFormat,"QBM") || strcmpi(fFormat,"QPP") || strcmpi(fFormat,"SFM") || strcmpi(fFormat,"SFP") )
                         tmpCyCode=extractBetween(tmpCyCode,5,strlength(tmpCyCode));
                     end
+                    % t-stamps
+                    times(1:nCols-1,actualDataSets)=(0:10:(nCols-2)*10)';
             end
             % store cycle prog and cycle code
             cyProgs(actualDataSets)=tmpCyProg;
@@ -258,9 +273,10 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
         nAcquired=size(measData,4);
     end
     fprintf("...for a total of %i cyProgs;\n",nAcquired);
-    if (strcmpi(fFormat,"CAMdumps"))
+    if (nMaxColsActual>0 && nMaxColsActual<nMaxCols)
         % cut away unfilled columns;
-        measData(:,1+maxColumnsActual+1:end,:,:)=[];
+        measData(:,1+nMaxColsActual+1:end,:,:)=[];
+        times(nMaxColsActual+1:end,:)=[];
     end
     if ( nAcquired>0 )
         cyCodes=PadCyCodes(cyCodes);
@@ -280,9 +296,11 @@ function [measData,cyCodes,cyProgs]=ParseBeamProfiles(paths2Files,fFormat)
         end
         cyCodes=cyCodes(idx);
         cyProgs=string(cyProgs);
+        times=times(:,idx);
     else
         measData=missing;
         cyProgs=missing;
         cyCodes=missing;
+        times=missing;
     end
 end
