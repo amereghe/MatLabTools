@@ -34,6 +34,7 @@ function sumData=SumSpectra(data,times)
     
     fprintf("computing sums...\n");
     if (size(times,1)==1 && size(times,2)==1)
+        sprintf("...getting sum profiles...\n");
         sumData=zeros(Nn,nDataSets+1,2);
         sumData(:,1,:)=data(:,1,:,1); % copy positions of fibers on both planes from first data set
         for iSet=1:nDataSets
@@ -41,13 +42,14 @@ function sumData=SumSpectra(data,times)
             sumData(:,iSet+1,:)=sum(data(:,2:end,:,iSet),2,'omitnan');
         end
     else
+        sprintf("...getting time evolution...\n");
         if (nDataSets~=size(times,2))
             error("Inconsistent number of DataSets: %d (profiles) vs %d (timestamps)",...
                 nDataSets,size(times,2));
         end
         nTimes=size(times,1);
         sumData=zeros(nTimes,nDataSets+1,2);
-        % copy positions of fibers on both planes from first data set
+        % copy time values on both planes
         sumData(:,1,1)=times(:,1); % hor plane
         sumData(:,1,2)=times(:,1); % ver plane
         for iSet=1:nDataSets
@@ -55,4 +57,5 @@ function sumData=SumSpectra(data,times)
             sumData(:,iSet+1,:)=sum(data(:,2:end,:,iSet),1,'omitnan');
         end
     end
+    fprintf("...done.\n");
 end
