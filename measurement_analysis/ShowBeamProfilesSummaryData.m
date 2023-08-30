@@ -51,12 +51,12 @@ function ShowBeamProfilesSummaryData(BARs,SIGs,INTs,ASYMs,xVals,xLab,labels,what
     end
     
     % actually generate figure
-    cm=colormap(turbo(nSets));
     if (~ismissing(myTitle))
         ff=figure("Name",LabelMe(myTitle));
     else
         ff=figure();
     end
+    cm=colormap(ff,turbo(nSets));
     iPlot=0;
     if ( nSets==2 )
         markers=[ "o" "*" ];

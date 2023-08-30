@@ -20,8 +20,10 @@ function [axM,axX,axY]=Plot2DHistograms(showMe,showMe1DX,showMe1DY,xINs,yINs,xSh
     %% 2D histogram
     axM=subplot('Position', [0.10, 0.10, 0.6, 0.6]);
     if ( lHist )
+        showMe(isnan(showMe))=0.0; % histogram2 cannot handle NaNs...
         hh=histogram2('XBinEdges',xShow,'YBinEdges',yShow,...
-                      'BinCounts',showMe,'FaceColor','flat','ShowEmptyBins','on');
+                      'BinCounts',showMe,'FaceColor','flat',...
+                      'ShowEmptyBins','on','LineStyle','none');
         view(2); % starts appearing as a 2D plot
     else
         plot(showMe(:,1),showMe(:,2),"k.");
