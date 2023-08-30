@@ -10,7 +10,7 @@ function [profilesOUT,timesOUT]=BeamProfilesConcatenateTimes(profilesIN,timesIN)
 %
 % output variables:
 % - profilesOUT (float(nFibers,Sum_nTimeFrames+1,nPlanes)): acquired profiles;
-% - timesIN (float(Sum_nTimeFrames)): cumulative time series;
+% - timesOUT (float(Sum_nTimeFrames)): cumulative time series;
 %
     fprintf("Concatenating time profiles (as if they all belonged to one extraction)...\n");
     nFibers=size(profilesIN,1);
