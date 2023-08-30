@@ -1,4 +1,17 @@
 function [profilesOUT,timesOUT]=BeamProfilesConcatenateTimes(profilesIN,timesIN)
+% BeamProfilesConcatenateTimes      to concatenate beam profiles and time arrays
+%                                     of beam frames acquired with BD devices
+%                                     and CAMeretta dump as if only one
+%                                     LONG extraction took place
+%
+% input variables:
+% - profilesIN (float(nFibers,nTimeFrames+1,nPlanes,nDataSets)): acquired profiles;
+% - timesIN (float(nTimeFrames,nDataSets)): time series (as read from files);
+%
+% output variables:
+% - profilesOUT (float(nFibers,Sum_nTimeFrames+1,nPlanes)): acquired profiles;
+% - timesIN (float(Sum_nTimeFrames)): cumulative time series;
+%
     fprintf("Concatenating time profiles (as if they all belonged to one extraction)...\n");
     nFibers=size(profilesIN,1);
     nPlanes=size(profilesIN,3);
