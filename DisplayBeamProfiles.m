@@ -126,12 +126,17 @@ for iDataAcq=1:nDataSets
     if ( strcmpi(monTypes(iDataAcq),"CAM") | strcmpi(monTypes(iDataAcq),"DDS") | strcmpi(monTypes(iDataAcq),"GIM") )
         clear tmpCyProgsSumm tmpCyCodesSumm tmpBARsSumm tmpFWHMsSumm tmpASYMsSumm tmpINTsSumm tmpEksSumm tmpMmsSumm;
         [tmpCyProgsSumm,tmpCyCodesSumm,tmpBARsSumm,tmpFWHMsSumm,tmpASYMsSumm,tmpINTsSumm]=ParseBeamProfileSummaryFiles(MonPaths(iDataAcq),monTypes(iDataAcq),lSkip);
-        if (length(tmpCyProgsSumm)<=1), error("...no summary data aquired!"); end
-        % - quick check of consistency of parsed data
-        if (length(tmpCyProgsSumm)~=length(tmpCyProgsProf)), error("...inconsistent data set between summary data and actual profiles"); end
-        % - Eks,mms
-        tmpEksSumm=ConvertCyCodes(tmpCyCodesSumm,"Ek","MeVvsCyCo_P.xlsx");
-        tmpMmsSumm=ConvertCyCodes(tmpCyCodesSumm,"mm","MeVvsCyCo_P.xlsx");
+        if (length(tmpCyProgsSumm)<=1)
+            warning("...no summary data aquired!");
+            tmpEksSumm=NaN();
+            tmpMmsSumm=NaN();
+        else
+            % - quick check of consistency of parsed data
+            if (length(tmpCyProgsSumm)~=length(tmpCyProgsProf)), error("...inconsistent data set between summary data and actual profiles"); end
+            % - Eks,mms
+            tmpEksSumm=ConvertCyCodes(tmpCyCodesSumm,"Ek","MeVvsCyCo_P.xlsx");
+            tmpMmsSumm=ConvertCyCodes(tmpCyCodesSumm,"mm","MeVvsCyCo_P.xlsx");
+        end
         % - store data
         cyProgsSumm=ExpandMat(cyProgsSumm,tmpCyProgsSumm);
         cyCodesSumm=ExpandMat(cyCodesSumm,tmpCyCodesSumm);
