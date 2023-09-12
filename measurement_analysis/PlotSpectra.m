@@ -1,4 +1,4 @@
-function PlotSpectra(dataSets,BaW,addIndex,addLabel)
+function PlotSpectra(dataSets,BaW,addIndex,addLabel,iMod,iNotShow)
 % PlotSpectra     plots distributions/histograms in a 3D space with a free parameter;
 %                 this plotting function can be useful to explore eg
 %                   spectra taken during scans;
@@ -15,33 +15,56 @@ function PlotSpectra(dataSets,BaW,addIndex,addLabel)
 % - addIndex [float(nColumns-1), optional]: list of IDs to be shown;
 %   it can be used to separate distribution by cyProg or cyCode;
 % - addLabel [string, optional]: name of the y-axis;
+% - iMod [integer, optional]: type of plot:
+%   . 1: colored histograms in a 3D view;
+%   . 2: sinogram-like view;
+%   . 3: 3D sinogram-like;
+% - iNotShow: do not show specific rows or columns:
+%   . (array of booleans): length(iNotShow)=length(xs);
+%   . (array of integers): length(iNotShow)<=length(xs);
 %
 % see also ParseSFMData, ShowSpectra and SumSpectra.
 %
+
+    %% pre-processing
     nDataSets=size(dataSets,2)-1;
-    if ( ~exist('BaW','var') )
-        BaW=false;
+    if ( ~exist('BaW','var') ), BaW=false; end
+    if ( ~exist('addIndex','var') | all(ismissing(addIndex)) ), addIndex=1:nDataSets; end
+    if ( ~exist('addLabel','var') | all(ismissing(addLabel)) ), addLabel="ID"; end
+    if ( ~exist('iMod','var') | ismissing(iMod) ), iMod=1; end
+    if (~exist("iNotShow","var")), iNotShow=missing(); end
+
+    %% actually plot
+    switch iMod
+        case 1
+            % colored histograms in a 3D view
+            if ( BaW )
+                cm=gray(nDataSets);
+            else
+                cm=colormap(parula(nDataSets));
+            end
+            for iSet=1:nDataSets
+                if (iSet>1), hold on; end
+                PlotSpectrum(dataSets(:,1),dataSets(:,1+iSet),addIndex(iSet),cm(iSet,:),iNotShow);
+            end
+            ylabel(LabelMe(addLabel));
+        case 2
+            % sinogram-like view
+            l3D=false;
+            PlotSinogram(addIndex,dataSets(:,1),dataSets(:,2:end),l3D,iNotShow);
+            xlabel(LabelMe(addLabel));
+        case 3
+            % 3D sinogram-like
+            l3D=true;
+            PlotSinogram(addIndex,dataSets(:,1),dataSets(:,2:end),l3D,iNotShow);
+            xlabel(LabelMe(addLabel));
+        otherwise
+            error("Wrong mode! %d",iMod);
     end
-    if ( BaW )
-        cm=gray(nDataSets);
-    else
-        cm=colormap(parula(nDataSets));
-    end
-    if ( ~exist('addIndex','var') )
-        addIndex=1:nDataSets;
-    end
-    if ( ~exist('addLabel','var') )
-        addLabel="ID";
-    end
-    for iSet=1:nDataSets
-        PlotSpectrum(dataSets(:,1),dataSets(:,1+iSet),addIndex(iSet),cm(iSet,:));
-        hold on;
-    end
-    ylabel(LabelMe(addLabel));
     grid on;
 end
 
-function PlotSpectrum(xx,yy,iSet,color)
+function PlotSpectrum(xx,yy,iSet,color,iNotShow)
 % PlotSpectrum      function actually plotting a single distribution
 %                   the distribution is plotted as a colored histogram in a 3D
 %                   space, where the axes are:
@@ -55,14 +78,16 @@ function PlotSpectrum(xx,yy,iSet,color)
 %   NB: xx and yy must be row vectors, not column vectors!
 % - iSet [integer]: index of the current data set (will be used as Y-coordinate);
 % - color [float(3)]: RGB codification of color;
+% - iNotShow: do not show specific rows or columns:
+%   . (array of booleans): length(iNotShow)=length(xs);
+%   . (array of integers): length(iNotShow)<=length(xs);
 %
-    plotX=xx;
-    if ( size(plotX,2)== 1 )
-        plotX=plotX';
-    end
-    plotY=yy;
-    if ( size(plotY,2)== 1 )
-        plotY=plotY';
+    if (~exist("iNotShow","var")), iNotShow=missing(); end
+    plotX=xx; plotY=yy;
+    if ( size(plotX,2)== 1 ), plotX=plotX'; end
+    if ( size(plotY,2)== 1 ), plotY=plotY'; end
+    if (any(~ismissing(iNotShow)))
+        plotY(iNotShow)=0.0;
     end
     % get non-zero values
     indices=(plotY~=0.0);

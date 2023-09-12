@@ -26,6 +26,7 @@ function PlotLattice(geometry)
     colK1L=mapping(find(strcmp(colNames,'K1L')));
     colK2L=mapping(find(strcmp(colNames,'K2L')));
     colKey=mapping(find(strcmp(colNames,'KEYWORD')));
+    colName=mapping(find(strcmp(colNames,'NAME')));
     
     % kickers are treated separately
     keywords      =[ "COLLIMATOR" "INSTRUMENT" "MONITOR" "QUADRUPOLE" "RFCAVITY" "SBEND" "RBEND"  "SEXTUPOLE" ];
@@ -40,7 +41,13 @@ function PlotLattice(geometry)
     
     maxS=max(geometry{colS})+geometry{colL}(end);
     minS=min(geometry{colS});
-
+    
+    % auto-detect if S-coordinate is given at the end or at centre of
+    %    element
+    iL=find(geometry{colL}>0);
+    iL=iL(1);
+    lEnd=(geometry{colS}(iL)==geometry{colS}(iL-1)+geometry{colL}(iL));
+    
     % horizontal line, above which elements are displayed
     plot([minS maxS],[0 0],'k');
     
@@ -51,7 +58,7 @@ function PlotLattice(geometry)
         for ii = 1:length(indices)
             
             % get position along line and extension
-            [s,ds]=getSdS(geometry{colS}(indices(ii)),geometry{colL}(indices(ii)));
+            [s,ds]=getSdS(geometry{colS}(indices(ii)),geometry{colL}(indices(ii)),lEnd);
             
             % position of the box
             if ( length(yPosBoxes{jj}) == 2 )
@@ -69,24 +76,28 @@ function PlotLattice(geometry)
             
             % show name
             if (lShowName(jj))
-                showName(s,ds,geometry{1}(indices(ii)),yPosNames(jj),angleNames(jj));
+                showName(s,ds,geometry{colName}(indices(ii)),yPosNames(jj),angleNames(jj));
             end
             
         end
     end
     
     % KICKERs: special treatement
-    indices=find(contains(geometry{2},'KICKER'));
+    indices=find(contains(geometry{colKey},'KICKER'));
     for ii = 1:length(indices)
-        [s,ds]=getSdS(geometry{colS}(indices(ii)),geometry{colL}(indices(ii)));
-        if contains(geometry{1}(indices(ii)),'SP')
+        [s,ds]=getSdS(geometry{colS}(indices(ii)),geometry{colL}(indices(ii)),lEnd);
+        if contains(geometry{colName}(indices(ii)),'SP')
             % septum
             setBox(s,ds,-0.5,1,'m','k');
-            showName(s,ds,geometry{1}(indices(ii)),1,90);
-        elseif contains(geometry{1}(indices(ii)),'BD')
+            showName(s,ds,geometry{colName}(indices(ii)),1,90);
+        elseif contains(geometry{colName}(indices(ii)),'BD')
             % septum
             setBox(s,ds,-0.5,1,[0.5 0.0 0.5],'k');
-            showName(s,ds,geometry{1}(indices(ii)),1,90);
+            showName(s,ds,geometry{colName}(indices(ii)),1,90);
+        elseif contains(geometry{colName}(indices(ii)),'CHD')
+            % chopper HEBT
+            setBox(s,ds,-0.5,1,'m','k');
+            showName(s,ds,geometry{colName}(indices(ii)),1,90);
         else
             % regular corrector magnet
             setBox(s,ds,-0.5,1,'r','k');
@@ -101,8 +112,13 @@ function PlotLattice(geometry)
     
 end
 
-function [z,dz]=getSdS(S,L)
-    z=S-L;
+function [z,dz]=getSdS(S,L,lEnd)
+    if (~exist("lEnd","var")), lEnd=true; end % S-coord given at end
+    if (lEnd)
+        z=S-L;
+    else
+        z=S-L/2.;
+    end
     dz=L;
 end
 

@@ -9,6 +9,7 @@ function [zOut]=Norm2Phys(zIn,beta,alpha,emiG)
 % output:
 % - zOut(float(nPoints,2)): beam population (physical units [m,rad]);
 
+    if (~exist("emiG","var")), emiG=1; end
     % one plane at a time!
     TT=[1 0; -alpha/beta 1/beta]*sqrt(beta*emiG);
     zOut=TT*zIn';

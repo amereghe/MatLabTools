@@ -84,18 +84,16 @@ function X=SolveSigSystem(B,sigs,sig_dpp,initConds,lDebug)
 end
 
 function X=SolveSigSystemActual(A,sigs2,initConds,lDebug)
-    opts.RECT=true;
     if ( ismissing(initConds) )
-        % X=linsolve(A,sigs2,opts);
-        [X,r]=linsolve(A,sigs2,opts);
-        if ( ( size(A,2)==5 && r==3 && sum(A(:,4:5),"all")>0 ) || ( size(A,2)==3 && r==2 ) )
-            if ( lDebug )
-                fprintf("==> new SIG fit %gD, %g points\n",size(A,2),size(A,1));
-            end
-            X=linsolve(A,sigs2,opts); % let MatLab raise the warning
-            if ( lDebug )
-                fprintf("==> done.\n");
-            end
+        if ( lDebug )
+            fprintf("==> new SIG fit %gD, %g points\n",size(A,2),size(A,1));
+        end
+        % solves the linear equation AX = B and minimizes the value of norm(A*X-B).
+        % If several solutions exist to this problem, then lsqminnorm returns the 
+        %   solution that minimizes norm(X)
+        X=lsqminnorm(A,sigs2); % let MatLab raise the warning
+        if ( lDebug )
+            fprintf("==> done.\n");
         end
     else
         % lb=[0 -inf 0]; ub=[inf inf inf]; XC = lsqlin(A,sigs2,[],[],[],[],lb,ub);
