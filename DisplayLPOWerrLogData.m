@@ -10,10 +10,12 @@
 
 %% include libraries
 % - include Matlab libraries
-pathToLibrary="..\externalMatLabTools";
-addpath(genpath(pathToLibrary));
-pathToLibrary=".\";
-addpath(genpath(pathToLibrary));
+if (~exist("pathToLibrary","var"))
+    pathToLibrary="..\externalMatLabTools";
+    addpath(genpath(pathToLibrary));
+    pathToLibrary=".\";
+    addpath(genpath(pathToLibrary));
+end
 
 %% settings
 

@@ -48,6 +48,19 @@ else
     ShowMe(theta0_C*1000,mmEquiv,"\theta [mrad]","H_2O Range [mm]",sprintf("MCS for CARBON ions of %g MeV/u",Ek_C)); set(gca, 'YScale', 'log');
 end
 
+%% show effect of scattering
+L=0.15; % distance travelled by scattered bea, [m]
+if (length(mmEquiv)==1 && (length(Ek_p)>1 || length(Ek_C)>1))
+    % as a function of energy
+    ShowMe(theta0_p*L*1000,Ek_p,"\theta\timesL [mm]","E_k [MeV]",sprintf("MCS for PROTONs after traversing %g mm of water equivalent",mmEquiv)); set(gca, 'YScale', 'log');
+    ShowMe(theta0_C*L*1000,Ek_C,"\theta\timesL [mm]","E_k [MeV/u]",sprintf("MCS for CARBON ions after traversing %g mm of water equivalent",mmEquiv)); set(gca, 'YScale', 'log');
+else
+    % as a function of material thickness
+    ShowMe(theta0_p*1000,mmEquiv,"\theta\timesL [mm]","H_2O Range [mm]",sprintf("MCS for PROTONs of %g MeV",Ek_p)); set(gca, 'YScale', 'log');
+    ShowMe(theta0_C*1000,mmEquiv,"\theta\timesL [mm]","H_2O Range [mm]",sprintf("MCS for CARBON ions of %g MeV/u",Ek_C)); set(gca, 'YScale', 'log');
+end
+
+
 %% local functions
 
 function theta0=ComputeTheta0(beta,pp,z,x,X0)

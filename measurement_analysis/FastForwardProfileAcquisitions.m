@@ -12,7 +12,8 @@ function [measData,cyProgs,cyCodes,actualDataSets]=FastForwardProfileAcquisition
             measData(:,nColumns+1:nColumns+nToInsert,:)=NaN(nRows,nToInsert,nDims);
             cyProgs(nColumns-1+1:nColumns-1+nToInsert)=lastCyProg+1:currCyProg-1;
             cyCodes(nColumns-1+1:nColumns-1+nToInsert)=missing();
-        case {"GIM","PIB","PMM","QBM","SFH","SFM","SFP"}
+            actualDataSets=actualDataSets+nToInsert;
+        case {"GIM","PIB","PMM","QBM","QPP","SFH","SFM","SFP"}
             % profile monitors along beam lines have time-resolved
             %    distributions
             for iFast=1:nToInsert
@@ -22,7 +23,7 @@ function [measData,cyProgs,cyCodes,actualDataSets]=FastForwardProfileAcquisition
                 actualDataSets=actualDataSets+1;
             end
         otherwise
-            error("Not recognised monitor: %s! Available: CAM/DDS and GIM/PIB/PMM/QBM/SFH/SFM/SFP",fFormat);
+            error("Not recognised monitor: %s! Available: CAM, DDS, GIM, PIB/PMM, QBM and QPP/SFH/SFM/SFP",fFormat);
     end
     fprintf("...done.\n");
 end

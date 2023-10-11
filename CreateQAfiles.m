@@ -10,8 +10,11 @@
 
 %% include libraries
 % - include Matlab libraries
-pathToLibrary="./";
-addpath(genpath(pathToLibrary));
+if (~exist("pathToLibrary","var"))
+    pathToLibrary=".\";
+    addpath(genpath(pathToLibrary));
+end
+% - include MachineRefs
 pathToLibrary="../MachineRefs";
 addpath(genpath(pathToLibrary));
 

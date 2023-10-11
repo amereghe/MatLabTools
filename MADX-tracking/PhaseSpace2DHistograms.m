@@ -79,10 +79,6 @@ function PhaseSpace2DHistograms(data,indeces,xIDs,yIDs,nBins,nTot,whichData,curr
         ff=figure('Name',actualTitle,'NumberTitle','off');
     end
     for ii=1:size(xIDs,2)
-        if ( hist1DUsr )
-            actualTitle=sprintf('%s - Ph. Space Hist. - %s',whichData,currTitle);
-            ff=figure('Name',actualTitle,'NumberTitle','off');
-        end
         % grid
         if ( strcmp(lower(whichData),'start') || strcmp(lower(whichData),'starting') )
             % grid covers the entire range of starting conditions
@@ -114,30 +110,17 @@ function PhaseSpace2DHistograms(data,indeces,xIDs,yIDs,nBins,nTot,whichData,curr
         xb = linspace(minX,maxX,nBinsX);
         yb = linspace(minY,maxY,nBinsY);
         
-        % histogram(s)
-        currDataX=data{mapping(xIDs(ii))}(indeces);
-        currDataY=data{mapping(yIDs(ii))}(indeces);
         % histogram on selected particles
-        nCounts=histcounts2(currDataX,currDataY,xb,yb);
-        if ( hist1DUsr )
-            nCountsX=histcounts(currDataX,xb);
-            nCountsY=histcounts(currDataY,yb);
-        end
+        [nCounts,nCountsX,nCountsY]=Get2dHistograms(...
+            data{mapping(xIDs(ii))}(indeces),data{mapping(yIDs(ii))}(indeces),...
+            xb,yb,hist1DUsr);
+        % histogram on starting conditions
         if ( strcmp(lower(whichData),'start') || strcmp(lower(whichData),'starting') )
-            % histogram on starting conditions
-            nCountsAll=histcounts2(data{mapping(xIDs(ii))},data{mapping(yIDs(ii))},xb,yb);
-            if ( hist1DUsr )
-                nCountsXAll=histcounts(data{mapping(xIDs(ii))},xb);
-                nCountsYAll=histcounts(data{mapping(yIDs(ii))},yb);
-            end
+            [nCountsAll,nCountsXAll,nCountsYAll]=Get2dHistograms(...
+                data{mapping(xIDs(ii))},data{mapping(yIDs(ii))},...
+                xb,yb,hist1DUsr);
         end
         
-        % actual plot
-        if ( hist1DUsr )
-            axM=subplot('Position', [0.10, 0.10, 0.6, 0.6]);
-        else
-            axt=subplot(nRows,nCols,ii);
-        end
         % what to plot, exactly?
         if ( strcmp(lower(whichData),'start') || strcmp(lower(whichData),'starting') )
             switch lower(whichPlotUsr)
@@ -196,45 +179,23 @@ function PhaseSpace2DHistograms(data,indeces,xIDs,yIDs,nBins,nTot,whichData,curr
             yShowLabel=sprintf('%s [\\sigma] - \\sigma=%g %s',colNames(yIDs(ii)),...
                 sigmasUsr(yIDs(ii))*colFacts(yIDs(ii)), colUnits(yIDs(ii)));
         end
-        hh=histogram2('XBinEdges',xShow,'YBinEdges',yShow,...
-                      'BinCounts',showMe,'DisplayStyle','tile','ShowEmptyBins','on');
-        
-        % additionals
-        xlabel(xShowLabel);
-        ylabel(yShowLabel);
-        colorbar();
-        % caxis manual;
-        % caxis([cmin cmax]);
-        grid on;
-        % set(axt,'ColorScale','log')
-        
-        % additional 1D histograms
+        % actual plot
         if ( hist1DUsr )
-            
-            % hor variable
-            axX=subplot('Position', [0.10, 0.75, 0.50, 0.15]);
-            edges = xShow(2:end) - 0.5*(xShow(2)-xShow(1));
-            bar(edges,showMe1DX,1);
-            xlim([min(xShow) max(xShow)]);
-            ylabel('[%]');
-            set(axX,'xticklabel',{[]})
+            actualTitle=sprintf('%s - Ph. Space Hist. - %s',whichData,currTitle);
+            Show2DHistograms(showMe,showMe1DX,showMe1DY,xShow,yShow,actualTitle);
+        else
+            axt=subplot(nRows,nCols,ii);
+            hh=histogram2('XBinEdges',xShow,'YBinEdges',yShow,...
+                          'BinCounts',showMe,'DisplayStyle','tile','ShowEmptyBins','on');
+            % additionals
+            xlabel(xShowLabel);
+            ylabel(yShowLabel);
+            colorbar();
+            % caxis manual;
+            % caxis([cmin cmax]);
             grid on;
-
-            % ver variable
-            axY=subplot('Position', [0.75, 0.10, 0.15, 0.6]);
-            edges = yShow(2:end) - 0.5*(yShow(2)-yShow(1));
-            barh(edges,showMe1DY,1);
-            ylim([min(yShow) max(yShow)]);
-            xlabel('[%]');
-            set(axY,'yticklabel',{[]})
-            grid on;
-            
-            linkaxes([axM,axX],'x');
-            linkaxes([axM,axY],'y');
-            sgtitle(actualTitle);
-            
+            % set(axt,'ColorScale','log')
         end
-
     end
     if ( ~hist1DUsr )
         sgtitle(actualTitle);

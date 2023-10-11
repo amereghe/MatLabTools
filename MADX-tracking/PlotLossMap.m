@@ -1,15 +1,15 @@
-function [hh,cc] = PlotLossMap(losses,indeces,dS,maxS,minS,Nbins)
+function [hh,cc] = PlotLossMap(losses,indices,dS,maxS,minS,Nbins)
 % PlotLossMap     plot the longitudinal distribution of losses (histogram)
 %
 % Nota bene: the function does not create a figure or a subplot, they
 % should be created beforehand;
 %
-% [hh,cc] = PlotLossMap(losses,indeces,dS,maxS,minS,Nbins)
+% [hh,cc] = PlotLossMap(losses,indices,dS,maxS,minS,Nbins)
 %
 % input arguments:
 %   losses: table of losses. For the format of the table, please see
 %                 GetVariablesAndMappingParticleData
-%   indeces: index of particles to be plotted (eg to apply some filtering);
+%   indices: index of particles to be plotted (eg to apply some filtering);
 %
 % optional input arguments:
 %   dS:   bin width [m];
@@ -46,7 +46,11 @@ function [hh,cc] = PlotLossMap(losses,indeces,dS,maxS,minS,Nbins)
     
     % compute histogram
     edges=[minSUsr:dsUsr:maxSUsr];
-    [hh,cc] = histcounts(losses{colS}(indeces),edges);
+    if (ismissing(indices))
+        [hh,cc] = histcounts(losses{colS},edges);
+    else
+        [hh,cc] = histcounts(losses{colS}(indices),edges);
+    end
     edges = cc(2:end) - 0.5*(cc(2)-cc(1));
     
     % plot histogram

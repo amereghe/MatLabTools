@@ -11,20 +11,23 @@ function CompareOptics(optics,labels,geometry,whats,myTitle,emig,sigdpp)
     uppWhats=upper(whats);
     switch length(uppWhats)
         case 1
-            if ( strcmp(uppWhats,"BET" ) )
-                usrWhats=[ "BETX" "BETY" ];
-            elseif ( strcmp(uppWhats,"D" ) )
-                usrWhats=[ "DX" "DY" ];
-            elseif ( strcmp(uppWhats,"CO" ) )
-                usrWhats=[ "X" "Y" ];
-            elseif ( strcmp(uppWhats,"SIG" ) )
-                usrWhats=[ "SIGX" "SIGY" ];
-            elseif ( strcmp(uppWhats,"SIGP" ) )
-                usrWhats=[ "SIGPX" "SIGPY" ];
-            elseif ( strcmp(uppWhats,"ENV" ) )
-                usrWhats=[ "ENVX" "ENVY" ];
-            else
-                error("cannot undestand single what %s!",whats);
+            switch uppWhats
+                case "BET"
+                    usrWhats=[ "BETX" "BETY" ];
+                case "MU"
+                    usrWhats=[ "MUX" "MUY" ];
+                case "D"
+                    usrWhats=[ "DX" "DY" ];
+                case "CO"
+                    usrWhats=[ "X" "Y" ];
+                case "SIG"
+                    usrWhats=[ "SIGX" "SIGY" ];
+                case "SIGP"
+                    usrWhats=[ "SIGPX" "SIGPY" ];
+                case "ENV"
+                    usrWhats=[ "ENVX" "ENVY" ];
+                otherwise
+                    error("cannot undestand single what %s!",whats);
             end
         case 2
             usrWhats=uppWhats;
@@ -73,12 +76,12 @@ function CompareOptics(optics,labels,geometry,whats,myTitle,emig,sigdpp)
         % - H plane
         axs{2,1}=subplot(3,nCols,2);
         PlotOptics(optics(:,:),usrWhats(1),emigUsr,sigdppUsr);
-        legend(labels,"Location","best");
+        legend(labels,"Location","best","NumColumns",ceil(nOpts/10.));
         grid on;
         % - V plane
         axs{3,1}=subplot(3,nCols,3);
         PlotOptics(optics(:,:),usrWhats(2),emigUsr,sigdppUsr);
-        legend(labels,"Location","best");
+        legend(labels,"Location","best","NumColumns",ceil(nOpts/10.));
         grid on;
         % - miscellanea
         linkaxes([axs{:,1}],'x');
