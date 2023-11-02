@@ -17,11 +17,12 @@ addpath(genpath(pathToLibrary));
 % - particle
 myPart="PROTON"; % available: "PROTON", "CARBON", "HELIUM"
 
+% NOTA BENE: please choose either an array of values of Ek and a single value
+%            for the range traversed or the other way around;
 % - kinetic energies
 Ek=1:1:250; % [MeV] % proton energies
 % Ek=1:1:400; % [MeV/A] % carbon energies
-% Ek_p=228.57; % single energy
-
+% Ek=228.57; % single energy
 % - range traversed
 mmEquiv=100.0; % [mm]
 % mmEquiv=0.1:0.1:10.1; % [mm]
@@ -30,18 +31,8 @@ mmEquiv=100.0; % [mm]
 X0_H2O=36.08; % [cm]
 
 %% Load particle data
-
-run(".\particleData.m");
-switch upper(myPart)
-    case {"P","PROT","PROTON"}
-        myM=mp; myEk=Ek; myZ=Zp; unitEk="MeV";
-    case {"HE","HELIUM","ALPHA","ALFA"}
-        myM=mHe; myEk=Ek*AHe; myZ=ZHe; unitEk="MeV/u";
-    case {"C","CARB","CARBON"}
-        myM=mC; myEk=Ek*AC; myZ=ZC; unitEk="MeV/u";
-    otherwise
-        error("Unknown particle %s!",myPart);
-end
+% returns: myM [MeV/c2], myEk [MeV], myZ [], unitEk ("MeV" for protons, "MeV/u" for others);
+run(".\setParticle.m");
 
 %% compute MCS scattering tables
 % - relativistic quantities
@@ -58,13 +49,13 @@ else
 end
 
 %% show effect of scattering
-L=0.15; % distance travelled by scattered bea, [m]
+L=0.15; % distance in vacuum travelled by scattered beam [m]
 if (length(mmEquiv)==1 && length(Ek)>1)
     % as a function of energy
     ShowMe(theta0*L*1000,Ek,"\theta\timesL [mm]",sprintf("E_k [%s]",unitEk),sprintf("MCS for %s after traversing %g mm of water equivalent",myPart,mmEquiv)); set(gca, 'YScale', 'log');
 else
     % as a function of material thickness
-    ShowMe(theta0*1000,mmEquiv,"\theta\timesL [mm]","H_2O Range [mm]",sprintf("MCS for %s of %g %s",myPart,Ek_p,unitEk)); set(gca, 'YScale', 'log');
+    ShowMe(theta0*1000,mmEquiv,"\theta\timesL [mm]","H_2O Range [mm]",sprintf("MCS for %s of %g %s",myPart,Ek,unitEk)); set(gca, 'YScale', 'log');
 end
 
 
