@@ -125,16 +125,3 @@ function [DataX,DataY]=ExtractData(EnData,showX,showY)
     end
     
 end
-
-function OutVar=ConfigCheck(InVar,nSets,myName)
-    OutVar=InVar;
-    nIn=length(OutVar);
-    if (nIn<nSets)
-        if (nIn==1)
-            OutVar=strings(nSets,1);
-            OutVar(:)=InVar;
-        else
-            error("multiple values of %s!",myName);
-        end
-    end
-end
