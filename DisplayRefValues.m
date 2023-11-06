@@ -28,13 +28,13 @@ nCoupled=3;
 % -------------------------------------------------------------------------
 % check of user input data
 nSets=max([length(beamPart) length(machine)]);
-beamPart=MyCheck(beamPart,nSets,"beamPart");
-machine=MyCheck(machine,nSets,"machine");
+beamPart=ConfigCheck(beamPart,nSets,"beamPart");
+machine=ConfigCheck(machine,nSets,"machine");
 mSets=max([length(showX) length(showXlabel) length(showY) length(showYlabel)]);
-showX=MyCheck(showX,mSets,"showX");
-showXlabel=MyCheck(showXlabel,mSets,"showXlabel");
-showY=MyCheck(showY,mSets,"showY");
-showYlabel=MyCheck(showYlabel,mSets,"showYlabel");
+showX=ConfigCheck(showX,mSets,"showX");
+showXlabel=ConfigCheck(showXlabel,mSets,"showXlabel");
+showY=ConfigCheck(showY,mSets,"showY");
+showYlabel=ConfigCheck(showYlabel,mSets,"showYlabel");
 
 %% clear variables
 xVals=missing();
@@ -126,7 +126,7 @@ function [DataX,DataY]=ExtractData(EnData,showX,showY)
     
 end
 
-function OutVar=MyCheck(InVar,nSets,myName)
+function OutVar=ConfigCheck(InVar,nSets,myName)
     OutVar=InVar;
     nIn=length(OutVar);
     if (nIn<nSets)

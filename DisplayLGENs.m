@@ -14,21 +14,22 @@ addpath(genpath(pathToLibrary));
 
 % -------------------------------------------------------------------------
 % USER's input data
-machine=["ISO1" "ISO2" "ISO3" "ISO4" ]; % "ISO1" "ISO2" "ISO3" "ISO4"];
+machine=["Sala2H" "Sala2H"];%["ISO1" "ISO2" "ISO3" "ISO4" ]; % "ISO1" "ISO2" "ISO3" "ISO4"];
+machine="ISO3";%["ISO1" "ISO2" "ISO3" "ISO4" ]; % "ISO1" "ISO2" "ISO3" "ISO4"];
 % beamPart=["PROTON" "PROTON" "PROTON" "PROTON" ]; %"CARBON" "CARBON" "CARBON" "CARBON" ];
-beamPart=["CARBON" "CARBON" "CARBON" "CARBON" ];
+beamPart=["PROTON" "CARBON" ];
 % machine="ISO2";
 % beamPart=["PROTON" "CARBON" ];
 config="TM"; % select configuration: TM, RFKO
-myTitle="LGEN values as downloaded on 2023-01-30";
+myTitle="LGEN values";
 % -------------------------------------------------------------------------
 
 % -------------------------------------------------------------------------
 % check of user input data
 nSets=max([length(beamPart) length(machine) length(config)]);
-beamPart=MyCheck(beamPart,nSets,"beamPart");
-machine=MyCheck(machine,nSets,"machine");
-config=MyCheck(config,nSets,"config");
+beamPart=ConfigCheck(beamPart,nSets,"beamPart");
+machine=ConfigCheck(machine,nSets,"machine");
+config=ConfigCheck(config,nSets,"config");
 
 %% clear variables
 [cyCodes,ranges,Eks,Brhos,currents,fields,kicks,psNames,FileNameCurrents,magNames]=...
@@ -72,21 +73,9 @@ end
 %% visual checks
 LGENvisualCheck(psNames,Eks   ,"Ek [MeV/u]",currents,"I [A]",magNames,myTitle,myLeg);
 LGENvisualCheck(psNames,Eks   ,"Ek [MeV/u]",normCurrents,"I/B\rho [A/Tm]",magNames,myTitle,myLeg);
-LGENvisualCheck(psNames,ranges,"range [mm]",currents,"I [A]",magNames,myTitle,myLeg);
+LGENvisualCheck(psNames,ranges,"range [mm]",currents,"I [A]",magNames,myTitle,myLeg,"QUE");
 LGENvisualCheck(psNames,ranges,"range [mm]",normCurrents,"I/B\rho [A/Tm]",magNames,myTitle,myLeg);
 LGENvisualCheck(psNames,Brhos ,"B\rho [Tm]",currents,"I [A]",magNames,myTitle,myLeg);
 LGENvisualCheck(psNames,Brhos ,"B\rho [Tm]",normCurrents,"I/B\rho [A/Tm]",magNames,myTitle,myLeg);
 
 %% local functions
-function OutVar=MyCheck(InVar,nSets,myName)
-    OutVar=InVar;
-    nIn=length(OutVar);
-    if (nIn<nSets)
-        if (nIn==1)
-            OutVar=strings(nSets,1);
-            OutVar(:)=InVar;
-        else
-            error("multiple values of %s!",myName);
-        end
-    end
-end
