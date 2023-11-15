@@ -9,23 +9,28 @@ function [refFWHM,xVals]=Spots_LoadEffectiveSpecs(beamPart,myXwhat,config,spotTy
     FWHMs=missing();
     for iSet=1:nSets
         % - parse DB file
-        clear tmpCyProgs tmpCyCodes tmpBARs tmpFWHMs tmpASYMs tmpINTs tmpXvals;
-        myConfig=sprintf("%s,%s,%s",machine(iSet),beamPart,config);
-        FullFileName=ReturnDefFile(spotType,myConfig);
-        switch upper(spotType)
-            case "STEERPAZ"
-                [tmpCyProgs,tmpCyCodes,tmpBARs,tmpFWHMs,tmpASYMs,tmpINTs]=ParseBeamProfileSummaryFiles(FullFileName,"CAM");
-                if (length(tmpCyProgs)<=1), error("...no ary data aquired!"); end
-            otherwise
-                error("Unknown spot type %s!",spotType);
-        end
-        % - convert cyCodes
-        [tmpXvals,~]=MapCyCodes(tmpCyCodes,myXwhat);
+        [tmpEks,tmpMms,tmpFWHMs]=Spots_LoadRef(machine(iSet),beamPart,config,spotType);
         % - store data
         FWHMs=ExpandMat(FWHMs,tmpFWHMs);
-        if (iSet==1), xVals=tmpXvals; end
+        if (iSet==1)
+            switch upper(myXwhat)
+                case {"RANGE","R","MM"}
+                    xVals=tmpMms;
+                case {"ENERGY","EK","MEV"}
+                    xVals=tmpEks;
+                otherwise
+                    error("...unable to understand request %s!",myXwhat);
+            end
+        end
     end
     % - compute actual reference
-    [FWHMgeoMean,refASYM]=Spots_MeritFWHM(FWHMs);
-    refFWHM=Spots_FWHMRefSeries(FWHMgeoMean,relLev,absLev);
+    switch upper(spotType)
+        case {"STEERINGPAZIENTI","SP","STEERPAZ"}
+            [refFWHM,refASYM]=Spots_MeritFWHM(FWHMs);
+        case {"MEDICALPHYSICS","MP","MEDPHYS"}
+            refFWHM=FWHMs;
+        otherwise
+            error("Unknown spot type %s!",spotType);
+    end
+    refFWHM=Spots_FWHMRefSeries(refFWHM,relLev,absLev);
 end
