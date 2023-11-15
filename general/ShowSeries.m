@@ -40,11 +40,11 @@ function ShowSeries(xVals,yVals,showXlabel,showYlabel,myLeg,myTitles,refY,refX,r
     end
     % - legend
     tmpLeg=[];
-    if (all(~ismissing(myLeg)))
-        tmpLeg=myLeg;
-    end
     if (all(~ismissing(refLeg)))
-        tmpLeg=[tmpLeg refLeg];
+        tmpLeg=refLeg;
+    end
+    if (all(~ismissing(myLeg)))
+        tmpLeg=[tmpLeg myLeg];
     end
     % - actually plot
     for iPlot=1:nShows
