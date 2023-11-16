@@ -5,10 +5,12 @@
 
 %% include libraries
 % - include Matlab libraries
-pathToLibrary="./";
-addpath(genpath(pathToLibrary));
-pathToLibrary="../MachineRefs";
-addpath(genpath(pathToLibrary));
+if (~exist("pathToLibrary","var"))
+    pathToLibrary="./";
+    addpath(genpath(pathToLibrary));
+    pathToLibrary="../MachineRefs";
+    addpath(genpath(pathToLibrary));
+end
 
 %% clear
 clear all;
@@ -19,7 +21,7 @@ close all;
 % -------------------------------------------------------------------------
 % USER's input data
 machine=["Sala1" "Sala2H" "Sala2V" "Sala3"];
-beamPart="CARBON";
+beamPart="PROTON";
 config="TM"; % select configuration: TM, RFKO
 myXwhat="Range"; % show stuff as a function of
 showXlabel="R_{H_2O} [mm]";
