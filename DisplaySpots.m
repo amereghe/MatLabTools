@@ -35,10 +35,9 @@ machine=ConfigCheck(machine,nSets,"machine");
 config=ConfigCheck(config,nSets,"config");
 
 %% clear variables
-[SP_Eks SP_Mms SP_FWHMs]=...
-    deal(missing(),missing(),missing());
-[MP_Eks MP_Mms MP_FWHMs MP_myPos]=...
-    deal(missing(),missing(),missing(),missing());
+[SP_Eks SP_Mms SP_FWHMs]=deal(missing(),missing(),missing());
+[MP_Eks MP_Mms MP_FWHMs MP_myPos]=deal(missing(),missing(),missing(),missing());
+[SPHINX_Mms SPHINX_FWHMs]=deal(missing(),missing());
 
 %% get values
 
@@ -63,8 +62,20 @@ for iSet=1:nSets
     MP_myPos=ExpandMat(MP_myPos,tmpMyPos');
 end
 
+% - acquire data from SPHINX
+for iSet=1:nSets
+    % - parse DB file from SPHINX
+    [~,tmpSPHINX_Mms,tmpSPHINX_FWHMs]=Spots_LoadRef(machine(iSet),beamPart(iSet),config(iSet),"sphinx");
+    % - store data
+    SPHINX_Mms=ExpandMat(SPHINX_Mms,repmat(tmpSPHINX_Mms,[1 size(tmpSPHINX_FWHMs,2)]));
+    SPHINX_FWHMs=ExpandMat(SPHINX_FWHMs,tmpSPHINX_FWHMs);
+end
+
 if (size(MP_FWHMs,3)~=size(SP_FWHMs,3))
-    error("something wrong at parsing: %d MedPhys curves, and %d SteerPaz curves",size(MP_FWHMs,2),size(SP_FWHMs,3));
+    error("something wrong at parsing: %d MedPhys curves, and %d SteerPaz curves",size(MP_FWHMs,3),size(SP_FWHMs,3));
+end
+if (size(SPHINX_FWHMs,3)~=size(SP_FWHMs,3))
+    error("something wrong at parsing: %d Sphinx curves, and %d SteerPaz curves",size(SPHINX_FWHMs,3),size(SP_FWHMs,3));
 end
 
 %% show data
@@ -84,7 +95,13 @@ iISO=(MP_myPos(:,1)==713E-3);
 xRef=MP_Mms(:,iISO,:); yRef=MP_FWHMs(:,iISO,:); yRef=Spots_FWHMRefSeries(yRef);
 ShowSeries(SP_Mms,SP_FWHMs,"R_{H_2O} [mm]","FWHM [mm]",["FWHM_x" "FWHM_y"],myTitles,yRef,xRef,["MP" "MP+" "MP-"]);
 
-% - Medical Physics: various positions (grouped by line)
+% - SPHINX vs Medical Physics
+myTitles=strings(nDataSets,1); myTitles(:)=LineLabs; myTitles(end+1)="SPHINX vs MedPhys";
+iISO=(MP_myPos(:,1)==713E-3);
+xRef=MP_Mms(:,iISO,:); yRef=MP_FWHMs(:,iISO,:); yRef=Spots_FWHMRefSeries(yRef);
+ShowSeries(SPHINX_Mms,SPHINX_FWHMs,"R_{H_2O} [mm]","FWHM [mm]",["SPHINX_x","SPHINX_y","SPHINX_{mean}"],myTitles,yRef,xRef,["MP" "MP+" "MP-"]);
+
+%% - Medical Physics: various positions (grouped by line)
 myTitles=strings(nDataSets,1); myTitles(:)=LineLabs; myTitles(end)="MedPhys - various longitudinal positions";
 myLeg=PosLabs;
 ShowSeries(MP_Mms,MP_FWHMs,"R_{H_2O} [mm]","FWHM [mm]",myLeg,myTitles);
