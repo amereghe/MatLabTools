@@ -1,17 +1,29 @@
-%% description
-%  file for loading the correct particle data
+function [myM,myEk,myZ,myA,unitEk]=setParticle(Ek,myPart)
+%  input:
+%  - myPart: "PROTON"/"CARBON"/"HELIUM";
+%  - Ek (1D array): kinetic energy; protons [MeV]; other: [MeV/u];
+%
+%  output:
+%  - myM: mass of particle [MeV/c2];
+%  - myEk (1D array): kinetic energy [MeV];
+%  - myZ []: charge state of particle;
+%  - myA []: nuclear mass of particle;
+%  - unitEk: "MeV" for protons, "MeV/u" for others;
 
-run(".\particleData.m");
-switch upper(myPart)
-    case {"P","PROT","PROTON"}
-        fprintf("...using PROTON data...");
-        myM=mp; myEk=Ek; myZ=Zp; unitEk="MeV";
-    case {"HE","HELIUM","ALPHA","ALFA"}
-        fprintf("...using HELIUM_4^2+ data...");
-        myM=mHe; myEk=Ek*AHe; myZ=ZHe; unitEk="MeV/u";
-    case {"C","CARB","CARBON"}
-        fprintf("...using CARBON_12^6+ data...");
-        myM=mC; myEk=Ek*AC; myZ=ZC; unitEk="MeV/u";
-    otherwise
-        error("Unknown particle %s!",myPart);
+    run(".\particleData.m");
+    switch upper(myPart)
+        case {"P","PROT","PROTON"}
+            fprintf("...using PROTON data...\n");
+            myM=mp; myEk=Ek; myZ=Zp; unitEk="MeV";
+        otherwise
+            switch upper(myPart)
+                case {"HE","HELIUM","ALPHA","ALFA"}
+                    myA=4; myZ=2; fprintf("...using HELIUM_4^2+ data...\n");
+                case {"C","CARB","CARBON"}
+                    myA=12; myZ=6; fprintf("...using CARBON_12^6+ data...\n");
+                otherwise
+                    error("Unknown particle %s!",myPart);
+            end
+            myM=ComputeMass(myA,myZ); myEk=Ek*myA; unitEk="MeV/u";
+    end
 end

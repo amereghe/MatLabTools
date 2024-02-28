@@ -15,47 +15,56 @@ addpath(genpath(pathToLibrary));
 %% settings
 
 % - particle
-myPart="PROTON"; % available: "PROTON", "CARBON", "HELIUM"
+myPart="CARBON"; % available: "PROTON", "CARBON", "HELIUM"
 
 % NOTA BENE: please choose either an array of values of Ek and a single value
 %            for the range traversed or the other way around;
 % - kinetic energies
-Ek=1:1:250; % [MeV] % proton energies
-% Ek=1:1:400; % [MeV/A] % carbon energies
-% Ek=228.57; % single energy
+% Ek=1:1:250; % [MeV] % proton energies
+Ek=100:1:400; % [MeV/A] % carbon energies
+% Ek=115.23; % single energy
 % - range traversed
-mmEquiv=100.0; % [mm]
+mmEquiv=0.75; % [mm]
 % mmEquiv=0.1:0.1:10.1; % [mm]
 
-% - water material parameters
-X0_H2O=36.08; % [cm]
+% - material
+myMaterial="WATER";
 
 %% Load particle data
 % returns: myM [MeV/c2], myEk [MeV], myZ [], unitEk ("MeV" for protons, "MeV/u" for others);
-run(".\setParticle.m");
+[myM,myEk,myZ,myA,unitEk]=setParticle(Ek,myPart);
+
+%% Load material data
+% returns: ZoA [], I [eV], rho [g/cm3], densEff_plasmaFreq [eV], densEff_C [], 
+%      densEff_x0 [], densEff_x1 [], densEff_a [], densEff_m [], densEff_d0 [], X0l [cm]
+[ZoA,I,rho,densEff_plasmaFreq,densEff_C,densEff_x0,densEff_x1,densEff_a,densEff_m,densEff_d0,X0l]=...
+    setMaterial(myMaterial);
 
 %% compute MCS scattering tables
 % - relativistic quantities
 [myBeta,myGamma,myBetaGamma]=ComputeRelativisticQuantities(myEk,myM);    % [], [], []
 % - MCS theta0 (Moliere's theory)
-theta0=ComputeTheta0(myBeta,myBetaGamma*myM,myZ,mmEquiv,X0_H2O);
+theta0=ComputeTheta0(myBeta,myBetaGamma*myM,myZ,mmEquiv,X0l);
 % - show theta0
 if (length(mmEquiv)==1 && length(Ek)>1)
     % as a function of energy
-    ShowMe(theta0*1000,Ek,"\theta [mrad]",sprintf("E_k [%s]",unitEk),sprintf("MCS for %s after traversing %g mm of water equivalent",myPart,mmEquiv)); set(gca, 'YScale', 'log');
+    ShowMe(theta0*1000,Ek,"\theta [mrad]",sprintf("E_k [%s]",unitEk),sprintf("MCS for %s after traversing %g mm of %s equivalent",myPart,mmEquiv,myMaterial)); set(gca, 'YScale', 'log');
 else
     % as a function of material thickness
-    ShowMe(theta0*1000,mmEquiv,"\theta [mrad]","H_2O Range [mm]",sprintf("MCS for %s of %g %s",myPart,myEk,unitEk)); set(gca, 'YScale', 'log');
+    ShowMe(theta0*1000,mmEquiv,"\theta [mrad]","thickness [mm]",sprintf("MCS for %s of %g %s",myPart,myEk,unitEk)); set(gca, 'YScale', 'log');
 end
+
+%% save data
+save("MCS_CARBON_0.75mmH2O_AnalModel.mat","theta0","Ek");
 
 %% show effect of scattering
 L=0.15; % distance in vacuum travelled by scattered beam [m]
 if (length(mmEquiv)==1 && length(Ek)>1)
     % as a function of energy
-    ShowMe(theta0*L*1000,Ek,"\theta\timesL [mm]",sprintf("E_k [%s]",unitEk),sprintf("MCS for %s after traversing %g mm of water equivalent",myPart,mmEquiv)); set(gca, 'YScale', 'log');
+    ShowMe(theta0*L*1000,Ek,"\theta\timesL [mm]",sprintf("E_k [%s]",unitEk),sprintf("MCS for %s after traversing %g mm of %s equivalent",myPart,mmEquiv,myMaterial)); set(gca, 'YScale', 'log');
 else
     % as a function of material thickness
-    ShowMe(theta0*1000,mmEquiv,"\theta\timesL [mm]","H_2O Range [mm]",sprintf("MCS for %s of %g %s",myPart,Ek,unitEk)); set(gca, 'YScale', 'log');
+    ShowMe(theta0*1000,mmEquiv,"\theta\timesL [mm]","thickness [mm]",sprintf("MCS for %s of %g %s",myPart,Ek,unitEk)); set(gca, 'YScale', 'log');
 end
 
 
