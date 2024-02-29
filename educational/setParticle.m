@@ -10,7 +10,7 @@ function [myM,myEk,myZ,myA,unitEk]=setParticle(Ek,myPart)
 %  - myA []: nuclear mass of particle;
 %  - unitEk: "MeV" for protons, "MeV/u" for others;
 
-    run(".\particleData.m");
+    run(strrep(mfilename('fullpath'),"setParticle","particleData.m"));
     switch upper(myPart)
         case {"P","PROT","PROTON"}
             fprintf("...using PROTON data...\n");
