@@ -7,10 +7,10 @@
 % - material parameters:
 %   . https://pdg.lbl.gov/2022/AtomicNuclearProperties/index.html
 
-% %% include libraries
-% % - include Matlab libraries
-% pathToLibrary="..\";
-% addpath(genpath(pathToLibrary));
+%% include libraries
+% - include Matlab libraries
+pathToLibrary="..\";
+addpath(genpath(pathToLibrary));
 
 %% settings
 
@@ -44,7 +44,6 @@ myMaterial="WATER";
 % - relativistic quantities
 [myBeta,myGamma,myBetaGamma]=ComputeRelativisticQuantities(myEk,myM);    % [], [], []
 % - MCS theta0 (Moliere's theory)
-% theta0=ComputeTheta0(myBeta,myBetaGamma*myM,myZ,mmEquiv,X0l);
 theta0=ComputeMCSthetaRMS(myBeta,myBetaGamma*myM,myZ,mmEquiv,X0l);
 % - show theta0
 if (length(mmEquiv)==1 && length(Ek)>1)
@@ -56,7 +55,7 @@ else
 end
 
 %% save data
-% save("MCS_CARBON_0.75mmH2O_AnalModel.mat","theta0","Ek");
+save("MCS_CARBON_0.75mmH2O_AnalModel.mat","theta0","Ek");
 
 %% show effect of scattering
 L=0.15; % distance in vacuum travelled by scattered beam [m]
@@ -70,15 +69,6 @@ end
 
 
 %% local functions
-
-function theta0=ComputeTheta0(beta,pp,z,x,X0)
-    % theta0 in [rad];
-    % pp in [MeV/c];
-    % x in [mm];
-    % X0 in [cm];
-    theta0=13.6./(beta.*pp)*z*sqrt(x*0.1./X0).*(1+0.038*log((x*0.1./X0)*(z./beta).^2));
-end
-
 function ShowMe(yData,xData,yLab,xLab,myTitle)
     figure();
     plot(xData,yData,".-");
