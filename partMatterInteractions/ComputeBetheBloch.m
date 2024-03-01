@@ -4,9 +4,9 @@ function meanSpower=ComputeBetheBloch(z,beta,betagamma,Wmax,ZoA,I,densCorr)
 %
 % input vars:
 % - z (scalar): particle charge;
-% - beta (1D array): reduced speed (special relativity) [];
-% - betagamma (1D array): product of reduced speed and energy (special
-%   relativity) [];
+% - beta (1D array): reduced speed of particle (special relativity) [];
+% - betagamma (1D array): product of reduced speed and energy of particle
+%  (special relativity) [];
 % - Wmax (1D array, same size as betagamma and gamma): max energy transfer
 %   [MeV];
 % - ZoA (scalar): ratio between atomic number and mass number of the

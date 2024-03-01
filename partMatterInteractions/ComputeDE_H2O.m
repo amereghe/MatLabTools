@@ -8,7 +8,8 @@ function [DEquery,range,dEodx,Ek]=ComputeDE_H2O(EkQuery,myThinckness,myPart,Ek)
 %      dEodx values; protons: [MeV]; ions: [MeV/u];
 %
 % output:
-% - DEquery (1D array): energy loss in water mapped on Ek [MeV];
+% - DEquery (2D array): energy loss in water mapped on Ek [MeV];
+%   NB: DEquery<0 means that the energy is lost!!!
 % - range (1D array): range in water of particles with kinetic energy
 %      EkQuery [mm];
 % - dEodx (1D array): stopping power in water mapped on Ek [MeV/g cm2];
