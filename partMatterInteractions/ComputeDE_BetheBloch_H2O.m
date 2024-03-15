@@ -1,4 +1,4 @@
-function [DEquery,range,dEodx,Ek]=ComputeDE_H2O(EkQuery,myThinckness,myPart,Ek)
+function [DEquery,range,dEodx,Ek]=ComputeDE_BetheBloch_H2O(EkQuery,myThinckness,myPart,Ek)
 % input:
 % - EkQuery (1D array or scalar): kinetic energies for which the DE is
 %      computed; protons: [MeV]; ions: [MeV/u];
