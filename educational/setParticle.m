@@ -14,7 +14,7 @@ function [myM,myEk,myZ,myA,unitEk]=setParticle(Ek,myPart)
     switch upper(myPart)
         case {"P","PROT","PROTON"}
             fprintf("...using PROTON data...\n");
-            myM=mp; myEk=Ek; myZ=Zp; unitEk="MeV";
+            myM=mp; myEk=Ek; myA=Ap; myZ=Zp; unitEk="MeV";
         otherwise
             switch upper(myPart)
                 case {"HE","HELIUM","ALPHA","ALFA"}
