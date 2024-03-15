@@ -39,7 +39,7 @@ function [DEquery,Ek]=ComputeDE_LandauVavilov_H2O(EkQuery,myThinckness,myPart,Ek
     DEquery=NaN(length(EkQuery),length(myThinckness));
     for iThick=1:length(myThinckness)
         % - actual calculation [MeV]
-        DE=ComputeLandauVavilov(myZ,myBeta,myBetaGamma,myThinckness(iThick)/10*rho,ZoA,I,densCorr);
+        DE=-ComputeLandauVavilov(myZ,myBeta,myBetaGamma,myThinckness(iThick)/10*rho,ZoA,I,densCorr);
         % - compute DE [MeV]
         DEquery(:,iThick)=interp1(Ek,DE,EkQuery,"spline");
     end
