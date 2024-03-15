@@ -24,17 +24,17 @@ close all;
 %% settings
 
 % - particle
-myPart="CARBON"; % available: "PROTON", "CARBON", "HELIUM"
+myPart="PROTON"; % available: "PROTON", "CARBON", "HELIUM"
 
 % NOTA BENE: please choose either an array of values of Ek and a single value
 %            for the range traversed or the other way around;
 % - kinetic energies
-% Ek=1:1:1000; % [MeV] % proton energies
-Ek=1:1:400; % [MeV/A] % carbon energies
+Ek=1:1:250; % [MeV] % proton energies
+% Ek=1:1:400; % [MeV/A] % carbon energies
 % Ek=228.57; % single energy
 
 % - range traversed
-mmEquiv=3.67; % [mm]
+mmEquiv=1; % [mm]
 % mmEquiv=0.1:0.1:10.1; % [mm]
 
 % - material
@@ -133,18 +133,6 @@ else
 end
 
 %% local functions
-
-function mpEnLoss=ComputeLandauVavilov(z,beta,betagamma,x,ZoA,I,densCorr)
-    % most probable energy loss according to Landau-Vavilov theory in MeV
-    % - I in [eV];
-    % - x in [g cm-2];
-    K=0.307075; % [MeV cm2 /mol]
-    elMass=0.5109989461; % [MeV/c2]
-    csi=(K/2)*ZoA*z^2*(x./beta.^2);
-    jj=0.20; % []
-    if (~exist("densCorr","var")), densCorr=0.0; end
-    mpEnLoss=csi.*(log(2*elMass*betagamma.^2.*1E6/I)+log(csi*1E6/I)+jj-beta.^2-densCorr);
-end
 
 function ShowMe(yData,xData,yLab,xLab,myTitle,myLegend)
     figure();
