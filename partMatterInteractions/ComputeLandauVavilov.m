@@ -21,7 +21,7 @@ function mpEnLoss=ComputeLandauVavilov(z,beta,betagamma,x,ZoA,I,densCorr)
 %
     K=0.307075; % [MeV cm2 /mol]
     % load particle data; in particular, electron mass me [MeV/c2]
-    run(strrep(mfilename('fullpath'),"partMatterInteractions\ComputeBetheBloch","educational\particleData.m"));
+    run(strrep(mfilename('fullpath'),"partMatterInteractions\ComputeLandauVavilov","educational\particleData.m"));
     csi=(K/2)*ZoA*z^2*(x./beta.^2);
     jj=0.20; % []
     if (~exist("densCorr","var")), densCorr=0.0; end
