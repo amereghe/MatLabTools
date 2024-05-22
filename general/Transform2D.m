@@ -1,5 +1,5 @@
 function [Pout]=Transform2D(Pin,C,angles,lInv)
-    % C, Pin, Pout: 2DxN
+    % C, Pin, Pout: 2xN
     if (~exist("lInv","var")), lInv=false; end % by default, direct transformation
     nPoints=size(Pin,2);
     nAngles=length(angles);
