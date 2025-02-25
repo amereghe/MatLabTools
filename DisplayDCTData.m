@@ -26,20 +26,22 @@ clear kPath DCTpaths
 
 % -------------------------------------------------------------------------
 % USER's input data
-kPath="S:\Accelerating-System\Accelerator-data";
+kPath="P:\Accelerating-System\Accelerator-data";
 % kPath="K:";
-DCTpathMain="\Area dati MD\00monitoraggio\corrente\dct";
+DCTpathMain="\Area dati MD\00monitoraggio\corrente\dcx";
 DCTpaths=[...
-    strcat(kPath,DCTpathMain,"\*\31-03-2022\dct-*_*_*.txt") 
-    strcat(kPath,DCTpathMain,"\*\*-04-2022\dct-*_*_*.txt") 
+    strcat(kPath,DCTpathMain,"\*\20241023\dcx-*_*_*.txt") 
+    strcat(kPath,DCTpathMain,"\*\20241024\dcx-*_*_*.txt") 
+    strcat(kPath,DCTpathMain,"\*\20241025\dcx-*_*_*.txt") 
     ];
+lDCX=true;
 % -------------------------------------------------------------------------
 
 %% parse files
 clear DCTcyProgs DCTcyCodes DCTcurrs DCTtStamps Eks mms
 
 % - parse DCT log files
-[DCTcyProgs,DCTcyCodes,DCTcurrs,DCTtStamps]=ParseDCTFiles(DCTpaths);
+[DCTcyProgs,DCTcyCodes,DCTcurrs,DCTtStamps]=ParseDCTFiles(DCTpaths,lDCX);
 if (length(DCTcurrs)<=1), error("...no data aquired, nothing to plot!"); end
 
 % - get Eks corresponding to list of cyCodes
@@ -56,4 +58,4 @@ labelsToShow=["DCT-Acc\_Part []" "DCT-Inj\_Part []" "T_{Acc/Inj} []"];
 % -------------------------------------------------------------------------
 
 ShowDCTtime(DCTtStamps,dataToShow,DCTcyCodes,Eks,labelsToShow,"HEBT E_k [MeV/u]");
-ShowDCThistograms(dataToShow,DCTcyCodes,Eks,labelsToShow,"HEBT E_k [MeV/u]");
+% ShowDCThistograms(dataToShow,DCTcyCodes,Eks,labelsToShow,"HEBT E_k [MeV/u]");
