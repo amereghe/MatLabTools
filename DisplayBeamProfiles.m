@@ -166,8 +166,8 @@ for iDataAcq=1:nDataSets
         FWHMsSumm=ExpandMat(FWHMsSumm,tmpFWHMsSumm);
         ASYMsSumm=ExpandMat(ASYMsSumm,tmpASYMsSumm);
         INTsSumm=ExpandMat(INTsSumm,tmpINTsSumm);
-        EksSumm=ExpandMat(EksProf,tmpEksSumm);
-        mmsSumm=ExpandMat(mmsProf,tmpMmsSumm);
+        EksSumm=ExpandMat(EksSumm,tmpEksSumm);
+        mmsSumm=ExpandMat(mmsSumm,tmpMmsSumm);
     end
     
 end
